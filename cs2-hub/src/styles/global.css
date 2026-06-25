@@ -1,0 +1,118 @@
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap');
+
+:root {
+  --bg:       #0a0e14;
+  --bg2:      #111720;
+  --bg3:      #161d28;
+  --bg4:      #1e2733;
+  --accent:   #00d4ff;
+  --accent2:  #0099cc;
+  --gold:     #e4ae39;
+  --red:      #eb4b4b;
+  --purple:   #8847ff;
+  --pink:     #d32ce6;
+  --blue:     #4b69ff;
+  --green:    #4caf50;
+  --text:     #c6d4df;
+  --text2:    #7a8a99;
+  --border:   rgba(255,255,255,0.07);
+  --border2:  rgba(0,212,255,0.2);
+  --radius:   10px;
+  --font:     'Rajdhani', sans-serif;
+  --font-mono:'Share Tech Mono', monospace;
+  --font-hud: 'Orbitron', sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 16px;
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+h1, h2, h3, h4 {
+  font-family: var(--font-hud);
+  color: #e8f4f8;
+  line-height: 1.2;
+}
+
+img { max-width: 100%; display: block; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg2); }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+/* Utils */
+.container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
+
+/* Rarity badges */
+.rarity-mil-spec  { color: var(--blue); }
+.rarity-restricted { color: var(--purple); }
+.rarity-classified { color: var(--pink); }
+.rarity-covert    { color: var(--red); }
+.rarity-rare-special { color: var(--gold); }
+
+.badge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.badge-mil-spec   { background: rgba(75,105,255,0.15); color: var(--blue); border: 1px solid rgba(75,105,255,0.3); }
+.badge-restricted { background: rgba(136,71,255,0.15); color: var(--purple); border: 1px solid rgba(136,71,255,0.3); }
+.badge-classified { background: rgba(211,44,230,0.15); color: var(--pink); border: 1px solid rgba(211,44,230,0.3); }
+.badge-covert     { background: rgba(235,75,75,0.15); color: var(--red); border: 1px solid rgba(235,75,75,0.3); }
+.badge-rare-special { background: rgba(228,174,57,0.15); color: var(--gold); border: 1px solid rgba(228,174,57,0.3); }
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: var(--radius);
+  font-family: var(--font);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+  text-decoration: none;
+}
+.btn-primary {
+  background: var(--accent);
+  color: var(--bg);
+}
+.btn-primary:hover { background: #00aadd; text-decoration: none; }
+.btn-ghost {
+  background: transparent;
+  border: 1px solid var(--border2);
+  color: var(--accent);
+}
+.btn-ghost:hover { background: rgba(0,212,255,0.08); text-decoration: none; }
+
+/* Cards */
+.card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  transition: border-color 0.2s;
+}
+.card:hover { border-color: var(--border2); }

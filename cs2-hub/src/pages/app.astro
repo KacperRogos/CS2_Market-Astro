@@ -1,0 +1,804 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const SUPABASE_URL = 'https://sacxklpjteqsbevowrmt.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNhY3hrbHBqdGVxc2Jldm93cm10Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQzNDkxNzAsImV4cCI6MjA4OTkyNTE3MH0.AGcM2iG_xWgj5KgEYWYCaT-SeBBmA1wesuw9n7MwM5s';
+---
+
+<Layout
+  title="Mój portfel skinów CS2"
+  description="Zarządzaj swoim portfelem skinów CS2. Import ze Steam, historia wartości, AI doradca."
+>
+
+<!-- Supabase JS SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js" is:inline></script>
+
+<div id="authScreen" class="auth-screen-wrap">
+  <div class="auth-box">
+    <div class="auth-logo">
+      <h1>CS2 <span>TRADING</span></h1>
+      <p>Tracker skinów Steam</p>
+    </div>
+
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="loginTab" onclick="switchAuthTab('login')">Logowanie</button>
+      <button class="auth-tab" id="registerTab" onclick="switchAuthTab('register')">Rejestracja</button>
+    </div>
+
+    <!-- Login -->
+    <div id="loginForm">
+      <div class="auth-field">
+        <label>Login lub email</label>
+        <input type="text" id="loginUsername" placeholder="Nazwa użytkownika lub email" autocomplete="username" />
+      </div>
+      <div class="auth-field">
+        <label>Hasło</label>
+        <input type="password" id="loginPassword" placeholder="Twoje hasło" autocomplete="current-password" onkeydown="if(event.key==='Enter') doLogin()" />
+      </div>
+      <button class="auth-btn" onclick="doLogin()" id="loginBtn">ZALOGUJ</button>
+    </div>
+
+    <!-- Register -->
+    <div id="registerForm" style="display:none">
+      <div class="auth-field">
+        <label>Nazwa użytkownika</label>
+        <input type="text" id="regUsername" placeholder="Wybierz login (min. 3 znaki)" autocomplete="username" />
+      </div>
+      <div class="auth-field">
+        <label>Email <span style="color:var(--text2);font-size:10px">(opcjonalne)</span></label>
+        <div class="auth-email-wrap">
+          <input type="text" id="regEmailPrefix" placeholder="twójemail" autocomplete="off" oninput="previewEmail(this.value)" />
+          <span class="auth-email-domain">@cs2-market.app</span>
+        </div>
+        <div class="auth-email-preview" id="emailPreview" style="display:none">
+          Będziesz logować się też jako: <span id="emailPreviewText"></span>
+        </div>
+      </div>
+      <div class="auth-field">
+        <label>Hasło</label>
+        <input type="password" id="regPassword" placeholder="Hasło (min. 6 znaków)" autocomplete="new-password" onkeydown="if(event.key==='Enter') doRegister()" />
+      </div>
+      <div class="auth-field">
+        <label>Link do profilu Steam <span style="color:var(--text2);font-size:10px">(opcjonalne)</span></label>
+        <input type="text" id="regSteamId" placeholder="https://steamcommunity.com/id/nazwa" />
+      </div>
+      <button class="auth-btn" onclick="doRegister()" id="registerBtn">ZAREJESTRUJ</button>
+    </div>
+
+    <div class="auth-error" id="authError" style="display:none"></div>
+    <div class="auth-success" id="authSuccess" style="display:none"></div>
+
+    <div class="auth-divider">
+      <span>lub</span>
+    </div>
+    <button class="btn-guest" onclick="loginAsGuest()">
+      Zaloguj jako gość
+    </button>
+    <div class="auth-guest-note">Tryb demo · dane nie są zapisywane</div>
+  </div>
+</div>
+
+<!-- APP (hidden until login) -->
+<div id="appContent" style="display:none">
+  <div class="app-header">
+    <div class="app-header-left">
+      <span class="app-username" id="headerUsername"></span>
+    </div>
+    <div class="portfolio-total">
+      Wartość portfela: <span id="totalDisplay" class="total-amount">0,00 zł</span>
+    </div>
+    <button class="btn-logout" onclick="doLogout()">Wyloguj</button>
+  </div>
+
+  <div class="app-tabs">
+    <button class="tab-btn active" data-tab="portfolio">📦 Portfel</button>
+    <button class="tab-btn" data-tab="search">🔍 Wyszukaj</button>
+    <button class="tab-btn" data-tab="ai">🤖 AI Doradca</button>
+  </div>
+
+  <!-- Portfel -->
+  <div id="tab-portfolio" class="tab-panel">
+    <div class="panel-actions">
+      <button class="btn btn-primary" onclick="openAddModal()">+ Dodaj skin</button>
+      <button class="btn btn-ghost" onclick="refreshAllItems()">↻ Odśwież ceny</button>
+    </div>
+    <div id="portfolioItems" class="portfolio-list"></div>
+  </div>
+
+  <!-- Szukaj -->
+  <div id="tab-search" class="tab-panel" style="display:none">
+    <div class="search-bar">
+      <input type="text" id="skinSearch" placeholder="np. AK-47 | Redline (Field-Tested)..." autocomplete="off" onkeydown="if(event.key==='Enter') searchSkin()" />
+      <button class="btn btn-primary" onclick="searchSkin()">Szukaj</button>
+    </div>
+    <div id="searchResults"></div>
+  </div>
+
+  <!-- AI -->
+  <div id="tab-ai" class="tab-panel" style="display:none">
+    <div class="ai-chat" id="aiChat"></div>
+    <div class="ai-input-row">
+      <input type="text" id="aiInput" placeholder="Zapytaj o rynek, inwestycje, trading..." onkeydown="if(event.key==='Enter') sendAI()" />
+      <button class="btn btn-primary" onclick="sendAI()">Wyślij</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Modal -->
+<div id="addModal" class="modal-overlay" style="display:none">
+  <div class="modal">
+    <h3>Dodaj skin do portfela</h3>
+    <div class="modal-field"><label>Pełna nazwa (Steam Market)</label><input id="m-name" placeholder="np. AK-47 | Redline (Field-Tested)" /></div>
+    <div class="modal-field"><label>Ilość</label><input id="m-qty" type="number" value="1" min="1" /></div>
+    <div class="modal-actions">
+      <button class="btn btn-primary" onclick="saveNewItem()">Dodaj</button>
+      <button class="btn btn-ghost" onclick="closeModal()">Anuluj</button>
+    </div>
+  </div>
+</div>
+
+</Layout>
+
+<script define:vars={{ SUPABASE_URL, SUPABASE_KEY }}>
+// Wait for Supabase SDK
+function waitForSB(cb) {
+  if (window.supabase) { cb(); return; }
+  setTimeout(() => waitForSB(cb), 50);
+}
+
+waitForSB(() => {
+  const _sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  const FUNCTIONS_URL = `${SUPABASE_URL}/functions/v1`;
+
+  let currentUser = null;
+  let items = JSON.parse(localStorage.getItem('cs2_items') || '[]');
+  let aiHistory = [];
+  const priceCache = new Map();
+
+  // ── AUTH HELPERS ──────────────────────────────────────────
+
+  window.switchAuthTab = function(tab) {
+    document.getElementById('loginForm').style.display = tab === 'login' ? '' : 'none';
+    document.getElementById('registerForm').style.display = tab === 'register' ? '' : 'none';
+    document.getElementById('loginTab').className = 'auth-tab' + (tab === 'login' ? ' active' : '');
+    document.getElementById('registerTab').className = 'auth-tab' + (tab === 'register' ? ' active' : '');
+    hideAuthMessages();
+  };
+
+  function showAuthError(msg) {
+    const el = document.getElementById('authError');
+    el.textContent = msg; el.style.display = 'block';
+    document.getElementById('authSuccess').style.display = 'none';
+  }
+
+  function showAuthSuccess(msg) {
+    const el = document.getElementById('authSuccess');
+    el.textContent = msg; el.style.display = 'block';
+    document.getElementById('authError').style.display = 'none';
+  }
+
+  function hideAuthMessages() {
+    document.getElementById('authError').style.display = 'none';
+    document.getElementById('authSuccess').style.display = 'none';
+  }
+
+  window.previewEmail = function(val) {
+    const preview = document.getElementById('emailPreview');
+    const clean = val.trim().toLowerCase().replace(/[^a-z0-9._-]/g, '');
+    if (clean) {
+      preview.style.display = 'block';
+      document.getElementById('emailPreviewText').textContent = clean + '@cs2-market.app';
+    } else {
+      preview.style.display = 'none';
+    }
+  };
+
+  // ── LOGIN ─────────────────────────────────────────────────
+
+  window.doLogin = async function() {
+    const input = document.getElementById('loginUsername').value.trim();
+    const password = document.getElementById('loginPassword').value;
+    if (!input || !password) { showAuthError('Wpisz login/email i hasło'); return; }
+
+    const btn = document.getElementById('loginBtn');
+    btn.disabled = true; btn.textContent = 'Logowanie...';
+
+    try {
+      let email = input.includes('@') ? input.toLowerCase() : `${input.toLowerCase()}@cs2-market.app`;
+      let result = await _sb.auth.signInWithPassword({ email, password });
+
+      if (result.error) {
+        const { data: profileData } = await _sb.from('profiles')
+          .select('username').eq('email_alias', email).single();
+        if (profileData?.username) {
+          const primaryEmail = `${profileData.username.toLowerCase()}@cs2-market.app`;
+          result = await _sb.auth.signInWithPassword({ email: primaryEmail, password });
+        }
+      }
+
+      if (result.error) throw result.error;
+      await onLoginSuccess(result.data.user);
+    } catch(e) {
+      showAuthError('Błędny login/email lub hasło');
+    } finally {
+      btn.disabled = false; btn.textContent = 'ZALOGUJ';
+    }
+  };
+
+  // ── REGISTER ──────────────────────────────────────────────
+
+  window.doRegister = async function() {
+    const username = document.getElementById('regUsername').value.trim();
+    const emailPrefix = document.getElementById('regEmailPrefix').value.trim().toLowerCase().replace(/[^a-z0-9._-]/g, '');
+    const password = document.getElementById('regPassword').value;
+    const steamId = document.getElementById('regSteamId').value.trim();
+
+    if (!username || username.length < 3) { showAuthError('Login musi mieć min. 3 znaki'); return; }
+    if (!password || password.length < 6) { showAuthError('Hasło musi mieć min. 6 znaków'); return; }
+    if (!/^[a-zA-Z0-9_]+$/.test(username)) { showAuthError('Login może zawierać tylko litery, cyfry i _'); return; }
+
+    const btn = document.getElementById('registerBtn');
+    btn.disabled = true; btn.textContent = 'Rejestracja...';
+
+    try {
+      const primaryEmail = `${username.toLowerCase()}@cs2-market.app`;
+      const emailAlias = emailPrefix && emailPrefix !== username.toLowerCase()
+        ? `${emailPrefix}@cs2-market.app` : null;
+
+      const { data, error } = await _sb.auth.signUp({ email: primaryEmail, password });
+      if (error) throw error;
+
+      const { error: profileError } = await _sb.from('profiles').insert({
+        id: data.user.id,
+        username,
+        steam_id: steamId || null,
+        email_alias: emailAlias || null
+      });
+      if (profileError) throw profileError;
+
+      showAuthSuccess('Konto utworzone! Możesz się zalogować.');
+      switchAuthTab('login');
+      document.getElementById('loginUsername').value = username;
+    } catch(e) {
+      if (e.message?.includes('duplicate') || e.message?.includes('already')) {
+        showAuthError('Ten login jest już zajęty');
+      } else {
+        showAuthError('Błąd rejestracji: ' + e.message);
+      }
+    } finally {
+      btn.disabled = false; btn.textContent = 'ZAREJESTRUJ';
+    }
+  };
+
+  // ── GUEST ─────────────────────────────────────────────────
+
+  window.loginAsGuest = async function() {
+    const btn = document.querySelector('.btn-guest');
+    if (btn) { btn.disabled = true; btn.textContent = 'Logowanie...'; }
+
+    currentUser = null;
+    items = [
+      { id: 1, name: 'AK-47 | Redline (Field-Tested)', qty: 1, price: null, iconUrl: '', loading: false },
+      { id: 2, name: 'AWP | Asiimov (Field-Tested)', qty: 1, price: null, iconUrl: '', loading: false },
+      { id: 3, name: 'Kilowatt Case', qty: 5, price: null, iconUrl: '', loading: false },
+    ];
+    localStorage.setItem('cs2_items', JSON.stringify(items));
+    document.getElementById('headerUsername').textContent = 'Gość';
+    showApp();
+
+    if (btn) { btn.disabled = false; btn.textContent = 'Zaloguj jako gość'; }
+    setTimeout(() => refreshAllItems(), 300);
+  };
+
+  // ── ON LOGIN SUCCESS ───────────────────────────────────────
+
+  async function onLoginSuccess(user) {
+    currentUser = user;
+    try {
+      const { data: profile } = await _sb.from('profiles').select('*').eq('id', user.id).single();
+      document.getElementById('headerUsername').textContent = profile?.username || user.email?.split('@')[0] || 'user';
+
+      const { data: portfolio } = await _sb.from('portfolios').select('items').eq('user_id', user.id).single();
+      if (portfolio?.items?.length) {
+        items = portfolio.items;
+        localStorage.setItem('cs2_items', JSON.stringify(items));
+      }
+    } catch(e) {
+      document.getElementById('headerUsername').textContent = user.email?.split('@')[0] || 'user';
+    }
+    showApp();
+  }
+
+  window.doLogout = async function() {
+    await _sb.auth.signOut();
+    currentUser = null;
+    items = [];
+    localStorage.removeItem('cs2_items');
+    priceCache.clear();
+    aiHistory = [];
+    document.getElementById('appContent').style.display = 'none';
+    document.getElementById('authScreen').style.display = 'flex';
+    document.getElementById('headerUsername').textContent = '';
+    renderPortfolio();
+  };
+
+  function showApp() {
+    document.getElementById('authScreen').style.display = 'none';
+    document.getElementById('appContent').style.display = 'block';
+    renderPortfolio();
+  }
+
+  // ── SAVE TO SUPABASE ──────────────────────────────────────
+
+  async function saveToSupabase() {
+    if (!currentUser) return;
+    try {
+      await _sb.from('portfolios').upsert({
+        user_id: currentUser.id,
+        items,
+        updated_at: new Date().toISOString()
+      }, { onConflict: 'user_id' });
+    } catch(e) {}
+  }
+
+  // ── TABS ──────────────────────────────────────────────────
+
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.style.display = 'none');
+      btn.classList.add('active');
+      document.getElementById(`tab-${btn.dataset.tab}`).style.display = 'block';
+    });
+  });
+
+  // ── PORTFOLIO ─────────────────────────────────────────────
+
+  function renderPortfolio() {
+    const container = document.getElementById('portfolioItems');
+    if (!container) return;
+
+    if (!items.length) {
+      container.innerHTML = `<div class="empty-state"><p>Brak skinów w portfelu. Kliknij "+ Dodaj skin" żeby zacząć.</p></div>`;
+      document.getElementById('totalDisplay').textContent = '0,00 zł';
+      return;
+    }
+
+    const total = items.reduce((s, i) => s + (i.price || 0) * i.qty, 0);
+    document.getElementById('totalDisplay').textContent = total.toFixed(2).replace('.', ',') + ' zł';
+
+    container.innerHTML = items.map((item, idx) => `
+      <div class="portfolio-item">
+        <div class="pi-info">
+          <div class="pi-name">${item.name}</div>
+          <div class="pi-qty">×${item.qty}</div>
+        </div>
+        <div class="pi-price-col">
+          ${item.loading
+            ? '<span class="pi-loading">Ładowanie...</span>'
+            : item.price !== null
+              ? `<span class="pi-price">${(item.price * item.qty).toFixed(2).replace('.', ',')} zł</span><span class="pi-unit">${item.price.toFixed(2).replace('.', ',')} zł/szt</span>`
+              : '<span class="pi-no-price">–</span>'
+          }
+        </div>
+        <div class="pi-actions">
+          <button class="pi-btn pi-refresh" onclick="refreshItem(${idx})" title="Odśwież cenę">↻</button>
+          <button class="pi-btn pi-remove" onclick="removeItem(${idx})" title="Usuń">✕</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  window.removeItem = function(idx) {
+    items.splice(idx, 1);
+    localStorage.setItem('cs2_items', JSON.stringify(items));
+    saveToSupabase();
+    renderPortfolio();
+  };
+
+  window.refreshItem = async function(idx) {
+    const item = items[idx];
+    if (!item) return;
+    item.loading = true;
+    renderPortfolio();
+    const price = await fetchPrice(item.name);
+    item.price = price;
+    item.loading = false;
+    localStorage.setItem('cs2_items', JSON.stringify(items));
+    saveToSupabase();
+    renderPortfolio();
+  };
+
+  window.refreshAllItems = async function() {
+    for (let i = 0; i < items.length; i++) {
+      items[i].loading = true;
+    }
+    renderPortfolio();
+    for (let i = 0; i < items.length; i++) {
+      const price = await fetchPrice(items[i].name);
+      items[i].price = price;
+      items[i].loading = false;
+      renderPortfolio();
+    }
+    localStorage.setItem('cs2_items', JSON.stringify(items));
+    saveToSupabase();
+  };
+
+  // ── PRICE FETCH ───────────────────────────────────────────
+
+  async function fetchPrice(name) {
+    if (priceCache.has(name)) return priceCache.get(name);
+    try {
+      const res = await fetch(`${FUNCTIONS_URL}/steam-price`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': SUPABASE_KEY,
+          'Authorization': `Bearer ${SUPABASE_KEY}`
+        },
+        body: JSON.stringify({ itemName: name })
+      });
+      const data = await res.json();
+      const raw = data?.lowest_price || data?.median_price || null;
+      if (!raw) return null;
+      const price = parseFloat(raw.replace(/[^0-9.,]/g, '').replace(',', '.'));
+      if (!isNaN(price)) { priceCache.set(name, price); return price; }
+      return null;
+    } catch(e) { return null; }
+  }
+
+  // ── SEARCH ────────────────────────────────────────────────
+
+  window.searchSkin = async function() {
+    const query = document.getElementById('skinSearch').value.trim();
+    if (!query) return;
+    const results = document.getElementById('searchResults');
+    results.innerHTML = '<p class="search-loading">Szukam...</p>';
+    try {
+      const res = await fetch(`${FUNCTIONS_URL}/steam-price`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': SUPABASE_KEY,
+          'Authorization': `Bearer ${SUPABASE_KEY}`
+        },
+        body: JSON.stringify({ itemName: query })
+      });
+      const data = await res.json();
+      if (data?.lowest_price || data?.median_price) {
+        results.innerHTML = `
+          <div class="search-result-card">
+            <div class="sr-name">${query}</div>
+            <div class="sr-price">Najniższa cena: <strong>${data.lowest_price || '–'}</strong></div>
+            ${data.median_price ? `<div class="sr-info">Mediana: ${data.median_price}</div>` : ''}
+            ${data.volume ? `<div class="sr-info">Wolumen: ${data.volume}/dzień</div>` : ''}
+            <button onclick="addFromSearch('${query.replace(/'/g, "\\'")}', '${(data.lowest_price || '0').replace(/'/g, "\\'")}')" class="btn btn-ghost" style="margin-top:14px">+ Dodaj do portfela</button>
+          </div>`;
+      } else {
+        results.innerHTML = '<p class="search-empty">Brak wyników. Podaj pełną nazwę skina z Steam Market.</p>';
+      }
+    } catch(e) {
+      results.innerHTML = '<p class="search-error">Błąd połączenia. Spróbuj ponownie.</p>';
+    }
+  };
+
+  window.addFromSearch = function(name, priceStr) {
+    const price = parseFloat(priceStr.replace(/[^0-9.,]/g, '').replace(',', '.')) || null;
+    items.push({ id: Date.now(), name, qty: 1, price, iconUrl: '', loading: false });
+    localStorage.setItem('cs2_items', JSON.stringify(items));
+    saveToSupabase();
+    alert('Dodano do portfela!');
+  };
+
+  // ── ADD MODAL ─────────────────────────────────────────────
+
+  window.openAddModal = function() {
+    document.getElementById('addModal').style.display = 'flex';
+    document.getElementById('m-name').focus();
+  };
+
+  window.closeModal = function() {
+    document.getElementById('addModal').style.display = 'none';
+  };
+
+  window.saveNewItem = async function() {
+    const name = document.getElementById('m-name').value.trim();
+    const qty = parseInt(document.getElementById('m-qty').value) || 1;
+    if (!name) return;
+    const newItem = { id: Date.now(), name, qty, price: null, iconUrl: '', loading: true };
+    items.push(newItem);
+    renderPortfolio();
+    closeModal();
+    document.getElementById('m-name').value = '';
+    document.getElementById('m-qty').value = '1';
+    const price = await fetchPrice(name);
+    const idx = items.findIndex(i => i.id === newItem.id);
+    if (idx >= 0) { items[idx].price = price; items[idx].loading = false; }
+    localStorage.setItem('cs2_items', JSON.stringify(items));
+    saveToSupabase();
+    renderPortfolio();
+  };
+
+  // ── AI CHAT ───────────────────────────────────────────────
+
+  window.sendAI = async function() {
+    const input = document.getElementById('aiInput');
+    const msg = input.value.trim();
+    if (!msg) return;
+    input.value = '';
+    const chat = document.getElementById('aiChat');
+    appendMsg(chat, 'user', msg);
+    aiHistory.push({ role: 'user', content: msg });
+    const thinking = appendMsg(chat, 'ai', '...');
+
+    try {
+      const portfolioValue = items.reduce((s, i) => s + (i.price || 0) * i.qty, 0);
+      const res = await fetch(`${FUNCTIONS_URL}/ai-chat`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': SUPABASE_KEY,
+          'Authorization': `Bearer ${SUPABASE_KEY}`
+        },
+        body: JSON.stringify({ messages: aiHistory, portfolioValue })
+      });
+      const data = await res.json();
+      const reply = data?.content?.[0]?.text || data?.message || 'Brak odpowiedzi.';
+      thinking.textContent = reply;
+      aiHistory.push({ role: 'assistant', content: reply });
+    } catch(e) {
+      thinking.textContent = 'Błąd połączenia z AI. Spróbuj ponownie.';
+    }
+  };
+
+  function appendMsg(container, role, text) {
+    const el = document.createElement('div');
+    el.className = `chat-msg chat-${role}`;
+    el.textContent = text;
+    container.appendChild(el);
+    container.scrollTop = container.scrollHeight;
+    return el;
+  }
+
+  // ── MODAL CLOSE ON CLICK OUTSIDE ─────────────────────────
+
+  document.getElementById('addModal').addEventListener('click', function(e) {
+    if (e.target === this) closeModal();
+  });
+
+  // ── INIT ──────────────────────────────────────────────────
+
+  (async () => {
+    const { data: { session } } = await _sb.auth.getSession();
+    if (session) {
+      await onLoginSuccess(session.user);
+    }
+
+    _sb.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_OUT') {
+        document.getElementById('authScreen').style.display = 'flex';
+        document.getElementById('appContent').style.display = 'none';
+      } else if (event === 'TOKEN_REFRESHED' && session) {
+        currentUser = session.user;
+      }
+    });
+  })();
+});
+</script>
+
+<style>
+/* Auth screen */
+.auth-screen-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 64px);
+  padding: 40px 20px;
+}
+.auth-box {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 36px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+}
+.auth-logo { text-align: center; margin-bottom: 28px; }
+.auth-logo h1 { font-family: var(--font-hud); font-size: 28px; font-weight: 900; letter-spacing: 3px; color: #e8f4f8; }
+.auth-logo h1 span { color: var(--accent); }
+.auth-logo p { font-family: var(--font-mono); font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--text2); margin-top: 6px; }
+
+.auth-tabs { display: flex; gap: 4px; margin-bottom: 24px; background: var(--bg3); border-radius: 8px; padding: 4px; }
+.auth-tab {
+  flex: 1; padding: 8px; background: none; border: none;
+  border-radius: 6px; font-family: var(--font); font-size: 14px;
+  font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+  color: var(--text2); cursor: pointer; transition: all 0.2s;
+}
+.auth-tab.active { background: var(--bg4); color: var(--accent); }
+
+.auth-field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+.auth-field label { font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--text2); }
+.auth-field input {
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: 8px; padding: 11px 14px; color: #e8f4f8;
+  font-family: var(--font); font-size: 15px; outline: none; transition: border-color 0.2s;
+  width: 100%;
+}
+.auth-field input:focus { border-color: var(--accent); }
+
+.auth-email-wrap { display: flex; align-items: center; gap: 0; }
+.auth-email-wrap input { border-radius: 8px 0 0 8px; flex: 1; }
+.auth-email-domain {
+  background: var(--bg4); border: 1px solid var(--border); border-left: none;
+  border-radius: 0 8px 8px 0; padding: 11px 12px;
+  font-family: var(--font-mono); font-size: 12px; color: var(--text2); white-space: nowrap;
+}
+.auth-email-preview { font-family: var(--font-mono); font-size: 11px; color: var(--accent); margin-top: 4px; }
+
+.auth-btn {
+  width: 100%; padding: 12px; background: var(--accent);
+  border: none; border-radius: 8px; color: var(--bg);
+  font-family: var(--font); font-size: 14px; font-weight: 700;
+  letter-spacing: 2px; text-transform: uppercase; cursor: pointer;
+  transition: background 0.2s; margin-top: 4px;
+}
+.auth-btn:hover { background: #00aadd; }
+.auth-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.auth-error {
+  background: rgba(235,75,75,0.12); border: 1px solid rgba(235,75,75,0.3);
+  border-radius: 8px; padding: 10px 14px; font-size: 13px; color: var(--red); margin-top: 12px;
+}
+.auth-success {
+  background: rgba(76,175,80,0.12); border: 1px solid rgba(76,175,80,0.3);
+  border-radius: 8px; padding: 10px 14px; font-size: 13px; color: var(--green); margin-top: 12px;
+}
+
+.auth-divider {
+  text-align: center; margin: 20px 0 12px;
+  display: flex; align-items: center; gap: 12px;
+}
+.auth-divider::before, .auth-divider::after {
+  content: ''; flex: 1; height: 1px; background: var(--border);
+}
+.auth-divider span { font-family: var(--font-mono); font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--text2); }
+
+.btn-guest {
+  width: 100%; padding: 11px;
+  background: transparent; border: 1px dashed var(--border2);
+  border-radius: 8px; color: var(--text2);
+  font-family: var(--font); font-size: 14px; font-weight: 700;
+  letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer; transition: all 0.2s;
+}
+.btn-guest:hover { border-color: var(--accent); color: var(--accent); }
+.btn-guest:disabled { opacity: 0.5; cursor: not-allowed; }
+.auth-guest-note { text-align: center; font-family: var(--font-mono); font-size: 10px; color: var(--text2); opacity: 0.5; margin-top: 8px; }
+
+/* App */
+#appContent { padding: 0 0 60px; }
+.app-header {
+  display: flex; align-items: center; gap: 16px;
+  padding: 16px 0 20px; border-bottom: 1px solid var(--border); margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+.app-username { font-family: var(--font-hud); font-size: 16px; color: var(--accent); }
+.portfolio-total { margin-left: auto; font-size: 14px; color: var(--text2); }
+.total-amount { font-family: var(--font-hud); font-size: 22px; font-weight: 700; color: var(--accent); margin-left: 8px; }
+.btn-logout {
+  background: transparent; border: 1px solid var(--border);
+  border-radius: 6px; padding: 6px 14px; color: var(--text2);
+  font-family: var(--font); font-size: 12px; font-weight: 600;
+  letter-spacing: 1px; text-transform: uppercase; cursor: pointer; transition: all 0.2s;
+}
+.btn-logout:hover { border-color: var(--red); color: var(--red); }
+
+/* Tabs */
+.app-tabs { display: flex; gap: 4px; margin-bottom: 24px; border-bottom: 1px solid var(--border); }
+.tab-btn {
+  background: none; border: none; border-bottom: 2px solid transparent;
+  padding: 10px 18px; margin-bottom: -1px;
+  font-family: var(--font); font-size: 14px; font-weight: 700;
+  color: var(--text2); cursor: pointer; transition: all 0.2s;
+}
+.tab-btn:hover { color: var(--accent); }
+.tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+/* Portfolio */
+.panel-actions { display: flex; gap: 10px; margin-bottom: 20px; }
+.empty-state { text-align: center; padding: 48px 20px; color: var(--text2); }
+.portfolio-list { display: flex; flex-direction: column; gap: 10px; }
+.portfolio-item {
+  display: flex; align-items: center; gap: 16px;
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 14px 18px;
+  transition: border-color 0.2s;
+}
+.portfolio-item:hover { border-color: var(--border2); }
+.pi-info { flex: 1; }
+.pi-name { font-size: 15px; font-weight: 700; color: #e8f4f8; }
+.pi-qty { font-family: var(--font-mono); font-size: 12px; color: var(--text2); margin-top: 2px; }
+.pi-price-col { text-align: right; min-width: 110px; }
+.pi-price { font-family: var(--font-hud); font-size: 18px; font-weight: 700; color: var(--accent); display: block; }
+.pi-unit { font-family: var(--font-mono); font-size: 11px; color: var(--text2); }
+.pi-loading { font-family: var(--font-mono); font-size: 12px; color: var(--text2); animation: blink 1s infinite; }
+.pi-no-price { font-family: var(--font-mono); font-size: 14px; color: var(--text2); }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+.pi-actions { display: flex; gap: 6px; }
+.pi-btn {
+  background: none; border: 1px solid var(--border);
+  border-radius: 6px; padding: 6px 10px; color: var(--text2);
+  cursor: pointer; font-size: 13px; transition: all 0.2s;
+}
+.pi-refresh:hover { border-color: var(--accent); color: var(--accent); }
+.pi-remove:hover { border-color: var(--red); color: var(--red); }
+
+/* Search */
+.search-bar { display: flex; gap: 10px; margin-bottom: 20px; }
+.search-bar input {
+  flex: 1; background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 8px; padding: 11px 14px; color: #e8f4f8;
+  font-family: var(--font); font-size: 14px; outline: none;
+}
+.search-bar input:focus { border-color: var(--accent); }
+.search-result-card {
+  background: var(--bg2); border: 1px solid var(--border2);
+  border-radius: var(--radius); padding: 22px;
+}
+.sr-name { font-size: 18px; font-weight: 700; color: #e8f4f8; margin-bottom: 10px; }
+.sr-price { font-family: var(--font-mono); font-size: 14px; color: var(--text2); margin-bottom: 4px; }
+.sr-price strong { color: var(--accent); font-size: 18px; }
+.sr-info { font-size: 13px; color: var(--text2); }
+.search-loading, .search-empty, .search-error { font-size: 14px; color: var(--text2); padding: 20px 0; }
+.search-error { color: var(--red); }
+
+/* AI */
+.ai-chat {
+  height: 380px; overflow-y: auto;
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px;
+  display: flex; flex-direction: column; gap: 12px;
+  margin-bottom: 12px;
+}
+.ai-input-row { display: flex; gap: 10px; }
+.ai-input-row input {
+  flex: 1; background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 8px; padding: 11px 14px; color: #e8f4f8;
+  font-family: var(--font); font-size: 14px; outline: none;
+}
+.ai-input-row input:focus { border-color: var(--accent); }
+.chat-msg { max-width: 80%; padding: 11px 15px; border-radius: 12px; font-size: 14px; line-height: 1.6; white-space: pre-wrap; }
+.chat-user { background: rgba(0,212,255,0.12); border: 1px solid var(--border2); color: #e8f4f8; align-self: flex-end; border-radius: 12px 12px 2px 12px; }
+.chat-ai { background: var(--bg3); border: 1px solid var(--border); color: var(--text); align-self: flex-start; border-radius: 12px 12px 12px 2px; }
+
+/* Modal */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.75);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 200; backdrop-filter: blur(4px);
+}
+.modal {
+  background: var(--bg2); border: 1px solid var(--border2);
+  border-radius: 14px; padding: 28px;
+  width: 100%; max-width: 420px;
+}
+.modal h3 { font-size: 20px; margin-bottom: 20px; }
+.modal-field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+.modal-field label { font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--text2); }
+.modal-field input {
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: 8px; padding: 10px 14px; color: #e8f4f8;
+  font-family: var(--font); font-size: 14px; outline: none; width: 100%;
+}
+.modal-field input:focus { border-color: var(--accent); }
+.modal-actions { display: flex; gap: 10px; margin-top: 20px; }
+
+@media (max-width: 600px) {
+  .portfolio-item { flex-wrap: wrap; }
+  .pi-price-col { min-width: auto; }
+  .app-header { flex-direction: column; align-items: flex-start; }
+  .portfolio-total { margin-left: 0; }
+}
+</style>

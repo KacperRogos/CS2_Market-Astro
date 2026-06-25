@@ -1,0 +1,23 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+<Layout
+  title="Trending skiny CS2 – co zyskuje na wartości"
+  description="Najpopularniejsze i najszybciej rosnące skiny CS2 na Steam Market. Śledź trendy i inwestuj mądrze."
+>
+<div class="container">
+  <div class="page-header">
+    <h1>Trending skinów CS2</h1>
+    <p>Śledzenie trendów cenowych — wkrótce. Na razie sprawdź kalkulator skrzynek lub bazę skinów.</p>
+    <div style="margin-top:24px;display:flex;gap:12px;flex-wrap:wrap">
+      <a href="/kalkulator" class="btn btn-primary">Kalkulator skrzynek</a>
+      <a href="/skins" class="btn btn-ghost">Baza skinów</a>
+    </div>
+  </div>
+</div>
+</Layout>
+<style>
+.page-header { padding:60px 0; }
+.page-header h1 { font-size:clamp(28px,4vw,44px); font-weight:900; margin-bottom:12px; }
+.page-header p { font-size:16px; color:var(--text2); }
+</style>

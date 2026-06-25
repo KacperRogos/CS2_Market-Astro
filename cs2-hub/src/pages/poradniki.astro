@@ -1,0 +1,23 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+<Layout
+  title="Poradniki CS2 trading – jak handlować skinami"
+  description="Poradniki dla traderów skinów CS2. Jak handlować, w co inwestować, jak czytać rynek Steam Market."
+>
+<div class="container">
+  <div class="page-header">
+    <h1>Poradniki CS2 Trading</h1>
+    <p>Artykuły o handlu skinami, inwestowaniu i rynku CS2 — wkrótce. Na razie sprawdź kalkulator skrzynek.</p>
+    <div style="margin-top:24px;display:flex;gap:12px;flex-wrap:wrap">
+      <a href="/kalkulator" class="btn btn-primary">Kalkulator skrzynek</a>
+      <a href="/skins" class="btn btn-ghost">Baza skinów</a>
+    </div>
+  </div>
+</div>
+</Layout>
+<style>
+.page-header { padding:60px 0; }
+.page-header h1 { font-size:clamp(28px,4vw,44px); font-weight:900; margin-bottom:12px; }
+.page-header p { font-size:16px; color:var(--text2); }
+</style>

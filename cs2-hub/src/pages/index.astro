@@ -1,0 +1,176 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { CASES } from '../data/cases';
+
+const schema = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "CS2 Trading Hub",
+  "url": "https://cs2-market.netlify.app",
+  "description": "Kalkulator skrzynek CS2, baza skinów, tracker portfela i narzędzia dla traderów.",
+  "inLanguage": "pl",
+};
+---
+
+<Layout
+  title="CS2 Trading Hub – Kalkulator skrzynek, baza skinów, tracker portfela"
+  description="Darmowe narzędzia dla traderów skinów CS2. Kalkulator prawdopodobieństwa skrzynek, baza skinów z opisami i cenami, tracker portfela ze Steam."
+  schema={schema}
+>
+
+<section class="hero">
+  <div class="container">
+    <div class="hero-badge">
+      <span class="dot"></span>
+      Narzędzia dla traderów CS2
+    </div>
+    <h1>
+      Handluj skinami<br />
+      <span class="accent">z przewagą informacyjną</span>
+    </h1>
+    <p class="hero-sub">
+      Kalkulator skrzynek z oficjalnymi prawdopodobieństwami Valve, baza skinów z historią cen
+      i tracker portfela — wszystko w jednym miejscu.
+    </p>
+    <div class="hero-actions">
+      <a href="/kalkulator" class="btn btn-primary">Kalkulator skrzynek</a>
+      <a href="/app" class="btn btn-ghost">Mój portfel →</a>
+    </div>
+    <div class="hero-stats">
+      <div class="stat">
+        <span class="stat-value">0,26%</span>
+        <span class="stat-label">szansa na nóż ze skrzynki</span>
+      </div>
+      <div class="stat">
+        <span class="stat-value">{CASES.length}</span>
+        <span class="stat-label">skrzynek w kalkulatorze</span>
+      </div>
+      <div class="stat">
+        <span class="stat-value">~385×</span>
+        <span class="stat-label">skrzynek na nóż statystycznie</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="features">
+  <div class="container">
+    <h2 class="section-title">Co znajdziesz na CS2 Trading Hub</h2>
+    <div class="features-grid">
+      <a href="/kalkulator" class="feature-card">
+        <div class="feature-icon">🎲</div>
+        <h3>Kalkulator skrzynek</h3>
+        <p>Sprawdź prawdziwe szanse drop rate dla każdego skina. Oficjalne dane Valve — ile skrzynek musisz otworzyć statystycznie.</p>
+        <span class="feature-link">Otwórz kalkulator →</span>
+      </a>
+      <a href="/skins" class="feature-card">
+        <div class="feature-icon">🔫</div>
+        <h3>Baza skinów</h3>
+        <p>Opisy, statystyki i ceny wszystkich skinów CS2. Float range, rarity, historia wartości — wszystko przed zakupem.</p>
+        <span class="feature-link">Przeglądaj skiny →</span>
+      </a>
+      <a href="/trending" class="feature-card">
+        <div class="feature-icon">📈</div>
+        <h3>Trending</h3>
+        <p>Najgorętsze skiny na Steam Market teraz. Śledź co zyskuje na wartości i nie przegap okazji.</p>
+        <span class="feature-link">Zobacz trending →</span>
+      </a>
+      <a href="/app" class="feature-card">
+        <div class="feature-icon">💼</div>
+        <h3>Portfel skinów</h3>
+        <p>Śledź wartość swojej kolekcji w czasie rzeczywistym. Import z Steam, historia wartości, AI doradca.</p>
+        <span class="feature-link">Zarządzaj portfelem →</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<section class="cases-preview">
+  <div class="container">
+    <h2 class="section-title">Kalkulator skrzynek CS2</h2>
+    <p class="section-sub">Wybierz skrzynkę żeby sprawdzić szanse na każdy skin i koszt statystycznego zdobycia noża.</p>
+    <div class="cases-grid">
+      {CASES.map(c => (
+        <a href={`/kalkulator/${c.slug}`} class="case-card">
+          <div class="case-name">{c.name}</div>
+          <div class="case-meta">
+            <span>{c.skins.length - 1} skinów</span>
+            <span>od {c.releaseYear}</span>
+          </div>
+          <div class="case-odds">
+            <div class="odds-row">
+              <span class="rarity-covert">Covert</span>
+              <span>0,64%</span>
+            </div>
+            <div class="odds-row">
+              <span class="rarity-rare-special">Nóż / Rękawice</span>
+              <span>0,26%</span>
+            </div>
+          </div>
+          <span class="case-cta">Sprawdź kalkulator →</span>
+        </a>
+      ))}
+    </div>
+  </div>
+</section>
+
+<section class="info-section">
+  <div class="container">
+    <div class="info-grid">
+      <div class="info-card">
+        <h3>Jak działają skrzynki CS2?</h3>
+        <p>Każda skrzynka CS2 wymaga klucza (ok. 10,49 zł). Po otwarciu losowany jest skin według oficjalnych prawdopodobieństw ujawnionych przez Valve. Szansa na nóż lub rękawice wynosi <strong>0,26%</strong> — statystycznie jeden na ~385 otwarć.</p>
+        <a href="/kalkulator" class="btn btn-ghost" style="margin-top:16px">Oblicz koszty →</a>
+      </div>
+      <div class="info-card">
+        <h3>Czy warto otwierać skrzynki?</h3>
+        <p>Z matematycznego punktu widzenia — rzadko. Oczekiwana wartość (EV) większości skrzynek jest niższa niż koszt klucza + skrzynki. Nasz kalkulator pokazuje dokładnie ile musisz wydać statystycznie na każdy rarity.</p>
+        <a href="/poradniki" class="btn btn-ghost" style="margin-top:16px">Czytaj poradniki →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+</Layout>
+
+<style>
+.hero { padding: 80px 0 60px; border-bottom: 1px solid var(--border); }
+.hero-badge { display: inline-flex; align-items: center; gap: 8px; font-family: var(--font-mono); font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: var(--accent); margin-bottom: 24px; }
+.dot { width: 8px; height: 8px; background: var(--accent); border-radius: 50%; animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+.hero h1 { font-size: clamp(36px,5vw,64px); font-weight: 900; letter-spacing: -1px; line-height: 1.1; margin-bottom: 20px; }
+.accent { color: var(--accent); }
+.hero-sub { font-size: 18px; color: var(--text2); max-width: 600px; margin-bottom: 32px; line-height: 1.7; }
+.hero-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 48px; }
+.hero-stats { display: flex; gap: 40px; padding-top: 32px; border-top: 1px solid var(--border); }
+.stat-value { display: block; font-family: var(--font-hud); font-size: 28px; font-weight: 700; color: var(--accent); }
+.stat-label { font-size: 13px; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; }
+.section-title { font-size: 28px; font-weight: 700; margin-bottom: 12px; letter-spacing: 1px; }
+.section-sub { color: var(--text2); font-size: 16px; margin-bottom: 32px; max-width: 600px; }
+.features { padding: 72px 0; }
+.features-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(260px,1fr)); gap: 20px; }
+.feature-card { display: block; background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px; text-decoration: none; transition: all 0.2s; }
+.feature-card:hover { border-color: var(--border2); background: var(--bg3); text-decoration: none; transform: translateY(-2px); }
+.feature-icon { font-size: 32px; margin-bottom: 16px; }
+.feature-card h3 { font-size: 18px; margin-bottom: 10px; color: #e8f4f8; }
+.feature-card p { font-size: 14px; color: var(--text2); line-height: 1.7; }
+.feature-link { display: inline-block; margin-top: 16px; font-size: 13px; font-weight: 600; color: var(--accent); letter-spacing: 0.5px; }
+.cases-preview { padding: 0 0 72px; }
+.cases-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(220px,1fr)); gap: 16px; }
+.case-card { display: block; background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; text-decoration: none; transition: all 0.2s; }
+.case-card:hover { border-color: var(--border2); background: var(--bg3); text-decoration: none; }
+.case-name { font-family: var(--font-hud); font-size: 14px; font-weight: 700; color: #e8f4f8; margin-bottom: 8px; letter-spacing: 0.5px; }
+.case-meta { display: flex; gap: 12px; font-family: var(--font-mono); font-size: 11px; color: var(--text2); margin-bottom: 14px; }
+.case-odds { margin-bottom: 14px; }
+.odds-row { display: flex; justify-content: space-between; font-size: 13px; padding: 3px 0; border-bottom: 1px solid var(--border); }
+.odds-row:last-child { border-bottom: none; }
+.odds-row span:last-child { font-family: var(--font-mono); color: var(--text2); }
+.case-cta { font-size: 12px; font-weight: 600; color: var(--accent); letter-spacing: 0.5px; }
+.info-section { padding: 0 0 72px; }
+.info-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(300px,1fr)); gap: 20px; }
+.info-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px; }
+.info-card h3 { font-size: 18px; margin-bottom: 12px; }
+.info-card p { font-size: 15px; color: var(--text2); line-height: 1.7; }
+.info-card strong { color: var(--accent); }
+@media (max-width: 600px) { .hero-stats { flex-direction: column; gap: 16px; } .hero-actions { flex-direction: column; } }
+</style>

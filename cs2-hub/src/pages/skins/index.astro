@@ -1,0 +1,206 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { SKINS, WEAPON_CATEGORIES, RARITY_MAP, type WeaponCategory } from '../../data/skins';
+
+const categories = [...new Set(SKINS.map(s => s.category))] as WeaponCategory[];
+
+const schema = {
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  "name": "Baza skinów CS2",
+  "description": "Opisy, statystyki i ceny wszystkich skinów CS2. Float range, rarity, historia wartości.",
+  "url": "https://cs2-market.netlify.app/skins",
+  "inLanguage": "pl",
+};
+---
+
+<Layout
+  title="Baza skinów CS2 – opisy, ceny, float range"
+  description="Kompletna baza skinów CS2. Opisy, float range, rarity i linki do Steam Market. AK-47, AWP, M4A4, M4A1-S, noże, rękawice i więcej."
+  schema={schema}
+>
+<div class="container">
+
+  <nav class="breadcrumb" aria-label="Breadcrumb">
+    <a href="/">Strona główna</a><span>›</span>
+    <span>Baza skinów</span>
+  </nav>
+
+  <div class="page-header">
+    <h1>Baza skinów CS2</h1>
+    <p>Opisy, statystyki float range, rzadkości i linki do Steam Market dla najpopularniejszych skinów. Wkrótce pełna baza wszystkich skinów CS2.</p>
+  </div>
+
+  <!-- Filter bar -->
+  <div class="filter-bar">
+    <button class="filter-btn active" data-filter="all">Wszystkie ({SKINS.length})</button>
+    {categories.map(cat => (
+      <button class="filter-btn" data-filter={cat}>
+        {WEAPON_CATEGORIES[cat]} ({SKINS.filter(s => s.category === cat).length})
+      </button>
+    ))}
+  </div>
+
+  <!-- Skins grid -->
+  <div class="skins-grid" id="skinsGrid">
+    {SKINS.map(skin => (
+      <a href={`/skins/${skin.slug}`} class="skin-card" data-category={skin.category} data-rarity={skin.rarity}>
+        <div class="skin-card-header" style={`border-top-color: ${RARITY_MAP[skin.rarity]?.color || '#4b69ff'}`}>
+          <div class="skin-weapon-tag">{skin.weapon}</div>
+          <span class="skin-rarity-badge" style={`color: ${RARITY_MAP[skin.rarity]?.color || '#4b69ff'}`}>
+            {RARITY_MAP[skin.rarity]?.label}
+          </span>
+        </div>
+        <div class="skin-card-body">
+          <h2 class="skin-name">{skin.weapon} | {skin.name}</h2>
+          <p class="skin-desc">{skin.description.slice(0, 100)}...</p>
+        </div>
+        <div class="skin-card-footer">
+          <div class="skin-float-range">
+            <span class="skin-meta-label">Float</span>
+            <span class="skin-meta-val">{skin.minFloat.toFixed(2)} – {skin.maxFloat.toFixed(2)}</span>
+          </div>
+          <div class="skin-wears-mini">
+            {skin.wears.map(w => (
+              <span class="wear-dot" title={w}></span>
+            ))}
+          </div>
+        </div>
+      </a>
+    ))}
+  </div>
+
+  <!-- SEO content -->
+  <section class="seo-content">
+    <h2>Jak wybrać skin do CS2?</h2>
+    <p>
+      Przy wyborze skina do CS2 warto zwrócić uwagę na kilka kluczowych parametrów.
+      <strong>Float value</strong> (wartość od 0.00 do 1.00) określa stopień zużycia skina —
+      im niższa wartość, tym lepszy wygląd. Factory New (0.00–0.07) jest najlepszą jakością,
+      Battle-Scarred (0.45–1.00) — najgorszą.
+    </p>
+    <p>
+      <strong>Rarity</strong> (rzadkość) wpływa na cenę i dostępność. Skiny Covert (czerwone)
+      i Classified (różowe) są rzadkie i zwykle drogie. Mil-Spec (niebieskie) to najpowszechniejsza
+      rzadkość ze skrzynek.
+    </p>
+    <p>
+      <strong>Wear range</strong> to zakres floatu dostępny dla danego skina — nie każdy skin
+      można kupić w Factory New. Na przykład AK-47 Redline ma minimalny float 0.10,
+      więc Factory New nie istnieje.
+    </p>
+  </section>
+
+</div>
+</Layout>
+
+<script>
+const btns = document.querySelectorAll('.filter-btn');
+const cards = document.querySelectorAll('.skin-card') as NodeListOf<HTMLElement>;
+
+btns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    btns.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const filter = (btn as HTMLElement).dataset.filter;
+    cards.forEach(card => {
+      card.style.display = (filter === 'all' || card.dataset.category === filter) ? '' : 'none';
+    });
+  });
+});
+</script>
+
+<style>
+.breadcrumb { display:flex; align-items:center; gap:8px; padding:20px 0 0; font-size:13px; color:var(--text2); }
+.breadcrumb a { color:var(--text2); text-decoration:none; }
+.breadcrumb a:hover { color:var(--accent); }
+
+.page-header { padding:32px 0 40px; border-bottom:1px solid var(--border); margin-bottom:36px; }
+.page-header h1 { font-size:clamp(26px,4vw,44px); font-weight:900; margin-bottom:12px; }
+.page-header p { font-size:16px; color:var(--text2); max-width:700px; line-height:1.7; }
+
+.filter-bar { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:32px; }
+.filter-btn {
+  background:var(--bg2);
+  border:1px solid var(--border);
+  border-radius:20px;
+  padding:6px 16px;
+  font-family:var(--font);
+  font-size:13px;
+  font-weight:600;
+  color:var(--text2);
+  cursor:pointer;
+  transition:all 0.2s;
+  letter-spacing:0.3px;
+}
+.filter-btn:hover, .filter-btn.active {
+  background:rgba(0,212,255,0.1);
+  border-color:var(--border2);
+  color:var(--accent);
+}
+
+.skins-grid {
+  display:grid;
+  grid-template-columns:repeat(auto-fill, minmax(240px,1fr));
+  gap:16px;
+  margin-bottom:60px;
+}
+.skin-card {
+  display:flex;
+  flex-direction:column;
+  background:var(--bg2);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  overflow:hidden;
+  text-decoration:none;
+  transition:all 0.2s;
+}
+.skin-card:hover { border-color:var(--border2); background:var(--bg3); transform:translateY(-2px); text-decoration:none; }
+
+.skin-card-header {
+  border-top:3px solid;
+  padding:14px 16px 10px;
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+}
+.skin-weapon-tag {
+  font-family:var(--font-mono);
+  font-size:10px;
+  text-transform:uppercase;
+  letter-spacing:1.5px;
+  color:var(--text2);
+}
+.skin-rarity-badge {
+  font-family:var(--font-mono);
+  font-size:10px;
+  text-transform:uppercase;
+  letter-spacing:0.5px;
+  font-weight:600;
+}
+.skin-card-body { padding:0 16px 14px; flex:1; }
+.skin-name { font-size:15px; font-weight:700; color:#e8f4f8; margin-bottom:8px; line-height:1.3; }
+.skin-desc { font-size:13px; color:var(--text2); line-height:1.6; }
+.skin-card-footer {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:10px 16px;
+  border-top:1px solid var(--border);
+  background:var(--bg3);
+}
+.skin-meta-label { font-size:10px; text-transform:uppercase; letter-spacing:1px; color:var(--text2); display:block; }
+.skin-meta-val { font-family:var(--font-mono); font-size:12px; color:#e8f4f8; }
+.skin-wears-mini { display:flex; gap:4px; }
+.wear-dot {
+  width:8px; height:8px;
+  border-radius:50%;
+  background:var(--accent);
+  opacity:0.6;
+}
+
+.seo-content { border-top:1px solid var(--border); padding-top:48px; margin-bottom:60px; }
+.seo-content h2 { font-size:22px; margin-bottom:16px; }
+.seo-content p { font-size:15px; color:var(--text2); line-height:1.8; margin-bottom:14px; }
+.seo-content strong { color:#e8f4f8; }
+</style>

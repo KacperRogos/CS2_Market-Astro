@@ -1,0 +1,211 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { CASES, DROP_RATES, RARITY_LABELS, avgCasesNeeded, avgCostNeeded } from '../../data/cases';
+
+const schema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Jaka jest szansa na nóż ze skrzynki CS2?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Szansa na nóż lub rękawice ze skrzynki CS2 wynosi 0,26% (1 na ~385 otwarć). To oficjalne dane ujawnione przez Valve."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Ile kosztuje statystyczne zdobycie noża ze skrzynki?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Przy cenie klucza ok. 10,49 zł i cenie skrzynki ok. 0,10 zł, statystyczny koszt zdobycia noża wynosi ok. 4.000 zł (385 otwarć × ~10,59 zł)."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Jaka jest szansa na Covert (czerwony) skin ze skrzynki?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Szansa na skin Covert (czerwony) wynosi 0,64% — czyli statystycznie jeden na ~157 otwarć."
+      }
+    }
+  ]
+};
+---
+
+<Layout
+  title="Kalkulator skrzynek CS2 – szanse drop rate, koszty, ROI"
+  description="Sprawdź prawdziwe szanse na każdy skin ze skrzynek CS2. Oficjalne dane Valve: Mil-Spec 79,92%, Restricted 15,98%, Classified 3,2%, Covert 0,64%, Nóż/Rękawice 0,26%."
+  schema={schema}
+>
+
+<div class="container">
+
+  <!-- Breadcrumb -->
+  <nav class="breadcrumb" aria-label="Breadcrumb">
+    <a href="/">Strona główna</a>
+    <span>›</span>
+    <span>Kalkulator skrzynek</span>
+  </nav>
+
+  <div class="page-header">
+    <h1>Kalkulator skrzynek CS2</h1>
+    <p>Oficjalne prawdopodobieństwa Valve dla każdej skrzynki. Sprawdź ile kosztuje statystyczne zdobycie noża, rękawic lub skina Covert.</p>
+  </div>
+
+  <!-- Drop rates global table -->
+  <section class="rates-section">
+    <h2>Oficjalne szanse drop rate CS2</h2>
+    <p class="text-muted">Prawdopodobieństwa ujawnione przez Valve — identyczne dla wszystkich skrzynek CS2.</p>
+    <div class="rates-grid">
+      {(Object.entries(DROP_RATES) as [keyof typeof DROP_RATES, number][]).map(([rarity, rate]) => (
+        <div class={`rate-card rarity-border-${rarity}`}>
+          <div class={`rate-rarity rarity-${rarity}`}>{RARITY_LABELS[rarity]}</div>
+          <div class="rate-pct">{(rate * 100).toFixed(2)}%</div>
+          <div class="rate-avg">1 na ~{avgCasesNeeded(rarity)} otwarć</div>
+          <div class="rate-cost">
+            ~{avgCostNeeded(rarity, 0.09, 10.49).toLocaleString('pl-PL', {maximumFractionDigits: 0})} zł statystycznie
+          </div>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- Cases list -->
+  <section class="cases-section">
+    <h2>Wybierz skrzynkę</h2>
+    <div class="cases-list">
+      {CASES.map((c, i) => (
+        <a href={`/kalkulator/${c.slug}`} class="case-row">
+          <div class="case-num">#{i + 1}</div>
+          <div class="case-info">
+            <div class="case-title">{c.name}</div>
+            <div class="case-desc">{c.description.slice(0, 100)}...</div>
+          </div>
+          <div class="case-quick-stats">
+            <div class="qs">
+              <span class="rarity-covert">Covert</span>
+              <strong>0,64%</strong>
+            </div>
+            <div class="qs">
+              <span class="rarity-rare-special">Nóż/Rękawice</span>
+              <strong>0,26%</strong>
+            </div>
+            <div class="qs">
+              <span>Klucz</span>
+              <strong>{c.keyPrice.toFixed(2)} zł</strong>
+            </div>
+          </div>
+          <div class="case-arrow">→</div>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <!-- SEO content -->
+  <section class="seo-content">
+    <h2>Jak czytać szanse drop rate skrzynek CS2?</h2>
+    <p>
+      W 2022 roku Valve ujawniło oficjalne prawdopodobieństwa otwarcia skrzynek CS2 (wtedy CS:GO).
+      Są one jednakowe dla wszystkich skrzynek — niezależnie od tego czy otwierasz Revolution Case,
+      Recoil Case czy Kilowatt Case, szanse na każdy rarity są identyczne.
+    </p>
+    <p>
+      <strong>Mil-Spec (niebieskie)</strong> — 79,92% — zdecydowana większość otwarć
+      kończy się skinem niebieskim. To najtańsze i najczęstsze skiny w każdej skrzynce.
+    </p>
+    <p>
+      <strong>Restricted (fioletowe)</strong> — 15,98% — mniej więcej co szóste otwarcie
+      daje skina fioletowego. Ceny tych skinów zaczynają być bardziej zróżnicowane.
+    </p>
+    <p>
+      <strong>Classified (różowe)</strong> — 3,2% — skiny różowe trafiają statystycznie
+      raz na ~31 otwarć. Często osiągają kilkadziesiąt złotych w Factory New.
+    </p>
+    <p>
+      <strong>Covert (czerwone)</strong> — 0,64% — najrzadsze "normalne" skiny w skrzynce.
+      Statystycznie jeden na ~157 otwarć. To tutaj znajdziesz ikoniczne skiny jak AK-47 Redline czy AWP Asiimov.
+    </p>
+    <p>
+      <strong>Nóż / Rękawice (złote)</strong> — 0,26% — jeden na ~385 otwarć.
+      To tzw. "rare special item". Ceny wahają się od kilkuset do kilkunastu tysięcy złotych.
+    </p>
+  </section>
+
+</div>
+
+</Layout>
+
+<style>
+.breadcrumb { display: flex; align-items: center; gap: 8px; padding: 20px 0 0; font-size: 13px; color: var(--text2); }
+.breadcrumb a { color: var(--text2); text-decoration: none; }
+.breadcrumb a:hover { color: var(--accent); }
+
+.page-header { padding: 32px 0 48px; border-bottom: 1px solid var(--border); margin-bottom: 48px; }
+.page-header h1 { font-size: clamp(28px,4vw,48px); font-weight: 900; margin-bottom: 12px; letter-spacing: 1px; }
+.page-header p { font-size: 17px; color: var(--text2); max-width: 700px; line-height: 1.7; }
+
+.rates-section { margin-bottom: 60px; }
+.rates-section h2 { font-size: 22px; margin-bottom: 8px; }
+.text-muted { color: var(--text2); font-size: 14px; margin-bottom: 24px; }
+
+.rates-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; }
+.rate-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-top-width: 3px;
+  border-radius: var(--radius);
+  padding: 20px;
+}
+.rarity-border-mil-spec   { border-top-color: #4b69ff; }
+.rarity-border-restricted { border-top-color: #8847ff; }
+.rarity-border-classified { border-top-color: #d32ce6; }
+.rarity-border-covert     { border-top-color: #eb4b4b; }
+.rarity-border-rare-special { border-top-color: #e4ae39; }
+
+.rate-rarity { font-size: 13px; font-weight: 600; margin-bottom: 12px; }
+.rate-pct { font-family: var(--font-hud); font-size: 28px; font-weight: 700; color: #e8f4f8; }
+.rate-avg { font-family: var(--font-mono); font-size: 12px; color: var(--text2); margin-top: 4px; }
+.rate-cost { font-size: 12px; color: var(--text2); margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); }
+
+.cases-section { margin-bottom: 60px; }
+.cases-section h2 { font-size: 22px; margin-bottom: 24px; }
+.cases-list { display: flex; flex-direction: column; gap: 12px; }
+.case-row {
+  display: grid;
+  grid-template-columns: 40px 1fr auto 32px;
+  align-items: center;
+  gap: 20px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+.case-row:hover { border-color: var(--border2); background: var(--bg3); text-decoration: none; }
+.case-num { font-family: var(--font-mono); font-size: 12px; color: var(--text2); }
+.case-title { font-family: var(--font-hud); font-size: 16px; font-weight: 700; color: #e8f4f8; margin-bottom: 4px; }
+.case-desc { font-size: 13px; color: var(--text2); line-height: 1.5; }
+.case-quick-stats { display: flex; gap: 24px; }
+.qs { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.qs span { font-size: 11px; color: var(--text2); }
+.qs strong { font-family: var(--font-mono); font-size: 13px; color: #e8f4f8; }
+.case-arrow { font-size: 18px; color: var(--accent); }
+
+.seo-content {
+  border-top: 1px solid var(--border);
+  padding-top: 48px;
+  margin-bottom: 60px;
+}
+.seo-content h2 { font-size: 22px; margin-bottom: 20px; }
+.seo-content p { font-size: 15px; color: var(--text2); line-height: 1.8; margin-bottom: 16px; }
+.seo-content strong { color: #e8f4f8; }
+
+@media (max-width: 768px) {
+  .case-row { grid-template-columns: 1fr; }
+  .case-quick-stats { display: none; }
+  .case-arrow { display: none; }
+}
+</style>

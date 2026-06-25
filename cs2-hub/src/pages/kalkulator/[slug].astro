@@ -1,0 +1,323 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import {
+  CASES, DROP_RATES, RARITY_LABELS,
+  avgCasesNeeded, avgCostNeeded,
+  type Case, type Rarity
+} from '../../data/cases';
+
+export async function getStaticPaths() {
+  return CASES.map(c => ({
+    params: { slug: c.slug },
+    props: { caseData: c },
+  }));
+}
+
+interface Props { caseData: Case; }
+const { caseData } = Astro.props;
+
+const rarityOrder: Rarity[] = ['rare-special', 'covert', 'classified', 'restricted', 'mil-spec'];
+const skinsByRarity = rarityOrder.reduce((acc, rarity) => {
+  acc[rarity] = caseData.skins.filter(s => s.rarity === rarity);
+  return acc;
+}, {} as Record<Rarity, typeof caseData.skins>);
+
+const schema = {
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": `${caseData.name} – kalkulator szans i zawartość`,
+  "description": caseData.description,
+  "url": `https://cs2-market.netlify.app/kalkulator/${caseData.slug}`,
+  "inLanguage": "pl",
+  "mainEntity": {
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": `Jaka jest szansa na nóż z ${caseData.name}?`,
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": `Szansa na nóż lub rękawice z ${caseData.name} wynosi 0,26% — jeden na ~385 otwarć. Statystyczny koszt wynosi ok. ${avgCostNeeded('rare-special', caseData.casePrice, caseData.keyPrice).toLocaleString('pl-PL', {maximumFractionDigits: 0})} zł.`
+        }
+      },
+      {
+        "@type": "Question",
+        "name": `Ile kosztuje klucz do ${caseData.name}?`,
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": `Klucz do ${caseData.name} kosztuje ok. ${caseData.keyPrice.toFixed(2)} zł na Steam Market.`
+        }
+      }
+    ]
+  }
+};
+---
+
+<Layout
+  title={`${caseData.name} – kalkulator szans, zawartość, ceny skinów CS2`}
+  description={`${caseData.description} Sprawdź szanse na każdy skin, koszt statystyczny noża i pełną zawartość ${caseData.name}.`}
+  schema={schema}
+>
+<div class="container">
+
+  <nav class="breadcrumb" aria-label="Breadcrumb">
+    <a href="/">Strona główna</a><span>›</span>
+    <a href="/kalkulator">Kalkulator skrzynek</a><span>›</span>
+    <span>{caseData.name}</span>
+  </nav>
+
+  <div class="page-header">
+    <h1>{caseData.name} — kalkulator szans</h1>
+    <p>{caseData.description}</p>
+    <div class="case-meta-pills">
+      <span class="pill">📅 {caseData.releaseYear}</span>
+      <span class="pill">🔑 Klucz: {caseData.keyPrice.toFixed(2)} zł</span>
+      <span class="pill">📦 Skrzynka: ~{caseData.casePrice.toFixed(2)} zł</span>
+      <span class="pill">💰 Jedno otwarcie: ~{(caseData.keyPrice + caseData.casePrice).toFixed(2)} zł</span>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE CALCULATOR -->
+  <section class="interactive-calc">
+    <h2>🎲 Kalkulator szans</h2>
+    <p class="section-desc">Ile skrzynek chcesz otworzyć? Oblicz szansę na zdobycie wybranego rzadkości.</p>
+
+    <div class="calc-panel">
+      <div class="calc-inputs">
+        <div class="calc-field">
+          <label for="calc-quantity">Liczba otwarć</label>
+          <input
+            type="number"
+            id="calc-quantity"
+            min="1"
+            max="10000"
+            value="10"
+            placeholder="np. 50"
+          />
+        </div>
+        <div class="calc-field">
+          <label for="calc-rarity">Szukana rzadkość</label>
+          <select id="calc-rarity">
+            <option value="rare-special">Nóż / Rękawice (0,26%)</option>
+            <option value="covert">Covert — czerwony (0,64%)</option>
+            <option value="classified">Classified — różowy (3,2%)</option>
+            <option value="restricted">Restricted — fioletowy (15,98%)</option>
+            <option value="mil-spec">Mil-Spec — niebieski (79,92%)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Hidden data carriers for JS -->
+      <span id="calc-key-price" data-price={caseData.keyPrice} style="display:none"></span>
+      <span id="calc-case-price" data-price={caseData.casePrice} style="display:none"></span>
+
+      <div id="calc-result" class="calc-result-box">
+        <!-- Filled by JS -->
+      </div>
+    </div>
+  </section>
+
+  <!-- STATIC ROI TABLE -->
+  <section class="roi-section">
+    <h2>Statystyczny koszt każdego rzadkości</h2>
+    <div class="roi-grid">
+      {rarityOrder.map(rarity => {
+        const count = avgCasesNeeded(rarity);
+        const cost = avgCostNeeded(rarity, caseData.casePrice, caseData.keyPrice);
+        const skins = skinsByRarity[rarity];
+        return (
+          <div class={`roi-card rarity-border-${rarity}`}>
+            <div class={`roi-rarity rarity-${rarity}`}>{RARITY_LABELS[rarity]}</div>
+            <div class="roi-chance">{(DROP_RATES[rarity] * 100).toFixed(2)}%</div>
+            <div class="roi-stat-row">
+              <span>Statystycznie co</span>
+              <strong>~{count} otwarć</strong>
+            </div>
+            <div class="roi-stat-row accent-row">
+              <span>Koszt statystyczny</span>
+              <strong>~{cost.toLocaleString('pl-PL', {maximumFractionDigits: 0})} zł</strong>
+            </div>
+            {skins.length > 0 && skins[0].weapon !== '★' && (
+              <div class="roi-example">
+                np. {skins[0].weapon} | {skins[0].name}
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  </section>
+
+  <!-- FULL CONTENTS -->
+  <section class="contents-section">
+    <h2>Pełna zawartość {caseData.name}</h2>
+    {rarityOrder.map(rarity => {
+      const skins = skinsByRarity[rarity];
+      if (!skins.length) return null;
+      return (
+        <div class="rarity-group">
+          <div class="rarity-header">
+            <h3 class={`rarity-${rarity}`}>{RARITY_LABELS[rarity]}</h3>
+            <span class="rarity-pct">{(DROP_RATES[rarity] * 100).toFixed(2)}%</span>
+          </div>
+          <div class="skins-grid">
+            {skins.map(skin => (
+              <div class={`skin-card rarity-border-${skin.rarity}`}>
+                <div class="skin-weapon">{skin.weapon}</div>
+                <div class="skin-name">{skin.name}</div>
+                <div class="skin-float">Float: {skin.minFloat.toFixed(2)}–{skin.maxFloat.toFixed(2)}</div>
+                <div class="skin-wears">
+                  {skin.wears.map(w => (
+                    <span class="wear-tag">
+                      {w.replace('Factory New','FN').replace('Minimal Wear','MW').replace('Field-Tested','FT').replace('Well-Worn','WW').replace('Battle-Scarred','BS')}
+                    </span>
+                  ))}
+                </div>
+                <a
+                  href={`https://steamcommunity.com/market/listings/730/${encodeURIComponent(`${skin.weapon} | ${skin.name}`)}`}
+                  class="skin-steam-link"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Steam Market →
+                </a>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    })}
+  </section>
+
+  <!-- SEO CONTENT -->
+  <section class="seo-content">
+    <h2>Czy warto otwierać {caseData.name}?</h2>
+    <p>
+      Otwarcie jednej {caseData.name} kosztuje łącznie
+      <strong>~{(caseData.casePrice + caseData.keyPrice).toFixed(2)} zł</strong> (klucz + skrzynka).
+      Przy szansie 0,26% na nóż lub rękawice, statystycznie potrzebujesz ok.
+      <strong>{avgCasesNeeded('rare-special')} otwarć</strong>, co daje koszt
+      <strong>~{avgCostNeeded('rare-special', caseData.casePrice, caseData.keyPrice).toLocaleString('pl-PL', {maximumFractionDigits: 0})} zł</strong>.
+    </p>
+    <p>
+      Warto porównać ten koszt z aktualną ceną noży i rękawic na Steam Market lub platformach
+      takich jak Buff163 czy CS.Money — często taniejzakupić skin bezpośrednio niż liczyć na szczęście.
+    </p>
+    <div class="other-cases">
+      <h3>Inne skrzynki w kalkulatorze</h3>
+      <div class="other-cases-list">
+        {CASES.filter(c => c.id !== caseData.id).map(c => (
+          <a href={`/kalkulator/${c.slug}`} class="other-case-link">{c.name} →</a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+</div>
+</Layout>
+
+<script>
+  import { initCaseCalculator } from '../../scripts/caseCalculator';
+  initCaseCalculator();
+</script>
+
+<style>
+.breadcrumb { display:flex; align-items:center; gap:8px; padding:20px 0 0; font-size:13px; color:var(--text2); flex-wrap:wrap; }
+.breadcrumb a { color:var(--text2); text-decoration:none; }
+.breadcrumb a:hover { color:var(--accent); }
+
+.page-header { padding:32px 0 40px; border-bottom:1px solid var(--border); margin-bottom:48px; }
+.page-header h1 { font-size:clamp(24px,4vw,40px); font-weight:900; margin-bottom:12px; }
+.page-header p { font-size:16px; color:var(--text2); max-width:700px; line-height:1.7; margin-bottom:20px; }
+.case-meta-pills { display:flex; gap:10px; flex-wrap:wrap; }
+.pill { background:var(--bg3); border:1px solid var(--border); border-radius:20px; padding:4px 14px; font-size:13px; font-family:var(--font-mono); color:var(--text2); }
+
+/* Interactive calculator */
+.interactive-calc { margin-bottom:60px; }
+.interactive-calc h2 { font-size:22px; margin-bottom:8px; }
+.section-desc { color:var(--text2); font-size:14px; margin-bottom:24px; }
+
+.calc-panel { background:var(--bg2); border:1px solid var(--border2); border-radius:var(--radius); padding:28px; }
+.calc-inputs { display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:24px; }
+.calc-field { display:flex; flex-direction:column; gap:8px; }
+.calc-field label { font-family:var(--font-mono); font-size:12px; text-transform:uppercase; letter-spacing:1px; color:var(--text2); }
+.calc-field input, .calc-field select {
+  background:var(--bg3);
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:10px 14px;
+  color:#e8f4f8;
+  font-family:var(--font-mono);
+  font-size:15px;
+  outline:none;
+  transition:border-color 0.2s;
+}
+.calc-field input:focus, .calc-field select:focus { border-color:var(--accent); }
+.calc-field select option { background:var(--bg2); }
+
+/* Result box - filled by JS */
+.calc-result-box { min-height:80px; }
+
+:global(.calc-results-grid) { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:16px; margin-bottom:20px; }
+:global(.calc-result-item) { background:var(--bg3); border:1px solid var(--border); border-radius:8px; padding:14px; }
+:global(.calc-result-item.highlight) { border-color:var(--border2); }
+:global(.calc-result-label) { display:block; font-size:12px; color:var(--text2); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px; font-family:var(--font-mono); }
+:global(.calc-result-value) { display:block; font-family:var(--font-hud); font-size:20px; font-weight:700; color:#e8f4f8; }
+:global(.calc-result-value.accent) { color:var(--accent); }
+:global(.calc-result-value.positive) { color:var(--green); }
+:global(.calc-probability-bar) { height:8px; background:var(--bg3); border-radius:4px; overflow:hidden; margin-bottom:8px; }
+:global(.calc-bar-fill) { height:100%; background:linear-gradient(90deg,var(--accent2),var(--accent)); border-radius:4px; transition:width 0.3s ease; }
+:global(.calc-bar-label) { font-size:12px; color:var(--text2); font-family:var(--font-mono); }
+
+/* ROI grid */
+.roi-section { margin-bottom:60px; }
+.roi-section h2 { font-size:22px; margin-bottom:24px; }
+.roi-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(190px,1fr)); gap:16px; }
+.roi-card { background:var(--bg2); border:1px solid var(--border); border-top:3px solid; border-radius:var(--radius); padding:18px; }
+.rarity-border-mil-spec { border-top-color:#4b69ff; }
+.rarity-border-restricted { border-top-color:#8847ff; }
+.rarity-border-classified { border-top-color:#d32ce6; }
+.rarity-border-covert { border-top-color:#eb4b4b; }
+.rarity-border-rare-special { border-top-color:#e4ae39; }
+.roi-rarity { font-size:13px; font-weight:600; margin-bottom:8px; }
+.roi-chance { font-family:var(--font-hud); font-size:26px; font-weight:700; color:#e8f4f8; margin-bottom:12px; }
+.roi-stat-row { display:flex; justify-content:space-between; align-items:center; font-size:13px; padding:4px 0; border-bottom:1px solid var(--border); }
+.roi-stat-row:last-of-type { border-bottom:none; }
+.roi-stat-row span { color:var(--text2); }
+.roi-stat-row strong { font-family:var(--font-mono); color:#e8f4f8; }
+.accent-row strong { color:var(--accent); }
+.roi-example { margin-top:10px; font-size:11px; color:var(--text2); font-style:italic; }
+
+/* Contents */
+.contents-section { margin-bottom:60px; }
+.contents-section > h2 { font-size:22px; margin-bottom:32px; }
+.rarity-group { margin-bottom:36px; }
+.rarity-header { display:flex; align-items:center; gap:12px; margin-bottom:16px; padding-bottom:8px; border-bottom:1px solid var(--border); }
+.rarity-header h3 { font-size:15px; font-weight:700; letter-spacing:1px; }
+.rarity-pct { font-family:var(--font-mono); font-size:12px; color:var(--text2); margin-left:auto; }
+.skins-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(170px,1fr)); gap:12px; }
+.skin-card { background:var(--bg2); border:1px solid var(--border); border-left:3px solid; border-radius:var(--radius); padding:14px; transition:all 0.2s; }
+.skin-card:hover { background:var(--bg3); }
+.skin-weapon { font-family:var(--font-mono); font-size:10px; text-transform:uppercase; letter-spacing:1px; color:var(--text2); margin-bottom:4px; }
+.skin-name { font-size:14px; font-weight:700; color:#e8f4f8; margin-bottom:6px; line-height:1.3; }
+.skin-float { font-family:var(--font-mono); font-size:11px; color:var(--text2); margin-bottom:8px; }
+.skin-wears { display:flex; flex-wrap:wrap; gap:3px; margin-bottom:10px; }
+.wear-tag { background:var(--bg3); border:1px solid var(--border); border-radius:3px; padding:1px 5px; font-family:var(--font-mono); font-size:9px; color:var(--text2); }
+.skin-steam-link { font-size:11px; color:var(--accent); text-decoration:none; font-weight:600; }
+.skin-steam-link:hover { text-decoration:underline; }
+
+/* SEO */
+.seo-content { border-top:1px solid var(--border); padding-top:48px; margin-bottom:60px; }
+.seo-content h2 { font-size:22px; margin-bottom:16px; }
+.seo-content p { font-size:15px; color:var(--text2); line-height:1.8; margin-bottom:14px; }
+.seo-content strong { color:#e8f4f8; }
+.other-cases { margin-top:32px; }
+.other-cases h3 { font-size:16px; margin-bottom:14px; }
+.other-cases-list { display:flex; flex-wrap:wrap; gap:10px; }
+.other-case-link { background:var(--bg2); border:1px solid var(--border); border-radius:6px; padding:8px 16px; font-size:14px; font-weight:600; color:var(--text2); text-decoration:none; transition:all 0.2s; }
+.other-case-link:hover { border-color:var(--border2); color:var(--accent); text-decoration:none; }
+
+@media (max-width:600px) {
+  .calc-inputs { grid-template-columns:1fr; }
+}
+</style>

@@ -1,0 +1,327 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { SKINS, RARITY_MAP, WEAPON_CATEGORIES, getSkinsByWeapon } from '../../data/skins';
+
+export async function getStaticPaths() {
+  return SKINS.map(skin => ({
+    params: { slug: skin.slug },
+    props: { skin },
+  }));
+}
+
+const { skin } = Astro.props;
+const rarityInfo = RARITY_MAP[skin.rarity];
+const relatedSkins = getSkinsByWeapon(skin.weapon).filter(s => s.slug !== skin.slug);
+
+// Float bar segments
+const wearBoundaries = [
+  { label: 'FN', max: 0.07, color: '#4caf50' },
+  { label: 'MW', max: 0.15, color: '#8bc34a' },
+  { label: 'FT', max: 0.38, color: '#ffeb3b' },
+  { label: 'WW', max: 0.45, color: '#ff9800' },
+  { label: 'BS', max: 1.00, color: '#f44336' },
+];
+
+const schema = {
+  "@context": "https://schema.org",
+  "@type": "Product",
+  "name": `${skin.weapon} | ${skin.name}`,
+  "description": skin.description,
+  "url": `https://cs2-market.netlify.app/skins/${skin.slug}`,
+  "inLanguage": "pl",
+  "category": WEAPON_CATEGORIES[skin.category],
+  "offers": {
+    "@type": "Offer",
+    "url": skin.steamMarketUrl,
+    "availability": "https://schema.org/InStock",
+    "seller": { "@type": "Organization", "name": "Steam Community Market" }
+  }
+};
+---
+
+<Layout
+  title={`${skin.weapon} | ${skin.name} – opis, float, cena CS2`}
+  description={`${skin.description.slice(0, 150)}. Float range: ${skin.minFloat.toFixed(2)}–${skin.maxFloat.toFixed(2)}. Sprawdź cenę na Steam Market.`}
+  schema={schema}
+>
+<div class="container">
+
+  <nav class="breadcrumb" aria-label="Breadcrumb">
+    <a href="/">Strona główna</a><span>›</span>
+    <a href="/skins">Baza skinów</a><span>›</span>
+    <span>{skin.weapon} | {skin.name}</span>
+  </nav>
+
+  <div class="skin-hero">
+    <div class="skin-hero-info">
+      <div class="skin-meta-top">
+        <span class="weapon-tag">{skin.weapon}</span>
+        <span class="category-tag">{WEAPON_CATEGORIES[skin.category]}</span>
+        {skin.caseSource && <span class="source-tag">📦 {skin.caseSource}</span>}
+        {skin.collection && <span class="source-tag">🗂 {skin.collection}</span>}
+      </div>
+
+      <h1>{skin.weapon} | {skin.name}</h1>
+
+      <div class="rarity-display" style={`color: ${rarityInfo?.color}`}>
+        <span class="rarity-dot" style={`background: ${rarityInfo?.color}`}></span>
+        {rarityInfo?.label}
+      </div>
+
+      <p class="skin-description">{skin.description}</p>
+
+      {skin.lore && (
+        <blockquote class="skin-lore">
+          <span class="lore-icon">📜</span>
+          <em>"{skin.lore}"</em>
+        </blockquote>
+      )}
+
+      <div class="skin-actions">
+        <a href={skin.steamMarketUrl} class="btn btn-primary" target="_blank" rel="noopener noreferrer">
+          Sprawdź cenę na Steam →
+        </a>
+        <a href="/kalkulator" class="btn btn-ghost">Kalkulator skrzynek</a>
+      </div>
+    </div>
+
+    <div class="skin-hero-stats">
+      <div class="stats-card">
+        <h3>Parametry skina</h3>
+
+        <div class="stat-row">
+          <span class="stat-label">Minimalna wartość float</span>
+          <span class="stat-val">{skin.minFloat.toFixed(2)}</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Maksymalna wartość float</span>
+          <span class="stat-val">{skin.maxFloat.toFixed(2)}</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Rok dodania</span>
+          <span class="stat-val">{skin.releaseYear}</span>
+        </div>
+
+        <!-- Float bar visualization -->
+        <div class="float-section">
+          <div class="float-label">Dostępny zakres float</div>
+          <div class="float-bar-container">
+            <div class="float-bar-track">
+              {wearBoundaries.map((seg, i) => {
+                const prevMax = i === 0 ? 0 : wearBoundaries[i-1].max;
+                const segWidth = (seg.max - prevMax) * 100;
+                const inRange = seg.max > skin.minFloat && prevMax < skin.maxFloat;
+                return (
+                  <div
+                    class={`float-seg ${inRange ? 'in-range' : 'out-range'}`}
+                    style={`width: ${segWidth}%; background: ${inRange ? seg.color : 'var(--bg4)'}`}
+                    title={`${seg.label}: ${prevMax.toFixed(2)}–${seg.max.toFixed(2)}`}
+                  >
+                  </div>
+                );
+              })}
+              <!-- Range indicator -->
+              <div
+                class="float-range-indicator"
+                style={`left: ${skin.minFloat * 100}%; width: ${(skin.maxFloat - skin.minFloat) * 100}%`}
+              ></div>
+            </div>
+            <div class="float-bar-labels">
+              <span>0.00</span>
+              <span>FN</span>
+              <span>MW</span>
+              <span>FT</span>
+              <span>WW</span>
+              <span>BS</span>
+              <span>1.00</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Available wears -->
+        <div class="wears-list">
+          <div class="float-label">Dostępne jakości</div>
+          <div class="wears-chips">
+            {['Factory New', 'Minimal Wear', 'Field-Tested', 'Well-Worn', 'Battle-Scarred'].map(w => (
+              <span class={`wear-chip ${skin.wears.includes(w) ? 'available' : 'unavailable'}`}>
+                {w}
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tags -->
+  {skin.tags.length > 0 && (
+    <div class="tags-section">
+      {skin.tags.map(tag => (
+        <span class="tag">#{tag}</span>
+      ))}
+    </div>
+  )}
+
+  <!-- Related skins same weapon -->
+  {relatedSkins.length > 0 && (
+    <section class="related-section">
+      <h2>Inne skiny do {skin.weapon}</h2>
+      <div class="related-grid">
+        {relatedSkins.map(related => (
+          <a href={`/skins/${related.slug}`} class="related-card">
+            <div class="related-weapon">{related.weapon}</div>
+            <div class="related-name">{related.name}</div>
+            <div class="related-rarity" style={`color: ${RARITY_MAP[related.rarity]?.color}`}>
+              {RARITY_MAP[related.rarity]?.label}
+            </div>
+          </a>
+        ))}
+      </div>
+    </section>
+  )}
+
+  <!-- SEO block -->
+  <section class="seo-content">
+    <h2>Wszystko o {skin.weapon} | {skin.name}</h2>
+    <p>
+      <strong>{skin.weapon} | {skin.name}</strong> to skin kategorii <strong>{rarityInfo?.label}</strong>
+      dostępny w zakresie float od <strong>{skin.minFloat.toFixed(2)}</strong> do
+      <strong>{skin.maxFloat.toFixed(2)}</strong>.
+      {skin.caseSource && ` Można go zdobyć z ${skin.caseSource} lub kupić bezpośrednio na Steam Community Market.`}
+      {skin.collection && ` Pochodzi z kolekcji ${skin.collection}.`}
+    </p>
+    <p>
+      Przy zakupie tego skina warto zwrócić uwagę na wartość float — im bliżej 0.00,
+      tym lepszy wygląd i zwykle wyższa cena. Przed zakupem sprawdź aktualną cenę
+      na Steam Market i porównaj ją z platformami handlowymi jak Buff163, CS.Money
+      czy Skinport, gdzie ceny bywają niższe.
+    </p>
+    <div style="margin-top:24px">
+      <a href="/skins" class="btn btn-ghost">← Wróć do bazy skinów</a>
+    </div>
+  </section>
+
+</div>
+</Layout>
+
+<style>
+.breadcrumb { display:flex; align-items:center; gap:8px; padding:20px 0 0; font-size:13px; color:var(--text2); flex-wrap:wrap; }
+.breadcrumb a { color:var(--text2); text-decoration:none; }
+.breadcrumb a:hover { color:var(--accent); }
+
+/* Hero layout */
+.skin-hero {
+  display:grid;
+  grid-template-columns:1fr 380px;
+  gap:40px;
+  padding:40px 0 48px;
+  border-bottom:1px solid var(--border);
+  margin-bottom:48px;
+}
+.skin-meta-top { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px; }
+.weapon-tag, .category-tag, .source-tag {
+  background:var(--bg3);
+  border:1px solid var(--border);
+  border-radius:4px;
+  padding:3px 10px;
+  font-family:var(--font-mono);
+  font-size:11px;
+  text-transform:uppercase;
+  letter-spacing:1px;
+  color:var(--text2);
+}
+.skin-hero-info h1 { font-size:clamp(24px,3vw,38px); font-weight:900; margin-bottom:12px; line-height:1.2; }
+.rarity-display { display:flex; align-items:center; gap:8px; font-weight:700; font-size:15px; letter-spacing:1px; text-transform:uppercase; margin-bottom:20px; }
+.rarity-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+.skin-description { font-size:15px; color:var(--text2); line-height:1.8; margin-bottom:20px; }
+.skin-lore {
+  background:var(--bg3);
+  border-left:3px solid var(--accent);
+  border-radius:0 8px 8px 0;
+  padding:14px 18px;
+  margin-bottom:24px;
+  font-size:14px;
+  color:var(--text2);
+  display:flex;
+  gap:10px;
+  align-items:flex-start;
+}
+.lore-icon { font-size:16px; flex-shrink:0; }
+.skin-actions { display:flex; gap:12px; flex-wrap:wrap; }
+
+/* Stats card */
+.stats-card { background:var(--bg2); border:1px solid var(--border); border-radius:var(--radius); padding:24px; }
+.stats-card h3 { font-size:15px; font-weight:700; margin-bottom:20px; letter-spacing:1px; text-transform:uppercase; color:var(--text2); }
+.stat-row { display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid var(--border); }
+.stat-row:last-of-type { border-bottom:none; }
+.stat-label { font-size:13px; color:var(--text2); }
+.stat-val { font-family:var(--font-mono); font-size:14px; color:#e8f4f8; font-weight:600; }
+
+/* Float bar */
+.float-section { margin-top:20px; }
+.float-label { font-family:var(--font-mono); font-size:11px; text-transform:uppercase; letter-spacing:1px; color:var(--text2); margin-bottom:10px; }
+.float-bar-container { position:relative; }
+.float-bar-track { position:relative; display:flex; height:12px; border-radius:6px; overflow:hidden; margin-bottom:4px; }
+.float-seg { height:100%; opacity:0.85; }
+.out-range { opacity:0.2; }
+.float-range-indicator {
+  position:absolute;
+  top:0; height:100%;
+  border:2px solid white;
+  border-radius:6px;
+  pointer-events:none;
+  box-shadow:0 0 6px rgba(0,212,255,0.4);
+}
+.float-bar-labels {
+  display:flex;
+  justify-content:space-between;
+  font-family:var(--font-mono);
+  font-size:9px;
+  color:var(--text2);
+  margin-top:4px;
+}
+
+/* Wears */
+.wears-list { margin-top:18px; }
+.wears-chips { display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
+.wear-chip {
+  padding:4px 10px;
+  border-radius:4px;
+  font-size:12px;
+  font-family:var(--font-mono);
+}
+.wear-chip.available { background:rgba(76,175,80,0.15); border:1px solid rgba(76,175,80,0.4); color:#4caf50; }
+.wear-chip.unavailable { background:var(--bg3); border:1px solid var(--border); color:var(--text2); opacity:0.4; text-decoration:line-through; }
+
+/* Tags */
+.tags-section { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:48px; }
+.tag { background:var(--bg3); border:1px solid var(--border); border-radius:4px; padding:4px 10px; font-family:var(--font-mono); font-size:11px; color:var(--text2); }
+
+/* Related */
+.related-section { margin-bottom:48px; }
+.related-section h2 { font-size:20px; margin-bottom:20px; }
+.related-grid { display:flex; flex-wrap:wrap; gap:12px; }
+.related-card {
+  background:var(--bg2);
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:14px 18px;
+  text-decoration:none;
+  transition:all 0.2s;
+  min-width:180px;
+}
+.related-card:hover { border-color:var(--border2); background:var(--bg3); text-decoration:none; }
+.related-weapon { font-family:var(--font-mono); font-size:10px; text-transform:uppercase; letter-spacing:1px; color:var(--text2); margin-bottom:4px; }
+.related-name { font-size:15px; font-weight:700; color:#e8f4f8; margin-bottom:4px; }
+.related-rarity { font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; }
+
+/* SEO */
+.seo-content { border-top:1px solid var(--border); padding-top:40px; margin-bottom:60px; }
+.seo-content h2 { font-size:20px; margin-bottom:14px; }
+.seo-content p { font-size:15px; color:var(--text2); line-height:1.8; margin-bottom:12px; }
+.seo-content strong { color:#e8f4f8; }
+
+@media (max-width:900px) {
+  .skin-hero { grid-template-columns:1fr; }
+}
+</style>

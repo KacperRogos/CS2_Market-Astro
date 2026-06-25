@@ -1,0 +1,299 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description: string;
+  canonical?: string;
+  ogImage?: string;
+  schema?: object;
+}
+
+const {
+  title,
+  description,
+  canonical = Astro.url.href,
+  ogImage = '/og-image.png',
+  schema,
+} = Astro.props;
+
+const fullTitle = title.includes('CS2') ? title : `${title} | CS2 Trading Hub`;
+---
+
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>{fullTitle}</title>
+  <meta name="description" content={description} />
+  <meta name="robots" content="index, follow" />
+  <meta name="author" content="CS2 Trading Hub" />
+  <link rel="canonical" href={canonical} />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content={canonical} />
+  <meta property="og:title" content={fullTitle} />
+  <meta property="og:description" content={description} />
+  <meta property="og:image" content={`https://cs2-market.netlify.app${ogImage}`} />
+  <meta property="og:locale" content="pl_PL" />
+  <meta property="og:site_name" content="CS2 Trading Hub" />
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={fullTitle} />
+  <meta name="twitter:description" content={description} />
+  <meta name="twitter:image" content={`https://cs2-market.netlify.app${ogImage}`} />
+
+  <!-- Schema.org -->
+  {schema && (
+    <script type="application/ld+json" set:html={JSON.stringify(schema)} />
+  )}
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="/favicon.png" />
+  <link rel="apple-touch-icon" href="/favicon.png" />
+
+  <!-- Preconnect -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preconnect" href="https://community.cloudflare.steamstatic.com" />
+
+  <slot name="head" />
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="/" class="logo">
+      <img src="/favicon.png" alt="CS2 Trading Hub" width="36" height="36" />
+      <span class="logo-text">CS2 <em>TRADING</em></span>
+    </a>
+
+    <nav class="main-nav" aria-label="Nawigacja główna">
+      <a href="/kalkulator" class="nav-link">Kalkulator skrzynek</a>
+      <a href="/skins" class="nav-link">Baza skinów</a>
+      <a href="/trending" class="nav-link">Trending</a>
+      <a href="/poradniki" class="nav-link">Poradniki</a>
+    </nav>
+
+    <div class="header-actions">
+      <a href="/app" class="btn btn-primary">Mój portfel</a>
+      <button class="nav-toggle" aria-label="Menu" id="navToggle">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Mobile nav -->
+  <div class="mobile-nav" id="mobileNav">
+    <a href="/kalkulator">Kalkulator skrzynek</a>
+    <a href="/skins">Baza skinów</a>
+    <a href="/trending">Trending</a>
+    <a href="/poradniki">Poradniki</a>
+    <a href="/app" class="btn btn-primary" style="margin-top:8px">Mój portfel</a>
+  </div>
+</header>
+
+<main>
+  <slot />
+</main>
+
+<footer class="site-footer">
+  <div class="container footer-inner">
+    <div class="footer-brand">
+      <a href="/" class="logo">
+        <img src="/favicon.png" alt="CS2 Trading Hub" width="28" height="28" />
+        <span class="logo-text">CS2 <em>TRADING</em></span>
+      </a>
+      <p>Narzędzia dla traderów skinów CS2. Kalkulator skrzynek, baza skinów, tracker portfela.</p>
+    </div>
+
+    <div class="footer-links">
+      <div>
+        <h4>Narzędzia</h4>
+        <a href="/kalkulator">Kalkulator skrzynek</a>
+        <a href="/skins">Baza skinów</a>
+        <a href="/trending">Trending</a>
+        <a href="/app">Mój portfel</a>
+      </div>
+      <div>
+        <h4>Skrzynki</h4>
+        <a href="/kalkulator/revolution-case">Revolution Case</a>
+        <a href="/kalkulator/recoil-case">Recoil Case</a>
+        <a href="/kalkulator/kilowatt-case">Kilowatt Case</a>
+        <a href="/kalkulator/fracture-case">Fracture Case</a>
+        <a href="/kalkulator/dreams-and-nightmares-case">Dreams &amp; Nightmares</a>
+      </div>
+      <div>
+        <h4>Informacje</h4>
+        <a href="/poradniki">Poradniki</a>
+        <a href="/porownaj">Porównywarka cen</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <div class="container">
+      <p>CS2 Trading Hub nie jest powiązany z Valve Corporation. Counter-Strike jest znakiem towarowym Valve Corporation.</p>
+      <p style="margin-top:4px">Ceny skinów pobierane ze Steam Community Market. Prawdopodobieństwa drop rate zgodne z oficjalnym ujawnieniem Valve.</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+  const toggle = document.getElementById('navToggle');
+  const nav = document.getElementById('mobileNav');
+  toggle?.addEventListener('click', () => {
+    nav?.classList.toggle('open');
+    toggle.classList.toggle('active');
+  });
+</script>
+
+</body>
+</html>
+
+<style>
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(10,14,20,0.95);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+.header-inner {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  height: 64px;
+}
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+.logo img { filter: drop-shadow(0 0 6px rgba(0,212,255,0.4)); }
+.logo-text {
+  font-family: var(--font-hud);
+  font-size: 18px;
+  font-weight: 900;
+  color: #e8f4f8;
+  letter-spacing: 2px;
+}
+.logo-text em {
+  font-style: normal;
+  color: var(--accent);
+}
+.main-nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+}
+.nav-link {
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  color: var(--text2);
+  text-decoration: none;
+  transition: all 0.2s;
+  text-transform: uppercase;
+}
+.nav-link:hover, .nav-link[aria-current="page"] {
+  color: var(--accent);
+  background: rgba(0,212,255,0.08);
+}
+.header-actions { display: flex; align-items: center; gap: 10px; margin-left: auto; }
+.nav-toggle {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+}
+.nav-toggle span {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background: var(--text2);
+  border-radius: 2px;
+  transition: all 0.2s;
+}
+.mobile-nav {
+  display: none;
+  flex-direction: column;
+  padding: 16px 20px;
+  border-top: 1px solid var(--border);
+  background: var(--bg2);
+}
+.mobile-nav a {
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+  text-decoration: none;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+.mobile-nav.open { display: flex; }
+
+/* Footer */
+.site-footer { border-top: 1px solid var(--border); margin-top: 80px; }
+.footer-inner {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 48px;
+  padding: 48px 0;
+}
+.footer-brand p {
+  margin-top: 12px;
+  font-size: 14px;
+  color: var(--text2);
+  max-width: 300px;
+  line-height: 1.6;
+}
+.footer-links {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+.footer-links h4 {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text2);
+  margin-bottom: 12px;
+}
+.footer-links a {
+  display: block;
+  font-size: 14px;
+  color: var(--text2);
+  text-decoration: none;
+  padding: 3px 0;
+  transition: color 0.2s;
+}
+.footer-links a:hover { color: var(--accent); }
+.footer-bottom {
+  border-top: 1px solid var(--border);
+  padding: 16px 0;
+  font-size: 12px;
+  color: var(--text2);
+  opacity: 0.7;
+}
+
+@media (max-width: 768px) {
+  .main-nav { display: none; }
+  .nav-toggle { display: flex; }
+  .footer-inner { grid-template-columns: 1fr; gap: 24px; }
+  .footer-links { grid-template-columns: repeat(2, 1fr); }
+}
+</style>
