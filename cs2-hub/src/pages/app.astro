@@ -28,11 +28,11 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
     <!-- Login -->
     <div id="loginForm">
       <div class="auth-field">
-        <label>Login lub email</label>
+        <label for="loginUsername">Login lub email</label>
         <input type="text" id="loginUsername" placeholder="Nazwa użytkownika lub email" autocomplete="username" />
       </div>
       <div class="auth-field">
-        <label>Hasło</label>
+        <label for="loginPassword">Hasło</label>
         <input type="password" id="loginPassword" placeholder="Twoje hasło" autocomplete="current-password" onkeydown="if(event.key==='Enter') doLogin()" />
       </div>
       <button class="auth-btn" onclick="doLogin()" id="loginBtn">ZALOGUJ</button>
