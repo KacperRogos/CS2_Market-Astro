@@ -1,23 +1,293 @@
 ---
 import Layout from '../layouts/Layout.astro';
+
+const articles = [
+  {
+    slug: 'jak-handlowac-skinami-cs2',
+    title: 'Jak zacząć handlować skinami CS2 – kompletny przewodnik dla początkujących',
+    excerpt: 'Dowiedz się jak działają platformy handlowe, czym różni się Steam Market od Buff163, i jak nie stracić pieniędzy na pierwszych transakcjach.',
+    category: 'Podstawy',
+    readTime: '8 min',
+    date: '2025-01-15',
+    tags: ['trading', 'podstawy', 'steam market'],
+  },
+  {
+    slug: 'float-value-przewodnik',
+    title: 'Float value – co to jest i dlaczego ma ogromne znaczenie dla ceny skina',
+    excerpt: 'Float value decyduje o wyglądzie i cenie skina bardziej niż myślisz. Wyjaśniamy jak czytać float, co to Factory New naprawdę oznacza i kiedy warto dopłacić za niski float.',
+    category: 'Edukacja',
+    readTime: '6 min',
+    date: '2025-01-22',
+    tags: ['float', 'wear', 'ceny'],
+  },
+  {
+    slug: 'najlepsze-skiny-do-inwestowania-2025',
+    title: 'Najlepsze skiny CS2 do inwestowania w 2025 roku – analiza rynku',
+    excerpt: 'Które skiny historycznie rosną na wartości? Jak rozpoznać skin z potencjałem inwestycyjnym zanim jego cena wystrzeli? Analiza danych z ostatnich 12 miesięcy.',
+    category: 'Inwestowanie',
+    readTime: '12 min',
+    date: '2025-02-01',
+    tags: ['inwestycje', 'wzrost cen', 'analiza'],
+  },
+  {
+    slug: 'czy-warto-otwierac-skrzynki',
+    title: 'Czy warto otwierać skrzynki CS2? Matematyka kontra emocje',
+    excerpt: 'Szczere obliczenia: ile kosztuje statystyczny nóż, jaka jest oczekiwana wartość otwarcia skrzynki i w jakich rzadkich sytuacjach otwieranie może mieć sens.',
+    category: 'Analiza',
+    readTime: '7 min',
+    date: '2025-02-10',
+    tags: ['skrzynki', 'matematyka', 'drop rate'],
+  },
+  {
+    slug: 'buff163-vs-steam-market',
+    title: 'Buff163 vs Steam Market – gdzie kupować i sprzedawać skiny CS2?',
+    excerpt: 'Porównanie największych platform: opłaty, bezpieczeństwo, dostępność i różnice w cenach. Gdzie można zaoszczędzić nawet 20% na tym samym skinie?',
+    category: 'Platformy',
+    readTime: '9 min',
+    date: '2025-02-18',
+    tags: ['buff163', 'steam market', 'platformy'],
+  },
+  {
+    slug: 'jak-czytac-wykres-cen-steamu',
+    title: 'Jak czytać wykresy cenowe Steam Market i przewidywać trendy',
+    excerpt: 'Steam Market pokazuje historię cen każdego skina. Nauczymy Cię jak interpretować te dane, kiedy kupować po dołkach i jak rozpoznawać sezonowe wzorce.',
+    category: 'Analiza',
+    readTime: '10 min',
+    date: '2025-03-01',
+    tags: ['wykresy', 'trendy', 'analiza techniczna'],
+  },
+  {
+    slug: 'stickery-na-skinach-wartość',
+    title: 'Naklejki na skinach – kiedy dodają wartość a kiedy ją niszczą',
+    excerpt: 'Naklejka z majora może zwiększyć wartość skina o 500%. Ale naklejka z taniego turnieju – obniżyć. Dowiedz się jak oceniać wartość naklejek i na co zwracać uwagę.',
+    category: 'Edukacja',
+    readTime: '8 min',
+    date: '2025-03-10',
+    tags: ['stickery', 'naklejki', 'wartość'],
+  },
+  {
+    slug: 'bezpieczenstwo-handel-skinami',
+    title: 'Bezpieczeństwo przy handlu skinami – jak uniknąć scamu i oszustwa',
+    excerpt: 'Najpopularniejsze metody oszustw przy handlu skinami CS2 i jak się przed nimi chronić. Checklista bezpiecznej transakcji.',
+    category: 'Bezpieczeństwo',
+    readTime: '7 min',
+    date: '2025-03-20',
+    tags: ['bezpieczeństwo', 'scam', 'oszustwa'],
+  },
+];
+
+const categories = ['Wszystkie', ...new Set(articles.map(a => a.category))];
+
+const schema = {
+  "@context": "https://schema.org",
+  "@type": "Blog",
+  "name": "Poradniki CS2 Trading Hub",
+  "description": "Poradniki o handlu skinami CS2, inwestowaniu i rynku Steam.",
+  "url": "https://cs2-market.netlify.app/poradniki",
+  "inLanguage": "pl",
+  "blogPost": articles.map(a => ({
+    "@type": "BlogPosting",
+    "headline": a.title,
+    "description": a.excerpt,
+    "url": `https://cs2-market.netlify.app/poradniki/${a.slug}`,
+    "datePublished": a.date,
+    "inLanguage": "pl",
+  }))
+};
 ---
+
 <Layout
-  title="Poradniki CS2 trading – jak handlować skinami"
-  description="Poradniki dla traderów skinów CS2. Jak handlować, w co inwestować, jak czytać rynek Steam Market."
+  title="Poradniki CS2 Trading – jak handlować skinami, float, inwestycje"
+  description="Darmowe poradniki o handlu skinami CS2. Jak zacząć trading, co to float value, gdzie kupować skiny i jak inwestować w skiny CS2."
+  schema={schema}
 >
+
 <div class="container">
+
+  <nav class="breadcrumb" aria-label="Breadcrumb">
+    <a href="/">Strona główna</a><span>›</span>
+    <span>Poradniki</span>
+  </nav>
+
   <div class="page-header">
-    <h1>Poradniki CS2 Trading</h1>
-    <p>Artykuły o handlu skinami, inwestowaniu i rynku CS2 — wkrótce. Na razie sprawdź kalkulator skrzynek.</p>
-    <div style="margin-top:24px;display:flex;gap:12px;flex-wrap:wrap">
-      <a href="/kalkulator" class="btn btn-primary">Kalkulator skrzynek</a>
-      <a href="/skins" class="btn btn-ghost">Baza skinów</a>
+    <div class="page-header-badge">
+      <span class="dot"></span>
+      Wiedza o rynku CS2
     </div>
+    <h1>Poradniki CS2 Trading</h1>
+    <p>Wszystko co musisz wiedzieć o handlu skinami — od podstaw po zaawansowane strategie inwestycyjne.</p>
   </div>
+
+  <!-- Category filter -->
+  <div class="cat-filter" id="catFilter">
+    {categories.map((cat, i) => (
+      <button
+        class={`cat-btn ${i === 0 ? 'active' : ''}`}
+        data-cat={cat}
+        onclick="filterCat(this)"
+      >
+        {cat}
+      </button>
+    ))}
+  </div>
+
+  <!-- Articles grid -->
+  <div class="articles-grid" id="articlesGrid">
+    {articles.map((article, i) => (
+      <a href={`/poradniki/${article.slug}`} class="article-card" data-cat={article.category}>
+        <div class="article-card-top">
+          <span class={`article-cat cat-${article.category.toLowerCase().replace(/ą/g,'a').replace(/ę/g,'e').replace(/ś/g,'s')}`}>
+            {article.category}
+          </span>
+          <span class="article-read-time">{article.readTime} czytania</span>
+        </div>
+        <h2 class="article-title">{article.title}</h2>
+        <p class="article-excerpt">{article.excerpt}</p>
+        <div class="article-footer">
+          <div class="article-tags">
+            {article.tags.slice(0, 2).map(tag => (
+              <span class="article-tag">#{tag}</span>
+            ))}
+          </div>
+          <span class="article-date">{new Date(article.date).toLocaleDateString('pl-PL', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
+        </div>
+        <div class="article-arrow">Czytaj artykuł →</div>
+      </a>
+    ))}
+  </div>
+
+  <!-- Featured info boxes -->
+  <section class="info-boxes">
+    <h2>Przydatne narzędzia</h2>
+    <div class="info-boxes-grid">
+      <a href="/kalkulator" class="info-box">
+        <div class="info-box-icon">🎲</div>
+        <h3>Kalkulator skrzynek</h3>
+        <p>Sprawdź ile kosztuje statystyczne zdobycie noża lub skina Covert ze skrzynki. Oficjalne dane Valve.</p>
+        <span class="info-box-link">Otwórz kalkulator →</span>
+      </a>
+      <a href="/skins" class="info-box">
+        <div class="info-box-icon">🔫</div>
+        <h3>Baza skinów</h3>
+        <p>Opisy, float range i linki do Steam Market dla najpopularniejszych skinów CS2.</p>
+        <span class="info-box-link">Przeglądaj skiny →</span>
+      </a>
+      <a href="/app" class="info-box">
+        <div class="info-box-icon">💼</div>
+        <h3>Tracker portfela</h3>
+        <p>Śledź wartość swojej kolekcji w czasie rzeczywistym. Importuj ze Steam i korzystaj z AI doradcy.</p>
+        <span class="info-box-link">Otwórz tracker →</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- SEO content -->
+  <section class="seo-section">
+    <h2>Jak zacząć handlować skinami CS2?</h2>
+    <p>
+      Handel skinami CS2 to jeden z największych rynków wirtualnych dóbr na świecie.
+      Każdego dnia na Steam Community Market przeprowadzane są setki tysięcy transakcji.
+      Żeby skutecznie handlować i inwestować, warto zrozumieć kilka kluczowych pojęć.
+    </p>
+    <p>
+      <strong>Float value</strong> to jeden z najważniejszych parametrów skina — określa stopień
+      jego zużycia na skali od 0.00 (idealny) do 1.00 (zniszczony). Skiny Factory New (0.00–0.07)
+      są zazwyczaj najdroższe, Battle-Scarred (0.45–1.00) najtańsze. Ale są wyjątki — niektóre
+      skiny wyglądają lepiej z wyższym floatem.
+    </p>
+    <p>
+      <strong>Gdzie handlować?</strong> Steam Community Market jest najprostszy, ale pobiera 15%
+      prowizji od każdej transakcji. Zewnętrzne platformy jak Buff163, Skinport czy CS.Money
+      mają niższe opłaty, ale wymagają dodatkowego zaufania i czasem weryfikacji.
+    </p>
+  </section>
+
 </div>
+
+<script is:inline>
+function filterCat(btn) {
+  const cat = btn.dataset.cat;
+  document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.article-card').forEach(card => {
+    if (cat === 'Wszystkie' || card.dataset.cat === cat) {
+      card.style.display = '';
+    } else {
+      card.style.display = 'none';
+    }
+  });
+}
+</script>
+
 </Layout>
+
 <style>
-.page-header { padding:60px 0; }
-.page-header h1 { font-size:clamp(28px,4vw,44px); font-weight:900; margin-bottom:12px; }
-.page-header p { font-size:16px; color:var(--text2); }
+.breadcrumb { display:flex; align-items:center; gap:8px; padding:20px 0 0; font-size:13px; color:var(--text2); }
+.breadcrumb a { color:var(--text2); text-decoration:none; }
+.breadcrumb a:hover { color:var(--accent); }
+
+/* Header */
+.page-header { padding:40px 0 48px; border-bottom:1px solid var(--border); margin-bottom:36px; }
+.page-header-badge { display:inline-flex; align-items:center; gap:8px; font-family:var(--font-mono); font-size:11px; letter-spacing:2px; text-transform:uppercase; color:var(--accent); margin-bottom:16px; }
+.dot { width:8px; height:8px; background:var(--accent); border-radius:50%; animation:pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+.page-header h1 { font-size:clamp(28px,4vw,48px); font-weight:900; margin-bottom:12px; letter-spacing:1px; }
+.page-header p { font-size:17px; color:var(--text2); max-width:650px; line-height:1.7; }
+
+/* Category filter */
+.cat-filter { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:32px; }
+.cat-btn { background:var(--bg2); border:1px solid var(--border); border-radius:20px; padding:7px 18px; font-family:var(--font); font-size:13px; font-weight:600; color:var(--text2); cursor:pointer; transition:all 0.2s; letter-spacing:0.3px; }
+.cat-btn:hover, .cat-btn.active { background:rgba(0,212,255,0.1); border-color:var(--border2); color:var(--accent); }
+
+/* Articles grid */
+.articles-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(320px, 1fr)); gap:20px; margin-bottom:64px; }
+
+.article-card {
+  display:flex; flex-direction:column;
+  background:var(--bg2); border:1px solid var(--border); border-radius:var(--radius);
+  padding:24px; text-decoration:none; transition:all 0.2s; cursor:pointer;
+}
+.article-card:hover { border-color:var(--border2); background:var(--bg3); transform:translateY(-3px); text-decoration:none; }
+
+.article-card-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
+.article-cat { font-family:var(--font-mono); font-size:10px; text-transform:uppercase; letter-spacing:1.5px; padding:3px 10px; border-radius:4px; font-weight:600; }
+.cat-podstawy     { background:rgba(0,212,255,0.12); color:var(--accent); border:1px solid rgba(0,212,255,0.2); }
+.cat-edukacja     { background:rgba(136,71,255,0.12); color:var(--purple); border:1px solid rgba(136,71,255,0.2); }
+.cat-inwestowanie { background:rgba(57,255,20,0.12); color:#39ff14; border:1px solid rgba(57,255,20,0.2); }
+.cat-analiza      { background:rgba(228,174,57,0.12); color:var(--gold); border:1px solid rgba(228,174,57,0.2); }
+.cat-platformy    { background:rgba(235,75,75,0.12); color:var(--red); border:1px solid rgba(235,75,75,0.2); }
+.cat-bezpieczenstwo { background:rgba(76,175,80,0.12); color:#4caf50; border:1px solid rgba(76,175,80,0.2); }
+.article-read-time { font-family:var(--font-mono); font-size:11px; color:var(--text2); }
+
+.article-title { font-size:17px; font-weight:700; color:#e8f4f8; line-height:1.4; margin-bottom:10px; }
+.article-excerpt { font-size:14px; color:var(--text2); line-height:1.7; flex:1; margin-bottom:16px; }
+
+.article-footer { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:8px; }
+.article-tags { display:flex; gap:6px; flex-wrap:wrap; }
+.article-tag { font-family:var(--font-mono); font-size:10px; color:var(--text2); background:var(--bg3); border:1px solid var(--border); border-radius:4px; padding:2px 7px; }
+.article-date { font-family:var(--font-mono); font-size:11px; color:var(--text2); opacity:0.6; }
+
+.article-arrow { font-size:13px; font-weight:700; color:var(--accent); letter-spacing:0.5px; padding-top:12px; border-top:1px solid var(--border); }
+.article-card:hover .article-arrow { color:#00aadd; }
+
+/* Info boxes */
+.info-boxes { margin-bottom:64px; }
+.info-boxes h2 { font-size:22px; font-weight:700; margin-bottom:20px; }
+.info-boxes-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:16px; }
+.info-box { display:block; background:var(--bg2); border:1px solid var(--border); border-radius:var(--radius); padding:24px; text-decoration:none; transition:all 0.2s; }
+.info-box:hover { border-color:var(--border2); background:var(--bg3); transform:translateY(-2px); text-decoration:none; }
+.info-box-icon { font-size:28px; margin-bottom:12px; }
+.info-box h3 { font-size:16px; font-weight:700; color:#e8f4f8; margin-bottom:8px; }
+.info-box p { font-size:13px; color:var(--text2); line-height:1.7; margin-bottom:12px; }
+.info-box-link { font-size:13px; font-weight:600; color:var(--accent); }
+
+/* SEO */
+.seo-section { border-top:1px solid var(--border); padding-top:48px; margin-bottom:64px; }
+.seo-section h2 { font-size:22px; margin-bottom:16px; }
+.seo-section p { font-size:15px; color:var(--text2); line-height:1.8; margin-bottom:14px; }
+.seo-section strong { color:#e8f4f8; }
+
+@media (max-width:640px) {
+  .articles-grid { grid-template-columns:1fr; }
+}
 </style>
