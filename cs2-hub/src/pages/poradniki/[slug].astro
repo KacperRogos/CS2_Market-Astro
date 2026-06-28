@@ -1,0 +1,699 @@
+---
+import Layout from '../../layouts/Layout.astro';
+
+const articles: Record<string, {
+  title: string;
+  description: string;
+  category: string;
+  readTime: string;
+  date: string;
+  tags: string[];
+  content: string;
+}> = {
+  'jak-handlowac-skinami-cs2': {
+    title: 'Jak zacząć handlować skinami CS2 – kompletny przewodnik dla początkujących',
+    description: 'Dowiedz się jak działają platformy handlowe, czym różni się Steam Market od Buff163, i jak nie stracić pieniędzy na pierwszych transakcjach.',
+    category: 'Podstawy',
+    readTime: '8 min',
+    date: '2025-01-15',
+    tags: ['trading', 'podstawy', 'steam market'],
+    content: `
+<h2>Czym są skiny CS2 i dlaczego mają wartość?</h2>
+<p>Skiny w Counter-Strike 2 to kosmetyczne nakładki na broń, które nie wpływają na rozgrywkę, ale są przedmiotem intensywnego handlu. Ich wartość wynika z rzadkości, estetyki i popytu społeczności. Niektóre skiny kosztują setki tysięcy złotych.</p>
+<p>Rynek skinów CS2 to jeden z największych rynków wirtualnych dóbr na świecie — według szacunków Steam Community Market przetwarza transakcje o łącznej wartości setek milionów dolarów rocznie.</p>
+
+<h2>Gdzie handlować skinami?</h2>
+<p>Masz do wyboru kilka platform:</p>
+<ul>
+  <li><strong>Steam Community Market</strong> — najprostszy i najbezpieczniejszy wybór. Pobiera jednak 15% prowizji od każdej sprzedaży (13% dla Steam + 2% dla CS2). Brak możliwości wypłaty środków na konto bankowe.</li>
+  <li><strong>Buff163</strong> — największa chińska platforma, ceny często o 10–30% niższe niż Steam. Wymaga logowania przez WeChat lub QQ, ale obsługuje karty Visa/Mastercard.</li>
+  <li><strong>Skinport</strong> — europejska alternatywa, ~12% prowizji, wypłaty na konto bankowe możliwe.</li>
+  <li><strong>CS.Money</strong> — głównie wymiana skinów, ale też kupno/sprzedaż.</li>
+</ul>
+
+<h2>Podstawowe zasady bezpiecznego handlu</h2>
+<p>Zanim dokonasz pierwszej transakcji, zapamiętaj kilka żelaznych reguł:</p>
+<ul>
+  <li>Nigdy nie handluj poza platformami — bezpośrednie wymiany to źródło większości scamów</li>
+  <li>Zawsze weryfikuj nazwę skina i jego float przed zakupem</li>
+  <li>Nie ufaj "ofertom nie do odrzucenia" od nieznajomych</li>
+  <li>Sprawdzaj profil sprzedającego — historia i reputacja mają znaczenie</li>
+  <li>Używaj tylko oficjalnych linków do stron — fałszywe strony mogą wyglądać identycznie</li>
+</ul>
+
+<h2>Jak zacząć? Strategia dla początkujących</h2>
+<p>Jeśli zaczynasz od zera, polecamy następujące podejście:</p>
+<p>Zacznij od małych kwot — nie inwestuj więcej niż możesz stracić. Rynek skinów jest nieprzewidywalny i nawet doświadczeni traderzy popełniają błędy.</p>
+<p>Obserwuj trendy przez co najmniej miesiąc przed pierwszym zakupem inwestycyjnym. Śledź ceny na Steam, czytaj społeczność i sprawdzaj historyczne dane.</p>
+<p>Skup się na popularnych skinach z dużym wolumenem obrotu. Łatwiej je sprzedać bez straty na spreadzie niż rzadkie itemy, na które czeka się tygodniami na kupca.</p>
+
+<h2>Najczęstsze błędy początkujących</h2>
+<ul>
+  <li><strong>Kupowanie "bo tanie"</strong> — niski skin często jest tani z powodu. Sprawdź czy ma historię wzrostów.</li>
+  <li><strong>Ignorowanie float value</strong> — dwa skiny o tej samej nazwie mogą różnić się ceną o 50% przez float.</li>
+  <li><strong>Panika i sprzedaż po dołku</strong> — krótkoterminowe spadki to norma. Nie sprzedawaj w panice.</li>
+  <li><strong>Zbyt duża dywersyfikacja</strong> — lepiej znać dobrze 5 skinów niż słabo 50.</li>
+</ul>
+    `,
+  },
+  'float-value-przewodnik': {
+    title: 'Float value – co to jest i dlaczego ma ogromne znaczenie dla ceny skina',
+    description: 'Float value decyduje o wyglądzie i cenie skina bardziej niż myślisz. Wyjaśniamy jak czytać float, co to Factory New naprawdę oznacza i kiedy warto dopłacić za niski float.',
+    category: 'Edukacja',
+    readTime: '6 min',
+    date: '2025-01-22',
+    tags: ['float', 'wear', 'ceny'],
+    content: `
+<h2>Co to jest float value?</h2>
+<p>Float value (wartość float) to liczba od 0.00 do 1.00, która określa stopień "zużycia" skina — ile wirtualnych zarysowań i uszkodzeń ma jego tekstura. Im niższy float, tym lepiej wygląda skin.</p>
+<p>Float jest losowany w momencie otwarcia skrzynki lub zakupu na rynku i nie zmienia się nigdy — to stała cecha danego egzemplarza skina.</p>
+
+<h2>Pięć kategorii zużycia (wear)</h2>
+<ul>
+  <li><strong>Factory New (FN)</strong> — float 0.00–0.07. Idealny stan, brak zarysowań. Zawsze najdroższy.</li>
+  <li><strong>Minimal Wear (MW)</strong> — float 0.07–0.15. Minimalne zużycie, ledwo widoczne gołym okiem.</li>
+  <li><strong>Field-Tested (FT)</strong> — float 0.15–0.38. Wyraźne zarysowania, ale tekstura zachowana. Najczęstszy kompromis cenowy.</li>
+  <li><strong>Well-Worn (WW)</strong> — float 0.38–0.45. Mocne zużycie, wyraźnie widoczne.</li>
+  <li><strong>Battle-Scarred (BS)</strong> — float 0.45–1.00. Zniszczony wygląd. Zawsze najtańszy.</li>
+</ul>
+
+<h2>Dlaczego float w obrębie jednej kategorii ma znaczenie?</h2>
+<p>FT 0.150 i FT 0.379 to obaj Field-Tested, ale wyglądają zupełnie inaczej. Skin z floatem 0.150 będzie wyglądał prawie jak Minimal Wear, podczas gdy 0.379 będzie bliski Well-Worn. Różnica w cenie może wynosić 20–40%.</p>
+<p>Dla skinów "StatTrak" i noży ta różnica jest jeszcze bardziej wyraźna. Float 0.001 na nożu może być warty dwa razy więcej niż float 0.069 — oba są Factory New, ale kolekcjonerzy płacą premium za najniższe możliwe floaty.</p>
+
+<h2>Kiedy warto dopłacić za niski float?</h2>
+<p>Niski float jest szczególnie ważny dla:</p>
+<ul>
+  <li>Skinów które wyglądają bardzo różnie przy różnym zużyciu (np. AK-47 Case Hardened — pattern i kolor)</li>
+  <li>Noży i rękawic — kolekcjonerzy zawsze szukają najniższych floatów</li>
+  <li>Skinów które są dostępne tylko w Field-Tested lub wyżej — tam niski FT ma większą wartość</li>
+</ul>
+<p>Nie warto nadpłacać za float przy tanich skinach codziennego użytku — różnica wizualna jest nieistotna, a różnica w cenie może być duża.</p>
+
+<h2>Jak sprawdzić float skina przed zakupem?</h2>
+<p>Na Steam Market float nie jest wyświetlany domyślnie. Możesz go sprawdzić przez:</p>
+<ul>
+  <li>Zewnętrzne narzędzia jak CSFloat.com lub csfloat extension do przeglądarki</li>
+  <li>Steam API — dla zaawansowanych użytkowników</li>
+  <li>Platformy jak Buff163 wyświetlają float przy każdym listingu</li>
+</ul>
+    `,
+  },
+  'najlepsze-skiny-do-inwestowania-2025': {
+    title: 'Najlepsze skiny CS2 do inwestowania w 2025 roku – analiza rynku',
+    description: 'Które skiny historycznie rosną na wartości? Jak rozpoznać skin z potencjałem inwestycyjnym zanim jego cena wystrzeli? Analiza danych z ostatnich 12 miesięcy.',
+    category: 'Inwestowanie',
+    readTime: '12 min',
+    date: '2025-02-01',
+    tags: ['inwestycje', 'wzrost cen', 'analiza'],
+    content: `
+<h2>Czym kierować się przy wyborze skina inwestycyjnego?</h2>
+<p>Dobry skin inwestycyjny to taki, który ma potencjał wzrostu wartości w czasie. Nie chodzi o spekulację krótkoterminową, ale o rozumienie fundamentów rynku.</p>
+<p>Kluczowe czynniki to: ograniczona podaż (skin nie jest już dostępny w aktywnych skrzynkach), rosnąca popularność CS2, nadchodzące eventy esportowe oraz ogólny trend wzrostowy cen skinów przez lata.</p>
+
+<h2>Kategorie skinów z historycznie dobrymi wynikami</h2>
+<h3>Skiny z wycofanych kolekcji</h3>
+<p>Gdy skrzynka lub kolekcja przestaje być aktywna, podaż skinów spada. Każdy skin który "wychodzi z obiegu" ma statystycznie wyższe szanse na wzrost wartości. AK-47 Redline z Phoenix Collection czy AWP Asiimov są przykładami skinów które przez lata utrzymywały wartość lub rosły.</p>
+
+<h3>Noże i rękawice</h3>
+<p>Historycznie noże i rękawice rosną najstabilniej. Mają najniższy drop rate (0.26%), co utrzymuje stałą rzadkość. Przy rosnącej bazie graczy CS2, popyt na te itemy systematycznie rośnie.</p>
+
+<h3>Skiny z popularnych kategorii broni</h3>
+<p>AK-47, AWP, M4A4 i M4A1-S to bronie które każdy gracz używa. Skiny do tych broni mają największy popyt. Szczególnie warte uwagi są Covert skiny z tych kategorii.</p>
+
+<h2>Na co uważać?</h2>
+<p>Nie każdy drogi skin jest dobrą inwestycją. Unikaj skinów które:</p>
+<ul>
+  <li>Mają bardzo niski wolumen obrotu — trudno je sprzedać</li>
+  <li>Są dostępne w wielu aktywnych skrzynkach jednocześnie</li>
+  <li>Mają kontrowersyjną estetykę — gusta się zmieniają</li>
+  <li>Zostały sztucznie pompowane na forach — hype mija szybko</li>
+</ul>
+
+<h2>Strategia długoterminowa vs krótkoterminowa</h2>
+<p>Długoterminowe inwestowanie (6–24 miesiące) jest bezpieczniejsze. Skiny rzadkie i popularne historycznie rosną z czasem, szczególnie w okolicach dużych turniejów i aktualizacji gry.</p>
+<p>Krótkoterminowe spekulacje (tygodnie) są ryzykowne i wymagają bardzo dobrego śledzenia rynku. Nie polecamy dla początkujących.</p>
+    `,
+  },
+  'czy-warto-otwierac-skrzynki': {
+    title: 'Czy warto otwierać skrzynki CS2? Matematyka kontra emocje',
+    description: 'Szczere obliczenia: ile kosztuje statystyczny nóż, jaka jest oczekiwana wartość otwarcia skrzynki i w jakich rzadkich sytuacjach otwieranie może mieć sens.',
+    category: 'Analiza',
+    readTime: '7 min',
+    date: '2025-02-10',
+    tags: ['skrzynki', 'matematyka', 'drop rate'],
+    content: `
+<h2>Oficjalne prawdopodobieństwa Valve</h2>
+<p>W 2022 roku Valve ujawniło oficjalne drop rate dla skrzynek CS. Są one identyczne dla wszystkich skrzynek:</p>
+<ul>
+  <li><strong>Mil-Spec (niebieskie)</strong> — 79.92%</li>
+  <li><strong>Restricted (fioletowe)</strong> — 15.98%</li>
+  <li><strong>Classified (różowe)</strong> — 3.20%</li>
+  <li><strong>Covert (czerwone)</strong> — 0.64%</li>
+  <li><strong>Nóż / Rękawice (złote)</strong> — 0.26%</li>
+</ul>
+
+<h2>Ile kosztuje statystyczny nóż?</h2>
+<p>Przy szansie 0.26% na nóż, statystycznie potrzebujesz około 385 otwarć aby go dostać. Przy koszcie ~10.50 zł za otwarcie (klucz + skrzynka), to koszt około <strong>4 000 zł</strong>.</p>
+<p>Tymczasem większość noży CS2 można kupić bezpośrednio na Steam Market za 500–3000 zł. Matematyka jest nieubłagana — statystycznie otwieranie skrzynek przynosi stratę.</p>
+
+<h2>Oczekiwana wartość (EV) otwarcia skrzynki</h2>
+<p>Oczekiwana wartość to średnia wartość tego co dostaniesz po otwarciu skrzynki. Dla większości popularnych skrzynek EV wynosi 2–5 zł przy koszcie otwarcia ~10.50 zł. To oznacza że statystycznie tracisz ponad połowę pieniędzy przy każdym otwarciu.</p>
+
+<h2>Kiedy otwieranie może mieć sens?</h2>
+<p>Jest kilka sytuacji gdzie otwieranie może być racjonalne:</p>
+<ul>
+  <li>Gdy skrzynka jest bardzo tania (poniżej 0.10 zł), a klucz stanowi główny koszt</li>
+  <li>Gdy EV skrzynki jest wyjątkowo wysoka przez rzadkie, drogie skiny w środku</li>
+  <li>Gdy traktujesz to jako rozrywkę i wiesz ile płacisz za emocje (jak automat do gier)</li>
+</ul>
+<p>Używaj naszego <a href="/kalkulator">kalkulatora skrzynek</a> aby sprawdzić statystyczny koszt dla każdej skrzynki przed otwarciem.</p>
+
+<h2>Psychologia otwierania skrzynek</h2>
+<p>Producenci gier wiedzą, że losowe nagrody wywołują silne reakcje emocjonalne — podobne do hazardu. "Prawie trafiony" efekt, rzadkie animacje i efekty dźwiękowe są zaprojektowane żeby zachęcać do kolejnych otwarć. Świadomość tego mechanizmu pomaga podjąć racjonalną decyzję.</p>
+    `,
+  },
+  'buff163-vs-steam-market': {
+    title: 'Buff163 vs Steam Market – gdzie kupować i sprzedawać skiny CS2?',
+    description: 'Porównanie największych platform: opłaty, bezpieczeństwo, dostępność i różnice w cenach. Gdzie można zaoszczędzić nawet 20% na tym samym skinie?',
+    category: 'Platformy',
+    readTime: '9 min',
+    date: '2025-02-18',
+    tags: ['buff163', 'steam market', 'platformy'],
+    content: `
+<h2>Steam Community Market — zalety i wady</h2>
+<p>Steam Market to domyślny wybór dla większości graczy. Zalety są oczywiste: bezpieczeństwo (Valve gwarantuje transakcje), brak dodatkowej rejestracji, integracja z kontem Steam i natychmiastowe dostępność skinów po zakupie.</p>
+<p>Główna wada to prowizja — 15% od każdej sprzedaży. Oznacza to, że jeśli skin kosztuje 100 zł, sprzedający dostaje 87 zł. Dodatkowo środki pozostają na koncie Steam i nie można ich wypłacić na konto bankowe.</p>
+
+<h2>Buff163 — chińska platforma z niższymi cenami</h2>
+<p>Buff163 to największa platforma do handlu skinami CS2 na świecie pod względem wolumenu. Prowizja wynosi tylko 2.5%, co oznacza że ceny są zazwyczaj o 10–25% niższe niż na Steam Market.</p>
+<p>Wady: strona jest głównie po chińsku (choć dostępna jest wersja angielska), rejestracja wymaga weryfikacji przez WeChat lub QQ, a wypłata środków na konto bankowe jest skomplikowana dla europejskich użytkowników.</p>
+
+<h2>Alternatywy dla europejskich graczy</h2>
+<ul>
+  <li><strong>Skinport</strong> — europejska platforma, ~12% prowizji, wypłaty na konto bankowe. Ceny niższe niż Steam, wyższe niż Buff.</li>
+  <li><strong>CS.Money</strong> — głównie wymiana, ale też kupno. Prosty interfejs, popularny wśród polskich graczy.</li>
+  <li><strong>DMarket</strong> — platforma z kripto i tradycyjnymi płatnościami, ~7% prowizji.</li>
+  <li><strong>Skinbaron</strong> — niemiecka platforma, ~15% prowizji, wysoki standard bezpieczeństwa.</li>
+</ul>
+
+<h2>Strategia optymalna</h2>
+<p>Doświadczeni traderzy zazwyczaj <strong>kupują na Buff163</strong> (najniższe ceny) i <strong>sprzedają na Steam Market</strong> (największy rynek i popyt) lub odwrotnie, arbitrażując różnicę cen między platformami.</p>
+<p>Dla początkujących najlepszym podejściem jest zacząć od Steam Market dla bezpieczeństwa, a gdy lepiej poznasz rynek — eksplorować inne platformy dla lepszych cen.</p>
+    `,
+  },
+  'jak-czytac-wykres-cen-steamu': {
+    title: 'Jak czytać wykresy cenowe Steam Market i przewidywać trendy',
+    description: 'Steam Market pokazuje historię cen każdego skina. Nauczymy Cię jak interpretować te dane, kiedy kupować po dołkach i jak rozpoznawać sezonowe wzorce.',
+    category: 'Analiza',
+    readTime: '10 min',
+    date: '2025-03-01',
+    tags: ['wykresy', 'trendy', 'analiza techniczna'],
+    content: `
+<h2>Co pokazuje wykres Steam Market?</h2>
+<p>Każdy skin na Steam Community Market ma wykres historii cen. Pokazuje on mediany cen sprzedaży w poszczególnych dniach i godzinach, wraz z wolumenem (liczbą sprzedanych egzemplarzy). To bezpłatne narzędzie jest niedoceniane przez większość graczy.</p>
+
+<h2>Sezonowe wzorce na rynku skinów</h2>
+<p>Rynek skinów ma wyraźne wzorce sezonowe:</p>
+<ul>
+  <li><strong>Turniejowe skoki</strong> — ceny wielu skinów rosną przed i podczas dużych turniejów CS2 (Major Championships). Większa oglądalność = więcej nowych graczy = większy popyt.</li>
+  <li><strong>Letnie dołki</strong> — w lipcu i sierpniu wiele cen spada, bo gracze są mniej aktywni. To dobry czas na zakupy.</li>
+  <li><strong>Wyprzedaże Steam</strong> — podczas wielkich wyprzedaży Steama ceny skinów paradoksalnie mogą rosnąć, bo gracze mają więcej środków na koncie.</li>
+  <li><strong>Nowe aktualizacje gry</strong> — gdy Valve dodaje nowe mapy lub tryby, zainteresowanie CS2 rośnie, co przekłada się na wyższy popyt na skiny.</li>
+</ul>
+
+<h2>Jak identyfikować dołki i szczyty?</h2>
+<p>Na wykresie Steam szukaj:</p>
+<ul>
+  <li><strong>Dołki</strong> — punkty gdzie cena osiągnęła minimum i zaczęła rosnąć. To potencjalne momenty zakupu.</li>
+  <li><strong>Szczyty</strong> — momenty przed dużymi wydarzeniami lub po nagłym skoku popularności. To potencjalne momenty sprzedaży.</li>
+  <li><strong>Trendy</strong> — czy cena ogólnie rośnie (dobra inwestycja), spada (unikaj) czy oscyluje w zakresie (możliwy trading).</li>
+</ul>
+
+<h2>Ograniczenia analizy wykresów</h2>
+<p>Pamiętaj, że historyczne dane nie gwarantują przyszłych wyników. Rynek skinów może być dotknięty przez czynniki zewnętrzne: zmiany w polityce Steam, kontrowersje wokół Valve, zmiany w popularności CS2 czy ogólny sentyment na rynku gier.</p>
+<p>Traktuj wykresy jako jedno z narzędzi decyzyjnych, nie jedyne kryterium.</p>
+    `,
+  },
+  'stickery-na-skinach-wartosc': {
+    title: 'Naklejki na skinach – kiedy dodają wartość a kiedy ją niszczą',
+    description: 'Naklejka z majora może zwiększyć wartość skina o 500%. Ale naklejka z taniego turnieju – obniżyć. Dowiedz się jak oceniać wartość naklejek i na co zwracać uwagę.',
+    category: 'Edukacja',
+    readTime: '8 min',
+    date: '2025-03-10',
+    tags: ['stickery', 'naklejki', 'wartość'],
+    content: `
+<h2>Jak naklejki wpływają na wartość skina?</h2>
+<p>Naklejki (stickery) to jeden z najbardziej niedocenianych aspektów wartości skinów CS2. Właściwa kombinacja naklejek może zwiększyć wartość skina o setki procent, podczas gdy złe naklejki mogą sprawić, że skin będzie trudny do sprzedania nawet po obniżeniu ceny.</p>
+
+<h2>Naklejki które dodają wartość</h2>
+<ul>
+  <li><strong>Holo naklejki z Majorów</strong> — szczególnie starszych turniejów (Katowice 2014, Cologne 2014). Ceny sięgają setek tysięcy złotych za jedną naklejkę.</li>
+  <li><strong>Naklejki popularnych graczy i drużyn</strong> — szczególnie legend CS takich jak s1mple, NiKo czy device.</li>
+  <li><strong>Naklejki Craft</strong> — celowe kombinacje naklejek dopasowanych tematycznie lub kolorystycznie do skina.</li>
+  <li><strong>Naklejki z limited edition kolekcji</strong> — im rzadsza, tym lepiej.</li>
+</ul>
+
+<h2>Naklejki które obniżają wartość</h2>
+<ul>
+  <li>Naklejki z tanich i mało znanych turniejów</li>
+  <li>Przypadkowe kombinacje bez logiki estetycznej</li>
+  <li>Naklejki które nie pasują kolorystycznie do skina</li>
+  <li>Uszkodzone lub częściowo zmyte naklejki (można je zmyć za cenę losowości ich "stan")</li>
+</ul>
+
+<h2>Jak ocenić wartość skina z naklejkami?</h2>
+<p>Sprawdź każdą naklejkę osobno na Steam Market lub Buff163. Jeśli suma wartości naklejek przekracza 30–50% wartości bazowej skina, skin prawdopodobnie jest sprzedawany z "naklejkowym premiumem" — i znajdzie kupca wśród kolekcjonerów.</p>
+<p>Jeśli kupujesz skin z naklejkami, upewnij się że zapłacona cena jest uzasadniona faktyczną wartością naklejek, nie tylko subiektywną oceną sprzedającego.</p>
+    `,
+  },
+  'bezpieczenstwo-handel-skinami': {
+    title: 'Bezpieczeństwo przy handlu skinami – jak uniknąć scamu i oszustwa',
+    description: 'Najpopularniejsze metody oszustw przy handlu skinami CS2 i jak się przed nimi chronić. Checklista bezpiecznej transakcji.',
+    category: 'Bezpieczeństwo',
+    readTime: '7 min',
+    date: '2025-03-20',
+    tags: ['bezpieczeństwo', 'scam', 'oszustwa'],
+    content: `
+<h2>Najpopularniejsze metody oszustw</h2>
+<h3>Phishing — fałszywe strony</h3>
+<p>Najczęstszy scam. Dostajesz link do strony wyglądającej identycznie jak Steam, Buff163 czy inna platforma. Podajesz dane logowania i tracisz konto. Zawsze sprawdzaj URL — scamerzy używają adresów jak "steamn.com" lub "buff163.net".</p>
+
+<h3>Impersonacja (podszywanie się)</h3>
+<p>Ktoś kontaktuje się z Tobą jako "pracownik Steam" lub "moderator", informując o problemie z kontem i prosząc o dane lub skiny "do weryfikacji". Steam nigdy nie kontaktuje się przez Steam Chat z takimi prośbami.</p>
+
+<h3>Scam przy wymianie (trade scam)</h3>
+<p>Podczas oferty wymiany scammer zmienia skin w ostatniej chwili na podobny ale tańszy — licząc że nie zauważysz. Zawsze weryfikuj dokładnie co dostaniesz PRZED zaakceptowaniem.</p>
+
+<h3>Fałszywe czeki i przelewy</h3>
+<p>Przy bezpośrednich transakcjach poza platformami, scammer "płaci" fałszywym przelewem lub potwierdzeniem płatności. Gotówka lub zweryfikowana wpłata przed wydaniem skina.</p>
+
+<h2>Checklista bezpiecznej transakcji</h2>
+<ul>
+  <li>✅ Używaj tylko znanych, zaufanych platform (Steam, Buff163, Skinport)</li>
+  <li>✅ Nigdy nie handluj poza platformami z nieznajomymi</li>
+  <li>✅ Włącz Steam Guard i uwierzytelnianie dwuetapowe</li>
+  <li>✅ Weryfikuj URL strony przed logowaniem</li>
+  <li>✅ Sprawdzaj dokładnie oferty wymiany przed akceptacją</li>
+  <li>✅ Nie klikaj linków od nieznajomych w grze ani na Steam</li>
+  <li>✅ Sprawdź historię i reputację konta przed transakcją</li>
+  <li>❌ Nigdy nie podawaj hasła, kodu Steam Guard ani pliku loginusers.vdf</li>
+  <li>❌ Nie instaluj żadnych "narzędzi do handlu" od nieznajomych</li>
+</ul>
+
+<h2>Co zrobić jeśli zostałeś oszukany?</h2>
+<p>Działaj szybko: zmień hasło Steam natychmiast, zgłoś incydent do Steam Support i zablokuj konto jeśli to możliwe. Steam Support rzadko zwraca stracone skiny, ale zgłoszenie pomoże zablokować konto scammera.</p>
+<p>Jeśli straciłeś dostęp do konta, skontaktuj się z Steam Support przez ich oficjalną stronę podając dowody własności konta (adres email, numer karty użytej do zakupów, klucze produktów).</p>
+    `,
+  },
+  'pattern-index-cs2': {
+    title: 'Pattern index – czym jest i dlaczego jeden skin może być wart 10x więcej niż drugi',
+    description: 'AK-47 Case Hardened #661 vs zwykły #500. Wyjaśniamy czym jest pattern index i jak wpływa na ceny noży.',
+    category: 'Edukacja', readTime: '9 min', date: '2025-04-01',
+    tags: ['pattern', 'case hardened', 'doppler'],
+    content: `
+<h2>Co to jest pattern index?</h2>
+<p>Pattern index to liczba od 0 do 999, która określa jak tekstura jest nałożona na model broni. W przypadku skinów ze zmieniającymi się wzorami — jak AK-47 Case Hardened czy Karambit Doppler — pattern index decyduje o kolorach i wzorze widocznym na broni.</p>
+<h2>Przykłady cennych patternów</h2>
+<ul>
+  <li><strong>AK-47 Case Hardened #661</strong> — słynny "Blue Gem", prawie całkowicie niebieski. Wartość wielokrotnie wyższa niż standardowy.</li>
+  <li><strong>Karambit Doppler Phase 2</strong> — faza 2 ma głęboki róż, uznawana za najpiękniejszą.</li>
+  <li><strong>Five-SeveN Crimson Web Middle Web</strong> — pająk dokładnie pośrodku jest najbardziej pożądany.</li>
+</ul>
+<h2>Jak sprawdzić pattern index?</h2>
+<p>Platformy takie jak CSFloat.com pokazują pattern index przy każdym skinie. Przed zakupem cennego skina ze zmiennym wzorem zawsze sprawdź tę wartość i porównaj ze zdjęciami znanych dobrych patternów.</p>
+<h2>Czy warto płacić premium za pattern?</h2>
+<p>Kolekcjonerzy i inwestorzy długoterminowi często płacą duże premie za rzadkie patterny — a te skiny mają historię utrzymywania wartości. Jeśli kupujesz skin do gry, pattern ma znaczenie głównie estetyczne.</p>
+    `,
+  },
+  'jak-importowac-ekwipunek-steam': {
+    title: 'Jak zaimportować ekwipunek ze Steam do trackera portfela',
+    description: 'Krok po kroku: jak ustawić publiczny ekwipunek Steam, znaleźć Steam ID64 i zaimportować skiny do trackera CS2.',
+    category: 'Podstawy', readTime: '5 min', date: '2025-04-08',
+    tags: ['import', 'steam', 'portfel'],
+    content: `
+<h2>Krok 1: Ustaw ekwipunek jako publiczny</h2>
+<p>Wejdź w Ustawienia Steam → Prywatność → Ekwipunek gry i ustaw na "Publiczny". Bez tego import jest niemożliwy — API Steam nie zwróci listy przedmiotów.</p>
+<h2>Krok 2: Znajdź swój Steam ID64</h2>
+<p>Wejdź na swój profil Steam i użyj steamidfinder.com — skopiuj 17-cyfrowy steamID64. Możesz też wkleić bezpośrednio URL swojego profilu Steam.</p>
+<h2>Krok 3: Importuj do trackera</h2>
+<p>W aplikacji CS2 Trading Hub kliknij "Importuj ekwipunek", wklej Steam ID64 i wybierz czy chcesz zastąpić czy dołączyć do istniejącego portfela. Aplikacja automatycznie pobierze ceny ze Steam Market.</p>
+<h2>Co się importuje?</h2>
+<p>Importowane są wszystkie marketable skiny z CS2 — bronie, noże, rękawice, skrzynki, kapsuły i naklejki. Każdy item dostaje automatyczne pobieranie ceny.</p>
+    `,
+  },
+  'skiny-stattrack-czy-warto': {
+    title: 'StatTrak – czy warto przepłacać za licznik zabójstw?',
+    description: 'StatTrak kosztuje 2-5x więcej niż zwykła wersja. Kiedy ta różnica jest uzasadniona i czy StatTrak zyskuje na wartości szybciej?',
+    category: 'Analiza', readTime: '6 min', date: '2025-04-15',
+    tags: ['stattrak', 'ceny', 'kolekcjonerstwo'],
+    content: `
+<h2>Czym jest StatTrak™?</h2>
+<p>StatTrak™ to wersja skina z wbudowanym licznikiem zabójstw. Wyświetla liczbę zabójstw dokonanych tą bronią przez danego gracza. Licznik jest przypisany do konkretnego egzemplarza i resetuje się przy wymianie na innego gracza.</p>
+<h2>Ile kosztuje StatTrak premium?</h2>
+<p>W zależności od skina, StatTrak wersja kosztuje od 1.5x do 5x więcej niż zwykła. Dla tanich skinów różnica to kilka złotych, dla noży — tysiące złotych. StatTrak noże są ekstremalnie rzadkie i zawsze wartościowe.</p>
+<h2>Kiedy StatTrak jest wart premium?</h2>
+<ul>
+  <li>Kolekcjonerstwo — jeśli chcesz kompletny zestaw, StatTrak jest niezbędny</li>
+  <li>Popularne skiny do broni — StatTrak AK-47 Redline ma znacznie większy rynek</li>
+  <li>Noże i rękawice — StatTrak noże są rzadkie i zawsze wartościowe</li>
+</ul>
+<h2>Kiedy StatTrak nie jest wart dopłaty?</h2>
+<p>Jeśli kupujesz skin do gry i nie zależy Ci na liczniku — zwykła wersja jest mądrzejszym wyborem. Zaoszczędzone pieniądze możesz wydać na lepszy float lub inny skin.</p>
+    `,
+  },
+  'noze-cs2-ranking': {
+    title: 'Ranking noży CS2 – które są najpopularniejsze i najlepiej trzymają wartość',
+    description: 'Karambit, Butterfly, M9 Bayonet czy Skeleton? Porównujemy najpopularniejsze noże CS2 pod kątem ceny i potencjału wzrostu.',
+    category: 'Inwestowanie', readTime: '11 min', date: '2025-04-22',
+    tags: ['noże', 'karambit', 'ranking'],
+    content: `
+<h2>Dlaczego noże CS2 są tak wartościowe?</h2>
+<p>Noże to najrzadsze itemy ze skrzynek — szansa 0.26%, czyli jeden na ~385 otwarć. Przy rosnącej bazie graczy CS2, popyt systematycznie rośnie, a podaż jest ograniczona. To klasyczny przepis na wzrost wartości.</p>
+<h2>Top noże pod kątem popularności</h2>
+<ul>
+  <li><strong>Karambit</strong> — król noży CS2. Charakterystyczny gest, kultowa animacja wyjęcia. Najdroższy w swojej kategorii, ale i najbardziej płynny rynek.</li>
+  <li><strong>Butterfly Knife</strong> — niesamowita animacja, bardzo popularna wśród streamerów. Wysoka cena bazowa.</li>
+  <li><strong>M9 Bayonet</strong> — klasyczny wygląd, duży rynek, dobra płynność. Średnio najdroższy nóż po Karambit i Butterfly.</li>
+  <li><strong>Skeleton Knife</strong> — nowszy design, rosnąca popularność. Dobry wybór inwestycyjny.</li>
+  <li><strong>Stiletto Knife</strong> — niższy punkt wejścia, mniejszy rynek ale stabilna wartość.</li>
+</ul>
+<h2>Który nóż jest najlepszy jako inwestycja?</h2>
+<p>Karambit i Butterfly mają najbardziej płynny rynek — łatwo je sprzedać. M9 Bayonet to dobry kompromis między ceną a popularnością. Skeleton Knife ma potencjał wzrostu wraz z rosnącą popularnością wśród nowych graczy.</p>
+    `,
+  },
+  'trading-up-kontrakty': {
+    title: 'Trade-up kontrakty – jak działają i czy można na nich zarobić?',
+    description: 'Trade-up kontrakt pozwala zamienić 10 skinów niższego rzadkości na jeden wyższego. Matematyka, strategie i przykłady.',
+    category: 'Strategia', readTime: '10 min', date: '2025-05-01',
+    tags: ['trade-up', 'kontrakt', 'strategia'],
+    content: `
+<h2>Jak działa trade-up kontrakt?</h2>
+<p>Trade-up kontrakt pozwala włożyć 10 skinów tego samego rzadkości (np. 10 Mil-Spec) aby otrzymać 1 losowy skin wyższego rzadkości (Restricted) z kolekcji, do których należą wkładane skiny.</p>
+<h2>Matematyka trade-upów</h2>
+<p>Klucz to średnio ważona wartość możliwych wyników. Jeśli wszystkie możliwe skiny wyjściowe są warte razem mniej niż 10 wkładanych — kontrakt jest nieopłacalny. Jeśli jeden z możliwych wyników jest znacznie droższy od innych — może być opłacalny.</p>
+<h2>Strategia "targeted trade-up"</h2>
+<p>Najbardziej opłacalna strategia to wybieranie kontraktów, gdzie jeden z możliwych wyników jest znacznie droższy od pozostałych. Przykład: jeśli 9 możliwych wyników jest warte 20 zł, a jeden 500 zł, i wszystkie mają równe szanse (10%), oczekiwana wartość to (9×20 + 500) / 10 = 68 zł. Jeśli 10 wkładanych skinów kosztuje łącznie mniej — kontrakt jest korzystny.</p>
+<h2>Ryzyko trade-upów</h2>
+<p>Wariancja jest wysoka. Możesz trafić na najdroższy wynik albo na najtańszy. Nie inwestuj w trade-upy pieniędzy, które chcesz mieć z powrotem z gwarantowanym zyskiem.</p>
+    `,
+  },
+  'cs2-major-wplyw-na-ceny': {
+    title: 'Jak turnieje CS2 Major wpływają na ceny skinów – poradnik inwestora',
+    description: 'Przed każdym Majorem ceny wielu skinów rosną. Jak przewidzieć te ruchy i zgrana zakupy z kalendarzem esportowym?',
+    category: 'Strategia', readTime: '8 min', date: '2025-05-10',
+    tags: ['major', 'turnieje', 'ceny'],
+    content: `
+<h2>Dlaczego Major wpływa na ceny skinów?</h2>
+<p>CS2 Major Championship to największy turniej CS2, przyciągający miliony widzów. Większa oglądalność = nowi gracze = większy popyt na skiny. Dodatkowo przed Majorem gracze kupują kapsuły ze naklejkami, co pompuje ich ceny.</p>
+<h2>Wzorce cenowe przed i po Majorze</h2>
+<ul>
+  <li><strong>6-8 tygodni przed</strong> — ceny kapsuł i skinów popularnych drużyn zaczynają rosnąć</li>
+  <li><strong>W trakcie Majora</strong> — szczyt zainteresowania, wiele skinów osiąga maksimum cen</li>
+  <li><strong>Po Majorze</strong> — ceny często spadają, szczególnie kapsuły i skiny drużyn które odpadły</li>
+  <li><strong>2-4 miesiące po</strong> — stabilizacja, dobry moment na zakupy przed kolejnym Majorem</li>
+</ul>
+<h2>Strategia inwestycyjna</h2>
+<p>Kupuj kapsuły i skiny popularnych drużyn 2-3 miesiące przed Majorem. Sprzedawaj w trakcie lub tuż przed — zanim większość graczy to zrobi. Następnie odkupuj po spadku cen po turnieju.</p>
+    `,
+  },
+  'skinport-przewodnik': {
+    title: 'Skinport – jak kupować i sprzedawać skiny CS2 z wypłatą na konto',
+    description: 'Skinport to jedna z niewielu platform umożliwiających wypłatę środków na konto bankowe. Kompletny przewodnik dla europejskich graczy.',
+    category: 'Platformy', readTime: '7 min', date: '2025-05-18',
+    tags: ['skinport', 'wypłata', 'platformy'],
+    content: `
+<h2>Co to jest Skinport?</h2>
+<p>Skinport to europejska platforma do kupna i sprzedaży skinów CS2. Założona w Niemczech, obsługuje płatności w EUR i PLN, a co ważne — umożliwia wypłatę środków na konto bankowe lub przez PayPal.</p>
+<h2>Opłaty na Skinport</h2>
+<p>Skinport pobiera 12% prowizji od sprzedającego. To więcej niż Buff163 (2.5%), ale znacznie mniej niż Steam Market (15%). Dla europejskich graczy którzy chcą wypłacić środki — to najlepszy kompromis między ceną a wygodą.</p>
+<h2>Jak sprzedawać na Skinport?</h2>
+<ol>
+  <li>Utwórz konto i połącz z Steam</li>
+  <li>Wystaw skiny na sprzedaż — cena sugerowana jest pokazana automatycznie</li>
+  <li>Poczekaj na kupca — środki trafiają na saldo Skinport</li>
+  <li>Wypłać przez PayPal, Skrill lub przelew bankowy</li>
+</ol>
+<h2>Dla kogo Skinport jest najlepszy?</h2>
+<p>Dla graczy którzy chcą zamienić skiny na prawdziwe pieniądze, nie tylko saldo Steam. Jeśli nie zależy Ci na wypłacie — Steam Market lub Buff163 mogą być lepszym wyborem pod kątem cen.</p>
+    `,
+  },
+  'souvenir-skiny-cs2': {
+    title: 'Souvenir skiny CS2 – czym są, skąd pochodzą i dlaczego są tak drogie',
+    description: 'Souvenir package z Majora to jedyna droga do zdobycia złotych skinów z autografami gwiazd CS2. Jak działają i kiedy warto inwestować?',
+    category: 'Edukacja', readTime: '8 min', date: '2025-05-25',
+    tags: ['souvenir', 'major', 'kolekcjonerstwo'],
+    content: `
+<h2>Co to są souvenir skiny?</h2>
+<p>Souvenir skiny to specjalne wersje skinów CS2 dostępne wyłącznie z Souvenir Package — nagród za oglądanie meczy podczas CS2 Major Championship. Każdy souvenir skin ma złote tagi z mapą i autografami graczy którzy brali udział w rundzie gdy skin został wylosowany.</p>
+<h2>Dlaczego są drogie?</h2>
+<p>Souvenir skiny mają ograniczoną podaż — zależną od ilości widzów oglądających mecze. Dodatkowo wersje z autografami popularnych graczy (s1mple, NiKo) są znacznie rzadsze i droższe. Souvenir AWP Dragon Lore z autografem top gracza to jeden z najdroższych itemów w historii CS.</p>
+<h2>Jak zdobyć souvenir package?</h2>
+<p>Oglądaj mecze CS2 Major przez Steam lub Twitch z połączonym kontem Steam i zbieraj dropy. Pakiety są losowane podczas oglądania meczy — im więcej oglądasz, tym większa szansa na drop.</p>
+<h2>Souvenir jako inwestycja</h2>
+<p>Stare souvenir package (szczególnie z Katowice 2014 i Cologne 2015) osiągały astronomiczne ceny. Nowe pakiety z popularnych meczy także mogą być dobrą inwestycją, ale wymaga to dużej cierpliwości — kilku lat.</p>
+    `,
+  },
+  'portfel-skinow-dywersyfikacja': {
+    title: 'Jak zbudować zdywersyfikowany portfel skinów CS2 na każdy budżet',
+    description: 'Strategia dywersyfikacji portfela skinów dla każdego budżetu — od 500 zł do 10 000 zł. Konkretne przykłady i proporcje.',
+    category: 'Strategia', readTime: '12 min', date: '2025-06-01',
+    tags: ['portfel', 'dywersyfikacja', 'budżet'],
+    content: `
+<h2>Dlaczego warto dywersyfikować?</h2>
+<p>Rynek skinów jest nieprzewidywalny. Jeden skin może stracić 50% wartości przez zmianę meta-gry lub nagłą aktualizację. Dywersyfikacja chroni przed takimi scenariuszami i wygładza wyniki portfela.</p>
+<h2>Portfel na 500 zł</h2>
+<ul>
+  <li>40% — 1-2 Mil-Spec skiny do popularnych broni (AK, M4, AWP)</li>
+  <li>35% — Skrzynki lub kapsuły (niskie ryzyko, stabilna wartość)</li>
+  <li>25% — jeden Classified skin jako główna pozycja</li>
+</ul>
+<h2>Portfel na 2 000 zł</h2>
+<ul>
+  <li>50% — 2-3 Classified lub Covert skiny do popularnych broni</li>
+  <li>30% — Wiele Restricted skinów dla płynności handlu</li>
+  <li>20% — Spekulacyjna pozycja (np. souvenir package lub rzadki wzór)</li>
+</ul>
+<h2>Portfel na 10 000+ zł</h2>
+<ul>
+  <li>40% — 1-2 noże jako główna pozycja długoterminowa</li>
+  <li>30% — Kilka Covert skinów do top broni</li>
+  <li>20% — Classified i Restricted skiny dla handlu</li>
+  <li>10% — Skrzynki i kapsuły jako bufor gotowościowy</li>
+</ul>
+    `,
+  },
+  'rekawice-cs2-przewodnik': {
+    title: 'Rękawice CS2 – kompletny przewodnik kupującego',
+    description: 'Sport Gloves, Specialist Gloves, Moto Gloves – jak się różnią i na co zwracać uwagę przy zakupie rękawic do CS2.',
+    category: 'Edukacja', readTime: '9 min', date: '2025-06-10',
+    tags: ['rękawice', 'gloves', 'zakup'],
+    content: `
+<h2>Rodzaje rękawic CS2</h2>
+<ul>
+  <li><strong>Sport Gloves</strong> — najpopularniejsze. Superconductor i Amphibious to topowe wzory.</li>
+  <li><strong>Specialist Gloves</strong> — cienkie, eleganckie. Crimson Kimono i Tiger Strike są bardzo pożądane.</li>
+  <li><strong>Moto Gloves</strong> — solidne, maskulinne. Spearmint i Blood Pressure to klasyki.</li>
+  <li><strong>Hand Wraps</strong> — bandażowe zawijasy. Cobalt Skulls ma kultową estetykę.</li>
+  <li><strong>Bloodhound Gloves</strong> — najmniej popularne, ale często najtańsze w swojej kategorii.</li>
+</ul>
+<h2>Float ma ogromne znaczenie dla rękawic</h2>
+<p>Rękawice są widoczne przez cały czas gry, więc float ma większe znaczenie niż dla broni. Wiele rękawic nie jest dostępnych w Factory New, ale Minimal Wear wygląda bardzo dobrze. Zawsze sprawdzaj float przed zakupem.</p>
+<h2>Rękawice jako inwestycja</h2>
+<p>Rękawice historycznie dobrze trzymają wartość. Popularność CS2 rośnie, a rękawice są trudne do zdobycia (drop rate identyczny jak noże — 0.26%). Dobrze wybrane rękawice przynoszą przeciętnie większy wzrost niż bronie w tym samym przedziale cenowym.</p>
+    `,
+  },
+  'podatek-od-handlu-skinami': {
+    title: 'Podatek od sprzedaży skinów CS2 w Polsce – co musisz wiedzieć',
+    description: 'Czy sprzedaż skinów CS2 podlega opodatkowaniu w Polsce i jak się do tego przygotować.',
+    category: 'Prawo', readTime: '8 min', date: '2025-06-18',
+    tags: ['podatek', 'prawo', 'polska'],
+    content: `
+<h2>Uwaga: to nie jest porada prawna</h2>
+<p>Informacje poniżej mają charakter edukacyjny. W sprawie konkretnej sytuacji podatkowej skonsultuj się z doradcą podatkowym lub księgowym.</p>
+<h2>Ogólna zasada w Polsce</h2>
+<p>Sprzedaż wirtualnych przedmiotów (w tym skinów CS2) za pieniądze jest w Polsce przychodem podlegającym opodatkowaniu. Polskie prawo podatkowe nie rozróżnia między wirtualnymi a fizycznymi towarami.</p>
+<h2>Kiedy urząd skarbowy może się zainteresować?</h2>
+<ul>
+  <li>Regularne i częste transakcje o dużej wartości</li>
+  <li>Wpływy na konto bankowe które nie mają źródła w wynagrodzeniu</li>
+  <li>Działalność przypominająca biznes (handel z zamiarem zysku)</li>
+</ul>
+<h2>Praktyczne podejście</h2>
+<p>Jeśli okazjonalnie sprzedajesz skiny za niewielkie kwoty, ryzyko jest niskie. Jeśli regularnie handlujesz i zarabiasz znaczące kwoty — warto skonsultować się z księgowym i rozważyć założenie działalności gospodarczej.</p>
+<h2>Dokumentacja</h2>
+<p>Zawsze zachowuj historię transakcji z platform handlowych. W przypadku kontroli, dokumentacja pokazująca koszty zakupu i ceny sprzedaży pozwoli obliczyć faktyczny dochód (nie przychód).</p>
+    `,
+  },
+};
+
+export function getStaticPaths() {
+  const slugs = ["jak-handlowac-skinami-cs2","float-value-przewodnik","najlepsze-skiny-do-inwestowania-2025","czy-warto-otwierac-skrzynki","buff163-vs-steam-market","jak-czytac-wykres-cen-steamu","stickery-na-skinach-wartosc","bezpieczenstwo-handel-skinami","pattern-index-cs2","jak-importowac-ekwipunek-steam","skiny-stattrack-czy-warto","noze-cs2-ranking","trading-up-kontrakty","cs2-major-wplyw-na-ceny","skinport-przewodnik","souvenir-skiny-cs2","portfel-skinow-dywersyfikacja","rekawice-cs2-przewodnik","podatek-od-handlu-skinami"];
+  return slugs.map(slug => ({ params: { slug } }));
+}
+
+const { slug } = Astro.params;
+const article = articles[slug];
+
+if (!article) {
+  return Astro.redirect('/poradniki');
+}
+
+const schema = {
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": article.title,
+  "description": article.description,
+  "url": `https://cs2-market.netlify.app/poradniki/${slug}`,
+  "datePublished": article.date,
+  "inLanguage": "pl",
+  "author": { "@type": "Organization", "name": "CS2 Trading Hub" },
+  "publisher": { "@type": "Organization", "name": "CS2 Trading Hub", "url": "https://cs2-market.netlify.app" },
+};
+---
+
+<Layout
+  title={`${article.title} | CS2 Trading Hub`}
+  description={article.description}
+  schema={schema}
+>
+
+<div class="container">
+
+  <nav class="breadcrumb" aria-label="Breadcrumb">
+    <a href="/">Strona główna</a><span>›</span>
+    <a href="/poradniki">Poradniki</a><span>›</span>
+    <span>{article.category}</span>
+  </nav>
+
+  <div class="article-layout">
+    <article class="article-main">
+
+      <div class="article-header">
+        <div class="article-meta-top">
+          <span class={`article-cat cat-${article.category.toLowerCase().replace(/ą/g,'a').replace(/ę/g,'e').replace(/ś/g,'s')}`}>
+            {article.category}
+          </span>
+          <span class="article-read-time">⏱ {article.readTime} czytania</span>
+          <span class="article-date">
+            {new Date(article.date).toLocaleDateString('pl-PL', { day: 'numeric', month: 'long', year: 'numeric' })}
+          </span>
+        </div>
+        <h1>{article.title}</h1>
+        <p class="article-lead">{article.description}</p>
+        <div class="article-tags">
+          {article.tags.map(tag => <span class="article-tag">#{tag}</span>)}
+        </div>
+      </div>
+
+      <div class="article-content" set:html={article.content} />
+
+      <div class="article-footer-nav">
+        <a href="/poradniki" class="btn btn-ghost">← Wszystkie poradniki</a>
+        <a href="/kalkulator" class="btn btn-primary">Kalkulator skrzynek →</a>
+      </div>
+
+    </article>
+
+    <aside class="article-sidebar">
+      <div class="sidebar-card">
+        <h3>Przydatne narzędzia</h3>
+        <a href="/kalkulator" class="sidebar-link">
+          <span>🎲</span>
+          <div>
+            <strong>Kalkulator skrzynek</strong>
+            <p>Sprawdź szanse drop rate</p>
+          </div>
+        </a>
+        <a href="/skins" class="sidebar-link">
+          <span>🔫</span>
+          <div>
+            <strong>Baza skinów</strong>
+            <p>Opisy i float range</p>
+          </div>
+        </a>
+        <a href="/app" class="sidebar-link">
+          <span>💼</span>
+          <div>
+            <strong>Tracker portfela</strong>
+            <p>Śledź wartość kolekcji</p>
+          </div>
+        </a>
+      </div>
+
+      <div class="sidebar-card">
+        <h3>Inne poradniki</h3>
+        <div class="sidebar-articles">
+          <a href="/poradniki/jak-handlowac-skinami-cs2" class="sidebar-article-link">Jak zacząć handlować skinami CS2</a>
+          <a href="/poradniki/float-value-przewodnik" class="sidebar-article-link">Float value – kompletny przewodnik</a>
+          <a href="/poradniki/czy-warto-otwierac-skrzynki" class="sidebar-article-link">Czy warto otwierać skrzynki?</a>
+          <a href="/poradniki/buff163-vs-steam-market" class="sidebar-article-link">Buff163 vs Steam Market</a>
+          <a href="/poradniki/bezpieczenstwo-handel-skinami" class="sidebar-article-link">Bezpieczeństwo przy handlu</a>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+</div>
+
+</Layout>
+
+<style is:global>
+.breadcrumb { display:flex; align-items:center; gap:8px; padding:20px 0 0; font-size:13px; color:var(--text2); flex-wrap:wrap; }
+.breadcrumb a { color:var(--text2); text-decoration:none; }
+.breadcrumb a:hover { color:var(--accent); }
+
+.article-layout { display:grid; grid-template-columns:1fr 300px; gap:48px; padding:40px 0 80px; align-items:start; }
+
+/* Article main */
+.article-header { margin-bottom:40px; padding-bottom:32px; border-bottom:1px solid var(--border); }
+.article-meta-top { display:flex; align-items:center; gap:14px; flex-wrap:wrap; margin-bottom:20px; }
+.article-cat { font-family:var(--font-mono); font-size:10px; text-transform:uppercase; letter-spacing:1.5px; padding:3px 10px; border-radius:4px; font-weight:600; }
+.cat-podstawy      { background:rgba(0,212,255,0.12); color:var(--accent); border:1px solid rgba(0,212,255,0.2); }
+.cat-edukacja      { background:rgba(136,71,255,0.12); color:var(--purple); border:1px solid rgba(136,71,255,0.2); }
+.cat-inwestowanie  { background:rgba(57,255,20,0.12); color:#39ff14; border:1px solid rgba(57,255,20,0.2); }
+.cat-analiza       { background:rgba(228,174,57,0.12); color:var(--gold); border:1px solid rgba(228,174,57,0.2); }
+.cat-platformy     { background:rgba(235,75,75,0.12); color:var(--red); border:1px solid rgba(235,75,75,0.2); }
+.cat-bezpieczenstwo { background:rgba(76,175,80,0.12); color:#4caf50; border:1px solid rgba(76,175,80,0.2); }
+.article-read-time { font-family:var(--font-mono); font-size:11px; color:var(--text2); }
+.article-date { font-family:var(--font-mono); font-size:11px; color:var(--text2); opacity:0.6; }
+
+.article-header h1 { font-size:clamp(22px,3.5vw,38px); font-weight:900; line-height:1.25; margin-bottom:16px; }
+.article-lead { font-size:17px; color:var(--text2); line-height:1.7; margin-bottom:16px; }
+.article-tags { display:flex; gap:8px; flex-wrap:wrap; }
+.article-tag { font-family:var(--font-mono); font-size:10px; color:var(--text2); background:var(--bg3); border:1px solid var(--border); border-radius:4px; padding:2px 8px; }
+
+/* Article content */
+.article-content { color:var(--text); line-height:1.85; font-size:16px; }
+.article-content :global(h2) { font-size:22px; font-weight:700; color:#e8f4f8; margin:36px 0 14px; padding-top:4px; }
+.article-content :global(h3) { font-size:18px; font-weight:700; color:#e8f4f8; margin:24px 0 10px; }
+.article-content :global(p) { margin-bottom:16px; color:var(--text2); }
+.article-content :global(ul) { margin:0 0 20px 20px; color:var(--text2); }
+.article-content :global(li) { margin-bottom:8px; line-height:1.7; }
+.article-content :global(strong) { color:#e8f4f8; font-weight:700; }
+.article-content :global(a) { color:var(--accent); text-decoration:underline; }
+.article-content :global(a:hover) { color:#00aadd; }
+
+.article-footer-nav { display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-top:48px; padding-top:32px; border-top:1px solid var(--border); }
+
+/* Sidebar */
+.sidebar-card { background:var(--bg2); border:1px solid var(--border); border-radius:var(--radius); padding:20px; margin-bottom:20px; }
+.sidebar-card h3 { font-size:14px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:var(--text2); margin-bottom:16px; font-family:var(--font-mono); }
+
+.sidebar-link { display:flex; align-items:flex-start; gap:12px; padding:10px 0; border-bottom:1px solid var(--border); text-decoration:none; transition:color 0.2s; }
+.sidebar-link:last-child { border-bottom:none; }
+.sidebar-link span { font-size:20px; flex-shrink:0; }
+.sidebar-link strong { display:block; font-size:14px; color:#e8f4f8; margin-bottom:2px; }
+.sidebar-link p { font-size:12px; color:var(--text2); margin:0; }
+.sidebar-link:hover strong { color:var(--accent); }
+
+.sidebar-articles { display:flex; flex-direction:column; gap:2px; }
+.sidebar-article-link { display:block; font-size:13px; color:var(--text2); text-decoration:none; padding:8px 0; border-bottom:1px solid var(--border); line-height:1.4; transition:color 0.2s; }
+.sidebar-article-link:last-child { border-bottom:none; }
+.sidebar-article-link:hover { color:var(--accent); }
+
+@media (max-width:900px) {
+  .article-layout { grid-template-columns:1fr; }
+  .article-sidebar { order:-1; }
+}
+</style>

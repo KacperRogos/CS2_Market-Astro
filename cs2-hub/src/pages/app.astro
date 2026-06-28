@@ -1,53 +1,56 @@
 ---
-import Layout from '../layouts/Layout.astro';
-
 const SUPABASE_URL = 'https://sacxklpjteqsbevowrmt.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNhY3hrbHBqdGVxc2Jldm93cm10Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQzNDkxNzAsImV4cCI6MjA4OTkyNTE3MH0.AGcM2iG_xWgj5KgEYWYCaT-SeBBmA1wesuw9n7MwM5s';
 ---
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CS2 Market – Portfel skinów</title>
+  <meta name="description" content="Zarządzaj swoim portfelem skinów CS2. Import ze Steam, historia wartości, AI doradca.">
+  <meta name="robots" content="noindex">
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+</head>
+<body>
 
-<Layout
-  title="Mój portfel skinów CS2"
-  description="Zarządzaj swoim portfelem skinów CS2. Import ze Steam, historia wartości, AI doradca."
->
+<script src="https://unpkg.com/@supabase/supabase-js@2" is:inline></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" is:inline></script>
 
-<!-- Supabase JS SDK -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js" is:inline></script>
-
-<div id="authScreen" class="auth-screen-wrap">
+<!-- AUTH SCREEN -->
+<div id="authScreen" style="position:fixed;inset:0;background:var(--bg);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px">
   <div class="auth-box">
     <div class="auth-logo">
-      <h1>CS2 <span>TRADING</span></h1>
+      <h1>CS2 <span>MARKET</span></h1>
       <p>Tracker skinów Steam</p>
     </div>
-
     <div class="auth-tabs">
       <button class="auth-tab active" id="loginTab" onclick="switchAuthTab('login')">Logowanie</button>
       <button class="auth-tab" id="registerTab" onclick="switchAuthTab('register')">Rejestracja</button>
     </div>
-
-    <!-- Login -->
     <div id="loginForm">
       <div class="auth-field">
         <label>Login lub email</label>
-        <input type="text" id="loginUsername" placeholder="Nazwa użytkownika lub email" autocomplete="username" />
+        <input type="text" id="loginUsername" placeholder="Nazwa użytkownika lub email" autocomplete="username">
       </div>
       <div class="auth-field">
         <label>Hasło</label>
-        <input type="password" id="loginPassword" placeholder="Twoje hasło" autocomplete="current-password" onkeydown="if(event.key==='Enter') doLogin()" />
+        <input type="password" id="loginPassword" placeholder="Twoje hasło" autocomplete="current-password" onkeydown="if(event.key==='Enter') doLogin()">
       </div>
       <button class="auth-btn" onclick="doLogin()" id="loginBtn">ZALOGUJ</button>
     </div>
-
-    <!-- Register -->
     <div id="registerForm" style="display:none">
       <div class="auth-field">
         <label>Nazwa użytkownika</label>
-        <input type="text" id="regUsername" placeholder="Wybierz login (min. 3 znaki)" autocomplete="username" />
+        <input type="text" id="regUsername" placeholder="Wybierz login (min. 3 znaki)" autocomplete="username">
       </div>
       <div class="auth-field">
         <label>Email <span style="color:var(--text2);font-size:10px">(opcjonalne)</span></label>
         <div class="auth-email-wrap">
-          <input type="text" id="regEmailPrefix" placeholder="twójemail" autocomplete="off" oninput="previewEmail(this.value)" />
+          <input type="text" id="regEmailPrefix" placeholder="twójemail" autocomplete="off" oninput="previewEmail(this.value)">
           <span class="auth-email-domain">@cs2-market.app</span>
         </div>
         <div class="auth-email-preview" id="emailPreview" style="display:none">
@@ -56,749 +59,3958 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
       </div>
       <div class="auth-field">
         <label>Hasło</label>
-        <input type="password" id="regPassword" placeholder="Hasło (min. 6 znaków)" autocomplete="new-password" onkeydown="if(event.key==='Enter') doRegister()" />
+        <input type="password" id="regPassword" placeholder="Hasło (min. 6 znaków)" autocomplete="new-password" onkeydown="if(event.key==='Enter') doRegister()">
       </div>
       <div class="auth-field">
         <label>Link do profilu Steam <span style="color:var(--text2);font-size:10px">(opcjonalne)</span></label>
-        <input type="text" id="regSteamId" placeholder="https://steamcommunity.com/id/nazwa" />
+        <input type="text" id="regSteamId" placeholder="https://steamcommunity.com/id/nazwa">
       </div>
       <button class="auth-btn" onclick="doRegister()" id="registerBtn">ZAREJESTRUJ</button>
     </div>
-
-    <div class="auth-error" id="authError" style="display:none"></div>
-    <div class="auth-success" id="authSuccess" style="display:none"></div>
-
-    <div class="auth-divider">
-      <span>lub</span>
+    <div class="auth-error" id="authError"></div>
+    <div class="auth-success" id="authSuccess"></div>
+    <div style="margin-top:16px;text-align:center;border-top:1px solid var(--border);padding-top:16px">
+      <span style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text2);letter-spacing:1px;text-transform:uppercase">lub</span>
+      <button class="btn-guest" onclick="loginAsGuest()" style="margin-top:10px;width:100%;font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:10px;background:transparent;border:1px dashed var(--border2);border-radius:8px;color:var(--text2);cursor:pointer;transition:all 0.2s" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--border2)';this.style.color='var(--text2)'">
+        Zaloguj jako gość
+      </button>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text2);opacity:0.6;margin-top:8px">Tryb demo · dane nie są zapisywane</div>
     </div>
-    <button class="btn-guest" onclick="loginAsGuest()">
-      Zaloguj jako gość
-    </button>
-    <div class="auth-guest-note">Tryb demo · dane nie są zapisywane</div>
   </div>
 </div>
 
-<!-- APP (hidden until login) -->
-<div id="appContent" style="display:none">
-  <div class="app-header">
-    <div class="app-header-left">
-      <span class="app-username" id="headerUsername"></span>
+<!-- HEADER -->
+<header class="app-header-wrap">
+  <div class="container" style="display:flex;align-items:center;gap:16px;height:72px">
+    <!-- LEWA: logo + nav -->
+    <div style="display:flex;align-items:center;gap:0;flex-shrink:0">
+      <div class="logo" style="margin-right:16px">
+        <img src="/favicon.png" alt="CS2 Market Logo" style="height:38px;width:38px;object-fit:contain;filter:drop-shadow(0 0 8px rgba(0,212,255,0.5))">
+        <h1>CS2 <span>MARKET</span></h1>
+      </div>
+      <nav class="site-nav">
+        <a href="/" class="site-nav-link">Strona główna</a>
+        <a href="/kalkulator" class="site-nav-link">Kalkulator</a>
+      </nav>
     </div>
-    <div class="portfolio-total">
-      Wartość portfela: <span id="totalDisplay" class="total-amount">0,00 zł</span>
+    <!-- ŚRODEK: importuj + wartość portfela -->
+    <div style="display:flex;align-items:center;gap:12px;flex:1;justify-content:flex-end">
+      <button class="btn-import-header" onclick="toggleImportModal()">Importuj ekwipunek</button>
+      <div class="total-value">
+        <span class="total-label">Wartość portfela</span>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:nowrap;white-space:nowrap">
+          <span class="total-amount" id="totalDisplay" style="white-space:nowrap">0,00 zł</span>
+          <span id="totalChangeDisplay" style="display:none;font-family:'Share Tech Mono',monospace;font-size:12px;padding:3px 10px;border-radius:6px;font-weight:700;letter-spacing:0.5px;white-space:nowrap;flex-shrink:0"></span>
+        </div>
+      </div>
     </div>
-    <button class="btn-logout" onclick="doLogout()">Wyloguj</button>
+    <!-- PRAWA: user + wyloguj -->
+    <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;border-left:1px solid var(--border);padding-left:14px">
+      <span class="user-name" id="headerUsername"></span>
+      <button class="btn-logout" onclick="doLogout()">Wyloguj</button>
+    </div>
   </div>
+</header>
 
-  <div class="app-tabs">
-    <button class="tab-btn active" data-tab="portfolio">📦 Portfel</button>
-    <button class="tab-btn" data-tab="search">🔍 Wyszukaj</button>
-    <button class="tab-btn" data-tab="ai">🤖 AI Doradca</button>
-  </div>
-
-  <!-- Portfel -->
-  <div id="tab-portfolio" class="tab-panel">
-    <div class="panel-actions">
-      <button class="btn btn-primary" onclick="openAddModal()">+ Dodaj skin</button>
-      <button class="btn btn-ghost" onclick="refreshAllItems()">↻ Odśwież ceny</button>
+<!-- IMPORT MODAL -->
+<div id="importModal" class="import-modal" style="display:none" onclick="if(event.target===this)toggleImportModal()">
+  <div class="import-modal-box">
+    <div class="import-modal-header">
+      <div class="import-modal-title">Importuj ekwipunek Steam CS2</div>
+      <button class="import-modal-close" onclick="toggleImportModal()">✕</button>
     </div>
-    <div id="portfolioItems" class="portfolio-list"></div>
-  </div>
-
-  <!-- Szukaj -->
-  <div id="tab-search" class="tab-panel" style="display:none">
-    <div class="search-bar">
-      <input type="text" id="skinSearch" placeholder="np. AK-47 | Redline (Field-Tested)..." autocomplete="off" onkeydown="if(event.key==='Enter') searchSkin()" />
-      <button class="btn btn-primary" onclick="searchSkin()">Szukaj</button>
+    <div class="import-steps">
+      <div class="import-step">
+        <div class="import-step-num">1</div>
+        <div>
+          <div class="import-step-title">Ustaw ekwipunek jako publiczny</div>
+          <div class="import-step-desc">Wejdź w <a href="https://steamcommunity.com/my/edit/settings" target="_blank">Ustawienia prywatności Steam</a> i ustaw <b>Ekwipunek gry → Publiczny</b>.</div>
+        </div>
+      </div>
+      <div class="import-step">
+        <div class="import-step-num">2</div>
+        <div>
+          <div class="import-step-title">Znajdź swój Steam ID64</div>
+          <div class="import-step-desc">Wejdź na swój profil Steam i użyj <a href="https://steamidfinder.com" target="_blank">steamidfinder.com</a> — skopiuj <b>steamID64</b> (17 cyfr).</div>
+        </div>
+      </div>
+      <div class="import-step">
+        <div class="import-step-num">3</div>
+        <div>
+          <div class="import-step-title">Wklej Steam ID64 i importuj</div>
+        </div>
+      </div>
     </div>
-    <div id="searchResults"></div>
+    <div class="import-form" style="margin-top:16px">
+      <div class="input-group" style="flex:1">
+        <input type="text" id="steamIdInput" placeholder="76561198..." autocomplete="off" onkeydown="if(event.key==='Enter') importInventory('replace')">
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+      <button class="btn-import" style="flex:1" onclick="importInventory('replace')" id="importBtn">Zastąp portfel</button>
+      <button class="btn-import" style="flex:1;background:linear-gradient(135deg,#0088cc,#005588);color:#fff" onclick="importInventory('merge')" id="importMergeBtn">Dodaj do portfela</button>
+    </div>
+    <div id="importStatus" class="import-status" style="display:none"></div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div class="container" style="padding-top:32px">
+  <div class="notice" id="errorNotice"></div>
+  <div id="fileProtocolWarning" class="notice" style="display:none"></div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('add')" id="tab-add">Mój portfel</button>
+    <button class="tab" onclick="switchTab('search')" id="tab-search">Wyszukiwarka skinów</button>
+    <button class="tab" onclick="switchTab('trending')" id="tab-trending">Trending</button>
+    <button class="tab" onclick="switchTab('history')" id="tab-history">Historia</button>
+    <button class="tab" onclick="switchTab('ai')" id="tab-ai">AI Doradca</button>
   </div>
 
   <!-- AI -->
-  <div id="tab-ai" class="tab-panel" style="display:none">
-    <div class="ai-chat" id="aiChat"></div>
-    <div class="ai-input-row">
-      <input type="text" id="aiInput" placeholder="Zapytaj o rynek, inwestycje, trading..." onkeydown="if(event.key==='Enter') sendAI()" />
-      <button class="btn btn-primary" onclick="sendAI()">Wyślij</button>
-    </div>
-  </div>
-</div>
-
-<!-- Add Modal -->
-<div id="addModal" class="modal-overlay" style="display:none">
-  <div class="modal">
-    <h3>Dodaj skin do portfela</h3>
-    <div class="modal-field"><label>Pełna nazwa (Steam Market)</label><input id="m-name" placeholder="np. AK-47 | Redline (Field-Tested)" /></div>
-    <div class="modal-field"><label>Ilość</label><input id="m-qty" type="number" value="1" min="1" /></div>
-    <div class="modal-actions">
-      <button class="btn btn-primary" onclick="saveNewItem()">Dodaj</button>
-      <button class="btn btn-ghost" onclick="closeModal()">Anuluj</button>
-    </div>
-  </div>
-</div>
-
-</Layout>
-
-<script define:vars={{ SUPABASE_URL, SUPABASE_KEY }}>
-// Wait for Supabase SDK
-function waitForSB(cb) {
-  if (window.supabase) { cb(); return; }
-  setTimeout(() => waitForSB(cb), 50);
-}
-
-waitForSB(() => {
-  const _sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-  const FUNCTIONS_URL = `${SUPABASE_URL}/functions/v1`;
-
-  let currentUser = null;
-  let items = JSON.parse(localStorage.getItem('cs2_items') || '[]');
-  let aiHistory = [];
-  const priceCache = new Map();
-
-  // ── AUTH HELPERS ──────────────────────────────────────────
-
-  window.switchAuthTab = function(tab) {
-    document.getElementById('loginForm').style.display = tab === 'login' ? '' : 'none';
-    document.getElementById('registerForm').style.display = tab === 'register' ? '' : 'none';
-    document.getElementById('loginTab').className = 'auth-tab' + (tab === 'login' ? ' active' : '');
-    document.getElementById('registerTab').className = 'auth-tab' + (tab === 'register' ? ' active' : '');
-    hideAuthMessages();
-  };
-
-  function showAuthError(msg) {
-    const el = document.getElementById('authError');
-    el.textContent = msg; el.style.display = 'block';
-    document.getElementById('authSuccess').style.display = 'none';
-  }
-
-  function showAuthSuccess(msg) {
-    const el = document.getElementById('authSuccess');
-    el.textContent = msg; el.style.display = 'block';
-    document.getElementById('authError').style.display = 'none';
-  }
-
-  function hideAuthMessages() {
-    document.getElementById('authError').style.display = 'none';
-    document.getElementById('authSuccess').style.display = 'none';
-  }
-
-  window.previewEmail = function(val) {
-    const preview = document.getElementById('emailPreview');
-    const clean = val.trim().toLowerCase().replace(/[^a-z0-9._-]/g, '');
-    if (clean) {
-      preview.style.display = 'block';
-      document.getElementById('emailPreviewText').textContent = clean + '@cs2-market.app';
-    } else {
-      preview.style.display = 'none';
-    }
-  };
-
-  // ── LOGIN ─────────────────────────────────────────────────
-
-  window.doLogin = async function() {
-    const input = document.getElementById('loginUsername').value.trim();
-    const password = document.getElementById('loginPassword').value;
-    if (!input || !password) { showAuthError('Wpisz login/email i hasło'); return; }
-
-    const btn = document.getElementById('loginBtn');
-    btn.disabled = true; btn.textContent = 'Logowanie...';
-
-    try {
-      let email = input.includes('@') ? input.toLowerCase() : `${input.toLowerCase()}@cs2-market.app`;
-      let result = await _sb.auth.signInWithPassword({ email, password });
-
-      if (result.error) {
-        const { data: profileData } = await _sb.from('profiles')
-          .select('username').eq('email_alias', email).single();
-        if (profileData?.username) {
-          const primaryEmail = `${profileData.username.toLowerCase()}@cs2-market.app`;
-          result = await _sb.auth.signInWithPassword({ email: primaryEmail, password });
-        }
-      }
-
-      if (result.error) throw result.error;
-      await onLoginSuccess(result.data.user);
-    } catch(e) {
-      showAuthError('Błędny login/email lub hasło');
-    } finally {
-      btn.disabled = false; btn.textContent = 'ZALOGUJ';
-    }
-  };
-
-  // ── REGISTER ──────────────────────────────────────────────
-
-  window.doRegister = async function() {
-    const username = document.getElementById('regUsername').value.trim();
-    const emailPrefix = document.getElementById('regEmailPrefix').value.trim().toLowerCase().replace(/[^a-z0-9._-]/g, '');
-    const password = document.getElementById('regPassword').value;
-    const steamId = document.getElementById('regSteamId').value.trim();
-
-    if (!username || username.length < 3) { showAuthError('Login musi mieć min. 3 znaki'); return; }
-    if (!password || password.length < 6) { showAuthError('Hasło musi mieć min. 6 znaków'); return; }
-    if (!/^[a-zA-Z0-9_]+$/.test(username)) { showAuthError('Login może zawierać tylko litery, cyfry i _'); return; }
-
-    const btn = document.getElementById('registerBtn');
-    btn.disabled = true; btn.textContent = 'Rejestracja...';
-
-    try {
-      const primaryEmail = `${username.toLowerCase()}@cs2-market.app`;
-      const emailAlias = emailPrefix && emailPrefix !== username.toLowerCase()
-        ? `${emailPrefix}@cs2-market.app` : null;
-
-      const { data, error } = await _sb.auth.signUp({ email: primaryEmail, password });
-      if (error) throw error;
-
-      const { error: profileError } = await _sb.from('profiles').insert({
-        id: data.user.id,
-        username,
-        steam_id: steamId || null,
-        email_alias: emailAlias || null
-      });
-      if (profileError) throw profileError;
-
-      showAuthSuccess('Konto utworzone! Możesz się zalogować.');
-      switchAuthTab('login');
-      document.getElementById('loginUsername').value = username;
-    } catch(e) {
-      if (e.message?.includes('duplicate') || e.message?.includes('already')) {
-        showAuthError('Ten login jest już zajęty');
-      } else {
-        showAuthError('Błąd rejestracji: ' + e.message);
-      }
-    } finally {
-      btn.disabled = false; btn.textContent = 'ZAREJESTRUJ';
-    }
-  };
-
-  // ── GUEST ─────────────────────────────────────────────────
-
-  window.loginAsGuest = async function() {
-    const btn = document.querySelector('.btn-guest');
-    if (btn) { btn.disabled = true; btn.textContent = 'Logowanie...'; }
-
-    currentUser = null;
-    items = [
-      { id: 1, name: 'AK-47 | Redline (Field-Tested)', qty: 1, price: null, iconUrl: '', loading: false },
-      { id: 2, name: 'AWP | Asiimov (Field-Tested)', qty: 1, price: null, iconUrl: '', loading: false },
-      { id: 3, name: 'Kilowatt Case', qty: 5, price: null, iconUrl: '', loading: false },
-    ];
-    localStorage.setItem('cs2_items', JSON.stringify(items));
-    document.getElementById('headerUsername').textContent = 'Gość';
-    showApp();
-
-    if (btn) { btn.disabled = false; btn.textContent = 'Zaloguj jako gość'; }
-    setTimeout(() => refreshAllItems(), 300);
-  };
-
-  // ── ON LOGIN SUCCESS ───────────────────────────────────────
-
-  async function onLoginSuccess(user) {
-    currentUser = user;
-    try {
-      const { data: profile } = await _sb.from('profiles').select('*').eq('id', user.id).single();
-      document.getElementById('headerUsername').textContent = profile?.username || user.email?.split('@')[0] || 'user';
-
-      const { data: portfolio } = await _sb.from('portfolios').select('items').eq('user_id', user.id).single();
-      if (portfolio?.items?.length) {
-        items = portfolio.items;
-        localStorage.setItem('cs2_items', JSON.stringify(items));
-      }
-    } catch(e) {
-      document.getElementById('headerUsername').textContent = user.email?.split('@')[0] || 'user';
-    }
-    showApp();
-  }
-
-  window.doLogout = async function() {
-    await _sb.auth.signOut();
-    currentUser = null;
-    items = [];
-    localStorage.removeItem('cs2_items');
-    priceCache.clear();
-    aiHistory = [];
-    document.getElementById('appContent').style.display = 'none';
-    document.getElementById('authScreen').style.display = 'flex';
-    document.getElementById('headerUsername').textContent = '';
-    renderPortfolio();
-  };
-
-  function showApp() {
-    document.getElementById('authScreen').style.display = 'none';
-    document.getElementById('appContent').style.display = 'block';
-    renderPortfolio();
-  }
-
-  // ── SAVE TO SUPABASE ──────────────────────────────────────
-
-  async function saveToSupabase() {
-    if (!currentUser) return;
-    try {
-      await _sb.from('portfolios').upsert({
-        user_id: currentUser.id,
-        items,
-        updated_at: new Date().toISOString()
-      }, { onConflict: 'user_id' });
-    } catch(e) {}
-  }
-
-  // ── TABS ──────────────────────────────────────────────────
-
-  document.querySelectorAll('.tab-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-      document.querySelectorAll('.tab-panel').forEach(p => p.style.display = 'none');
-      btn.classList.add('active');
-      document.getElementById(`tab-${btn.dataset.tab}`).style.display = 'block';
-    });
-  });
-
-  // ── PORTFOLIO ─────────────────────────────────────────────
-
-  function renderPortfolio() {
-    const container = document.getElementById('portfolioItems');
-    if (!container) return;
-
-    if (!items.length) {
-      container.innerHTML = `<div class="empty-state"><p>Brak skinów w portfelu. Kliknij "+ Dodaj skin" żeby zacząć.</p></div>`;
-      document.getElementById('totalDisplay').textContent = '0,00 zł';
-      return;
-    }
-
-    const total = items.reduce((s, i) => s + (i.price || 0) * i.qty, 0);
-    document.getElementById('totalDisplay').textContent = total.toFixed(2).replace('.', ',') + ' zł';
-
-    container.innerHTML = items.map((item, idx) => `
-      <div class="portfolio-item">
-        <div class="pi-info">
-          <div class="pi-name">${item.name}</div>
-          <div class="pi-qty">×${item.qty}</div>
+  <div id="panel-ai" style="display:none">
+    <div class="ai-panel">
+      <div class="ai-header">
+        <div class="ai-avatar">AI</div>
+        <div>
+          <div class="ai-title">CS2 Market AI</div>
+          <div class="ai-subtitle">Ekspert rynku Steam · Ma dostęp do Twojego portfela, cen i trendów</div>
         </div>
-        <div class="pi-price-col">
-          ${item.loading
-            ? '<span class="pi-loading">Ładowanie...</span>'
-            : item.price !== null
-              ? `<span class="pi-price">${(item.price * item.qty).toFixed(2).replace('.', ',')} zł</span><span class="pi-unit">${item.price.toFixed(2).replace('.', ',')} zł/szt</span>`
-              : '<span class="pi-no-price">–</span>'
-          }
-        </div>
-        <div class="pi-actions">
-          <button class="pi-btn pi-refresh" onclick="refreshItem(${idx})" title="Odśwież cenę">↻</button>
-          <button class="pi-btn pi-remove" onclick="removeItem(${idx})" title="Usuń">✕</button>
+        <button class="ai-clear-btn" onclick="clearAiChat()">Wyczyść czat</button>
+      </div>
+      <div class="ai-suggestions">
+        <div class="ai-suggest-label">Szybkie pytania:</div>
+        <button class="ai-chip" onclick="askAI('Przeanalizuj mój portfel i powiedz co warto teraz sprzedać.')">Analizuj portfel</button>
+        <button class="ai-chip" onclick="askAI('Co warto teraz kupić jako inwestycję na rynku CS2? Patrz na trending.')">Co kupić?</button>
+        <button class="ai-chip" onclick="askAI('Które skiny w moim portfelu mają największy potencjał wzrostu?')">Potencjał wzrostu</button>
+        <button class="ai-chip" onclick="askAI('Czy są jakieś skrzynki lub itemy które warto teraz obserwować?')">Gorące skrzynki</button>
+        <button class="ai-chip" onclick="askAI('Jakie są ogólne zasady inwestowania w skiny CS2?')">Jak inwestować?</button>
+      </div>
+      <div class="ai-messages" id="aiMessages">
+        <div class="ai-msg ai-msg-bot">
+          <div class="ai-msg-content">Cześć! Jestem Twoim osobistym doradcą rynku CS2. Mam wgląd w Twój portfel, aktualne ceny i trendy Steam. Zadaj mi pytanie!</div>
         </div>
       </div>
-    `).join('');
-  }
+      <div class="ai-input-row">
+        <input type="text" id="aiInput" class="ai-input" placeholder="Zapytaj o rynek CS2, inwestycje, skiny..." onkeydown="if(event.key==='Enter' && !event.shiftKey){event.preventDefault();sendAiMessage();}">
+        <button class="ai-send-btn" onclick="sendAiMessage()" id="aiSendBtn"><span>Wyślij</span></button>
+      </div>
+    </div>
+  </div>
 
-  window.removeItem = function(idx) {
-    items.splice(idx, 1);
-    localStorage.setItem('cs2_items', JSON.stringify(items));
-    saveToSupabase();
-    renderPortfolio();
-  };
+  <!-- ADD -->
+  <div id="panel-add">
+    <div class="add-toggle-bar">
+      <button class="btn-add-toggle" id="addToggleBtn" onclick="toggleAddForm()">+ Dodaj skin</button>
+    </div>
+    <div class="add-section" id="addFormWrap" style="display:none">
+      <div class="add-form">
+        <div class="input-group" style="position:relative">
+          <input type="text" id="itemNameInput" placeholder="Np. AK-47 | Redline (Field-Tested)" autocomplete="off" oninput="onItemInput(this)">
+          <div class="suggestions" id="suggestions" style="display:none"></div>
+        </div>
+        <div class="input-group input-small">
+          <input type="number" id="itemQtyInput" placeholder="Ilość" min="1" value="1" style="width:100%">
+        </div>
+        <button class="btn btn-primary" onclick="addItem()">+ DODAJ</button>
+      </div>
+      <div class="wear-guide">
+        <span class="wear-guide-label">Stopnie zużycia:</span>
+        <span class="wear-chip" onclick="insertWear('Factory New')">Prosto z Fabryki = <b>Factory New</b></span>
+        <span class="wear-chip" onclick="insertWear('Minimal Wear')">Lekkie Zużycie = <b>Minimal Wear</b></span>
+        <span class="wear-chip" onclick="insertWear('Field-Tested')">Po Testach Bojowych = <b>Field-Tested</b></span>
+        <span class="wear-chip" onclick="insertWear('Well-Worn')">Mocne Zużycie = <b>Well-Worn</b></span>
+        <span class="wear-chip" onclick="insertWear('Battle-Scarred')">Po Ciężkich Walkach = <b>Battle-Scarred</b></span>
+      </div>
+    </div>
+  </div>
 
-  window.refreshItem = async function(idx) {
-    const item = items[idx];
-    if (!item) return;
-    item.loading = true;
-    renderPortfolio();
-    const price = await fetchPrice(item.name);
-    item.price = price;
-    item.loading = false;
-    localStorage.setItem('cs2_items', JSON.stringify(items));
-    saveToSupabase();
-    renderPortfolio();
-  };
+  <!-- SEARCH -->
+  <div class="add-section" id="panel-search" style="display:none">
+    <div class="add-form" style="margin-bottom:16px">
+      <div class="input-group" style="flex:1">
+        <input type="text" id="searchInput" placeholder="Wpisz nazwę broni, np. AK-47, AWP, Knife..." autocomplete="off" onkeydown="if(event.key==='Enter') doSearch()">
+      </div>
+      <div class="input-group" style="flex:0 0 160px">
+        <select id="searchSort" style="width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;font-family:Rajdhani,sans-serif;font-size:14px;color:var(--text);outline:none;cursor:pointer">
+          <option value="price_asc">Cena: rosnąco</option>
+          <option value="price_desc">Cena: malejąco</option>
+          <option value="name">Nazwa A-Z</option>
+          <option value="popular">Popularność</option>
+        </select>
+      </div>
+      <button class="btn btn-primary" onclick="doSearch()">SZUKAJ</button>
+    </div>
+    <div id="searchResults" class="search-results-grid"></div>
+    <div id="searchPager" style="display:flex;gap:8px;justify-content:center;margin-top:16px;flex-wrap:wrap"></div>
+  </div>
 
-  window.refreshAllItems = async function() {
-    for (let i = 0; i < items.length; i++) {
-      items[i].loading = true;
-    }
-    renderPortfolio();
-    for (let i = 0; i < items.length; i++) {
-      const price = await fetchPrice(items[i].name);
-      items[i].price = price;
-      items[i].loading = false;
-      renderPortfolio();
-    }
-    localStorage.setItem('cs2_items', JSON.stringify(items));
-    saveToSupabase();
-  };
+  <!-- TRENDING -->
+  <div id="panel-trending" style="display:none">
+    <div class="trending-header">
+      <div>
+        <div class="section-title" style="margin-bottom:4px">Trending — Gorące przedmioty CS2</div>
+        <div style="font-size:13px;color:var(--text2);margin-bottom:16px">Posortowane po wolumenie sprzedaży z ostatnich 24h.</div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
+        <button class="filter-btn active" id="tcat-all" onclick="loadTrending('all')">Wszystko</button>
+        <button class="filter-btn" id="tcat-rifle" onclick="loadTrending('rifle')">Karabiny</button>
+        <button class="filter-btn" id="tcat-knife" onclick="loadTrending('knife')">Noże</button>
+        <button class="filter-btn" id="tcat-case" onclick="loadTrending('case')">Skrzynki</button>
+        <button class="filter-btn" id="tcat-gloves" onclick="loadTrending('gloves')">Rękawice</button>
+        <button class="filter-btn" id="tcat-pistol" onclick="loadTrending('pistol')">Pistolety</button>
+      </div>
+    </div>
+    <div id="trendingResults" class="search-results-grid"></div>
+    <div id="trendingPager" style="display:flex;gap:8px;justify-content:center;margin-top:16px;flex-wrap:wrap"></div>
+  </div>
 
-  // ── PRICE FETCH ───────────────────────────────────────────
+  <!-- WALLET (stats + filters + grid) -->
+  <div id="panel-wallet">
+    <div class="toolbar">
+      <div class="toolbar-stats">
+        <div class="stat-pill">
+          <span class="stat-pill-label">Przedmioty</span>
+          <span class="stat-pill-value" id="statItems">0</span>
+        </div>
+        <div class="stat-pill">
+          <span class="stat-pill-label">Szt.</span>
+          <span class="stat-pill-value" id="statQty">0</span>
+        </div>
+        <div class="stat-pill stat-pill-top">
+          <span class="stat-pill-label">Najdroższy</span>
+          <span class="stat-pill-value" id="statTop">—</span>
+        </div>
+      </div>
+      <div class="toolbar-filters">
+        <select class="filter-select" id="sortSelect" onchange="setSort(this.value)" title="Sortuj">
+          <option value="default">Sortuj</option>
+          <option value="price_desc">Cena ↓</option>
+          <option value="price_asc">Cena ↑</option>
+          <option value="qty_desc">Ilość ↓</option>
+          <option value="qty_asc">Ilość ↑</option>
+          <option value="name">A–Z</option>
+        </select>
+        <select class="filter-select" id="catSelect" onchange="setCategory(this.value)" title="Kategoria">
+          <option value="all">Kategoria</option>
+          <option value="weapon">Bronie</option>
+          <option value="knife">Noże</option>
+          <option value="gloves">Rękawice</option>
+          <option value="case">Skrzynki</option>
+          <option value="capsule">Kapsuły</option>
+          <option value="sticker">Naklejki</option>
+          <option value="other">Inne</option>
+        </select>
+      </div>
+      <div class="toolbar-actions">
+        <button class="btn btn-refresh-all" id="refreshAllBtn" onclick="refreshAllItems()"><span id="refreshAllIcon">⟳</span> Odśwież</button>
+        <button class="btn-stop-refresh" id="stopRefreshBtn" onclick="stopRefresh()" style="display:none">Stop</button>
+        <button class="btn-share-portfolio" onclick="openShareModal()">Udostępnij</button>
+      </div>
+    </div>
+    <div class="items-grid" id="itemsGrid">
+      <div class="empty-state">
+        <div class="empty-icon"></div>
+        <div class="empty-title">Brak przedmiotów</div>
+        <div class="empty-sub">Dodaj swoje skiny CS2 powyżej</div>
+      </div>
+    </div>
+  </div>
 
-  async function fetchPrice(name) {
-    if (priceCache.has(name)) return priceCache.get(name);
-    try {
-      const res = await fetch(`${FUNCTIONS_URL}/steam-price`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'apikey': SUPABASE_KEY,
-          'Authorization': `Bearer ${SUPABASE_KEY}`
-        },
-        body: JSON.stringify({ itemName: name })
-      });
-      const data = await res.json();
-      const raw = data?.lowest_price || data?.median_price || null;
-      if (!raw) return null;
-      const price = parseFloat(raw.replace(/[^0-9.,]/g, '').replace(',', '.'));
-      if (!isNaN(price)) { priceCache.set(name, price); return price; }
-      return null;
-    } catch(e) { return null; }
-  }
+  <!-- HISTORIA -->
+  <div id="panel-history" style="display:none">
+    <div class="history-header">
+      <div>
+        <div class="section-title" style="margin-bottom:4px">Historia wartości portfela</div>
+        <div style="font-size:13px;color:var(--text2);margin-bottom:16px">Dzienny snapshot wartości Twojego portfela. Dane przechowywane przez 90 dni.</div>
+      </div>
+      <button class="btn btn-primary" onclick="takeSnapshot()" id="snapshotBtn" style="height:40px;white-space:nowrap">Zapisz teraz</button>
+    </div>
+    <div class="history-range-bar">
+      <button class="filter-btn active" id="hrange-7" onclick="setHistoryRange(7)">7 dni</button>
+      <button class="filter-btn" id="hrange-30" onclick="setHistoryRange(30)">30 dni</button>
+      <button class="filter-btn" id="hrange-90" onclick="setHistoryRange(90)">90 dni</button>
+    </div>
+    <div class="history-chart-wrap">
+      <canvas id="historyChart"></canvas>
+      <div class="history-empty" id="historyEmpty" style="display:none">
+        <div style="font-size:32px;margin-bottom:12px">📊</div>
+        <div style="font-family:'Orbitron',monospace;font-size:14px;color:var(--text2)">Brak danych historycznych</div>
+        <div style="font-size:13px;color:var(--text2);margin-top:8px;opacity:0.7">Kliknij "Zapisz teraz" aby utworzyć pierwszy snapshot</div>
+      </div>
+    </div>
+    <div class="history-stats-row" id="historyStats" style="display:none">
+      <div class="history-stat-card"><div class="history-stat-label">Najwyższa wartość</div><div class="history-stat-value" id="hstat-max" style="color:#39ff14">—</div></div>
+      <div class="history-stat-card"><div class="history-stat-label">Najniższa wartość</div><div class="history-stat-value" id="hstat-min" style="color:#ff6b6b">—</div></div>
+      <div class="history-stat-card"><div class="history-stat-label">Zmiana w okresie</div><div class="history-stat-value" id="hstat-change">—</div></div>
+      <div class="history-stat-card"><div class="history-stat-label">Liczba snapshotów</div><div class="history-stat-value" id="hstat-count" style="color:var(--accent)">—</div></div>
+    </div>
+    <div class="history-table-wrap" id="historyTableWrap" style="display:none">
+      <div class="section-title" style="font-size:14px;margin-bottom:12px">Dziennik</div>
+      <table class="history-table">
+        <thead><tr><th>Data</th><th>Wartość portfela</th><th>Liczba skinów</th><th>Zmiana</th></tr></thead>
+        <tbody id="historyTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
 
-  // ── SEARCH ────────────────────────────────────────────────
+<!-- SHARE MODAL -->
+<div id="shareModal" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,0.7);backdrop-filter:blur(4px)" onclick="if(event.target===this)closeShareModal()">
+  <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--bg2);border:1px solid var(--border2);border-radius:20px;padding:28px;width:min(420px,92vw)">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+      <div style="font-family:'Orbitron',monospace;font-size:16px;font-weight:700;color:var(--text)">Udostępnij portfel</div>
+      <button onclick="closeShareModal()" style="background:none;border:none;color:var(--text2);font-size:20px;cursor:pointer;line-height:1">✕</button>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:14px 18px;margin-bottom:16px">
+      <div>
+        <div style="font-size:14px;font-weight:600;color:var(--text)">Publiczny portfel</div>
+        <div style="font-size:12px;color:var(--text2);margin-top:2px">Każdy z linkiem może zobaczyć Twoje skiny</div>
+      </div>
+      <label class="share-toggle">
+        <input type="checkbox" id="shareToggle" onchange="togglePublicPortfolio(this.checked)">
+        <span class="share-toggle-slider"></span>
+      </label>
+    </div>
+    <div id="shareLinkSection" style="display:none">
+      <div style="font-size:12px;color:var(--text2);margin-bottom:6px;font-family:'Share Tech Mono',monospace">TWÓJ PUBLICZNY LINK</div>
+      <div style="display:flex;gap:8px">
+        <input id="shareLinkInput" type="text" readonly style="flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--accent);font-family:'Share Tech Mono',monospace;font-size:12px;outline:none">
+        <button onclick="copyShareLink()" style="background:var(--accent);color:#000;border:none;border-radius:8px;padding:10px 16px;font-weight:700;cursor:pointer;white-space:nowrap;font-family:'Orbitron',monospace;font-size:11px" id="copyLinkBtn">Kopiuj</button>
+      </div>
+    </div>
+    <div id="shareStatusMsg" style="display:none;margin-top:12px;padding:10px 14px;border-radius:8px;font-size:13px;text-align:center"></div>
+  </div>
+</div>
 
-  window.searchSkin = async function() {
-    const query = document.getElementById('skinSearch').value.trim();
-    if (!query) return;
-    const results = document.getElementById('searchResults');
-    results.innerHTML = '<p class="search-loading">Szukam...</p>';
-    try {
-      const res = await fetch(`${FUNCTIONS_URL}/steam-price`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'apikey': SUPABASE_KEY,
-          'Authorization': `Bearer ${SUPABASE_KEY}`
-        },
-        body: JSON.stringify({ itemName: query })
-      });
-      const data = await res.json();
-      if (data?.lowest_price || data?.median_price) {
-        results.innerHTML = `
-          <div class="search-result-card">
-            <div class="sr-name">${query}</div>
-            <div class="sr-price">Najniższa cena: <strong>${data.lowest_price || '–'}</strong></div>
-            ${data.median_price ? `<div class="sr-info">Mediana: ${data.median_price}</div>` : ''}
-            ${data.volume ? `<div class="sr-info">Wolumen: ${data.volume}/dzień</div>` : ''}
-            <button onclick="addFromSearch('${query.replace(/'/g, "\\'")}', '${(data.lowest_price || '0').replace(/'/g, "\\'")}')" class="btn btn-ghost" style="margin-top:14px">+ Dodaj do portfela</button>
-          </div>`;
-      } else {
-        results.innerHTML = '<p class="search-empty">Brak wyników. Podaj pełną nazwę skina z Steam Market.</p>';
-      }
-    } catch(e) {
-      results.innerHTML = '<p class="search-error">Błąd połączenia. Spróbuj ponownie.</p>';
-    }
-  };
+<!-- PUBLIC PORTFOLIO VIEW -->
+<div id="publicPortfolioView" style="display:none;position:fixed;inset:0;z-index:900;background:var(--bg);overflow-y:auto">
+  <div class="container" style="padding:32px 16px">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:24px">
+      <img src="/favicon.png" style="height:36px;width:36px;object-fit:contain">
+      <div style="font-family:'Orbitron',monospace;font-size:20px;font-weight:900;color:var(--text)">CS2 <span style="color:var(--accent)">MARKET</span></div>
+    </div>
+    <div class="pub-header-card">
+      <div class="pub-header-left">
+        <div class="pub-header-label">PUBLICZNY PORTFEL</div>
+        <div class="pub-header-value" id="pubTotalValue">—</div>
+        <div class="pub-header-sub" id="pubItemCount">—</div>
+      </div>
+      <div class="pub-header-right" id="pubUsernameWrap" style="display:none">
+        <div class="pub-username-label">właściciel portfela</div>
+        <div class="pub-username" id="pubUsername"></div>
+      </div>
+    </div>
+    <div class="filter-bar" style="margin-bottom:16px">
+      <div class="filter-row">
+        <span class="filter-label">Sortuj:</span>
+        <button class="filter-btn active" id="pub-sort-default" onclick="setPubSort('default')">Domyślnie</button>
+        <button class="filter-btn" id="pub-sort-price_desc" onclick="setPubSort('price_desc')">Najdroższe</button>
+        <button class="filter-btn" id="pub-sort-price_asc" onclick="setPubSort('price_asc')">Najtańsze</button>
+        <button class="filter-btn" id="pub-sort-name" onclick="setPubSort('name')">A–Z</button>
+      </div>
+      <div class="filter-row">
+        <span class="filter-label">Kategoria:</span>
+        <button class="filter-btn active" id="pub-cat-all" onclick="setPubCategory('all')">Wszystko</button>
+        <button class="filter-btn" id="pub-cat-weapon" onclick="setPubCategory('weapon')">Bronie</button>
+        <button class="filter-btn" id="pub-cat-knife" onclick="setPubCategory('knife')">Noże</button>
+        <button class="filter-btn" id="pub-cat-gloves" onclick="setPubCategory('gloves')">Rękawice</button>
+        <button class="filter-btn" id="pub-cat-case" onclick="setPubCategory('case')">Skrzynki</button>
+        <button class="filter-btn" id="pub-cat-other" onclick="setPubCategory('other')">Inne</button>
+      </div>
+    </div>
+    <div class="items-grid" id="pubItemsGrid"></div>
+    <div style="text-align:center;margin-top:32px;padding-top:24px;border-top:1px solid var(--border)">
+      <div style="font-size:13px;color:var(--text2);margin-bottom:12px">Śledź wartość swoich skinów CS2</div>
+      <a href="https://cs2-market.netlify.app/" style="display:inline-block;background:var(--accent);color:#000;padding:10px 24px;border-radius:10px;font-family:'Orbitron',monospace;font-size:13px;font-weight:700;text-decoration:none">Stwórz własny portfel</a>
+    </div>
+  </div>
+</div>
 
-  window.addFromSearch = function(name, priceStr) {
-    const price = parseFloat(priceStr.replace(/[^0-9.,]/g, '').replace(',', '.')) || null;
-    items.push({ id: Date.now(), name, qty: 1, price, iconUrl: '', loading: false });
-    localStorage.setItem('cs2_items', JSON.stringify(items));
-    saveToSupabase();
-    alert('Dodano do portfela!');
-  };
 
-  // ── ADD MODAL ─────────────────────────────────────────────
-
-  window.openAddModal = function() {
-    document.getElementById('addModal').style.display = 'flex';
-    document.getElementById('m-name').focus();
-  };
-
-  window.closeModal = function() {
-    document.getElementById('addModal').style.display = 'none';
-  };
-
-  window.saveNewItem = async function() {
-    const name = document.getElementById('m-name').value.trim();
-    const qty = parseInt(document.getElementById('m-qty').value) || 1;
-    if (!name) return;
-    const newItem = { id: Date.now(), name, qty, price: null, iconUrl: '', loading: true };
-    items.push(newItem);
-    renderPortfolio();
-    closeModal();
-    document.getElementById('m-name').value = '';
-    document.getElementById('m-qty').value = '1';
-    const price = await fetchPrice(name);
-    const idx = items.findIndex(i => i.id === newItem.id);
-    if (idx >= 0) { items[idx].price = price; items[idx].loading = false; }
-    localStorage.setItem('cs2_items', JSON.stringify(items));
-    saveToSupabase();
-    renderPortfolio();
-  };
-
-  // ── AI CHAT ───────────────────────────────────────────────
-
-  window.sendAI = async function() {
-    const input = document.getElementById('aiInput');
-    const msg = input.value.trim();
-    if (!msg) return;
-    input.value = '';
-    const chat = document.getElementById('aiChat');
-    appendMsg(chat, 'user', msg);
-    aiHistory.push({ role: 'user', content: msg });
-    const thinking = appendMsg(chat, 'ai', '...');
-
-    try {
-      const portfolioValue = items.reduce((s, i) => s + (i.price || 0) * i.qty, 0);
-      const res = await fetch(`${FUNCTIONS_URL}/ai-chat`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'apikey': SUPABASE_KEY,
-          'Authorization': `Bearer ${SUPABASE_KEY}`
-        },
-        body: JSON.stringify({ messages: aiHistory, portfolioValue })
-      });
-      const data = await res.json();
-      const reply = data?.content?.[0]?.text || data?.message || 'Brak odpowiedzi.';
-      thinking.textContent = reply;
-      aiHistory.push({ role: 'assistant', content: reply });
-    } catch(e) {
-      thinking.textContent = 'Błąd połączenia z AI. Spróbuj ponownie.';
-    }
-  };
-
-  function appendMsg(container, role, text) {
-    const el = document.createElement('div');
-    el.className = `chat-msg chat-${role}`;
-    el.textContent = text;
-    container.appendChild(el);
-    container.scrollTop = container.scrollHeight;
-    return el;
-  }
-
-  // ── MODAL CLOSE ON CLICK OUTSIDE ─────────────────────────
-
-  document.getElementById('addModal').addEventListener('click', function(e) {
-    if (e.target === this) closeModal();
-  });
-
-  // ── INIT ──────────────────────────────────────────────────
-
-  (async () => {
-    const { data: { session } } = await _sb.auth.getSession();
-    if (session) {
-      await onLoginSuccess(session.user);
-    }
-
-    _sb.auth.onAuthStateChange(async (event, session) => {
-      if (event === 'SIGNED_OUT') {
-        document.getElementById('authScreen').style.display = 'flex';
-        document.getElementById('appContent').style.display = 'none';
-      } else if (event === 'TOKEN_REFRESHED' && session) {
-        currentUser = session.user;
-      }
-    });
-  })();
-});
+<script define:vars={{ SUPABASE_URL, SUPABASE_KEY }}>
+// Inject constants for script.js logic
+window._SUPABASE_URL = SUPABASE_URL;
+window._SUPABASE_KEY = SUPABASE_KEY;
 </script>
 
-<style>
-/* Auth screen */
-.auth-screen-wrap {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: calc(100vh - 64px);
-  padding: 40px 20px;
-}
-.auth-box {
-  background: var(--bg2);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 36px;
-  width: 100%;
-  max-width: 420px;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.4);
-}
-.auth-logo { text-align: center; margin-bottom: 28px; }
-.auth-logo h1 { font-family: var(--font-hud); font-size: 28px; font-weight: 900; letter-spacing: 3px; color: #e8f4f8; }
-.auth-logo h1 span { color: var(--accent); }
-.auth-logo p { font-family: var(--font-mono); font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--text2); margin-top: 6px; }
+<script is:inline>
+// ─── SUPABASE AUTH ───────────────────────────────────────────
+const SUPABASE_URL = window._SUPABASE_URL;
+const SUPABASE_KEY = window._SUPABASE_KEY;
+const _sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const SUPABASE_FUNCTIONS_URL = `${SUPABASE_URL}/functions/v1`;
 
-.auth-tabs { display: flex; gap: 4px; margin-bottom: 24px; background: var(--bg3); border-radius: 8px; padding: 4px; }
-.auth-tab {
-  flex: 1; padding: 8px; background: none; border: none;
-  border-radius: 6px; font-family: var(--font); font-size: 14px;
-  font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
-  color: var(--text2); cursor: pointer; transition: all 0.2s;
-}
-.auth-tab.active { background: var(--bg4); color: var(--accent); }
+let currentUser = null;
 
-.auth-field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
-.auth-field label { font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--text2); }
-.auth-field input {
-  background: var(--bg3); border: 1px solid var(--border);
-  border-radius: 8px; padding: 11px 14px; color: #e8f4f8;
-  font-family: var(--font); font-size: 15px; outline: none; transition: border-color 0.2s;
-  width: 100%;
-}
-.auth-field input:focus { border-color: var(--accent); }
-
-.auth-email-wrap { display: flex; align-items: center; gap: 0; }
-.auth-email-wrap input { border-radius: 8px 0 0 8px; flex: 1; }
-.auth-email-domain {
-  background: var(--bg4); border: 1px solid var(--border); border-left: none;
-  border-radius: 0 8px 8px 0; padding: 11px 12px;
-  font-family: var(--font-mono); font-size: 12px; color: var(--text2); white-space: nowrap;
-}
-.auth-email-preview { font-family: var(--font-mono); font-size: 11px; color: var(--accent); margin-top: 4px; }
-
-.auth-btn {
-  width: 100%; padding: 12px; background: var(--accent);
-  border: none; border-radius: 8px; color: var(--bg);
-  font-family: var(--font); font-size: 14px; font-weight: 700;
-  letter-spacing: 2px; text-transform: uppercase; cursor: pointer;
-  transition: background 0.2s; margin-top: 4px;
-}
-.auth-btn:hover { background: #00aadd; }
-.auth-btn:disabled { opacity: 0.6; cursor: not-allowed; }
-
-.auth-error {
-  background: rgba(235,75,75,0.12); border: 1px solid rgba(235,75,75,0.3);
-  border-radius: 8px; padding: 10px 14px; font-size: 13px; color: var(--red); margin-top: 12px;
-}
-.auth-success {
-  background: rgba(76,175,80,0.12); border: 1px solid rgba(76,175,80,0.3);
-  border-radius: 8px; padding: 10px 14px; font-size: 13px; color: var(--green); margin-top: 12px;
+function switchAuthTab(tab) {
+  document.getElementById('loginForm').style.display = tab === 'login' ? '' : 'none';
+  document.getElementById('registerForm').style.display = tab === 'register' ? '' : 'none';
+  document.getElementById('loginTab').className = 'auth-tab' + (tab === 'login' ? ' active' : '');
+  document.getElementById('registerTab').className = 'auth-tab' + (tab === 'register' ? ' active' : '');
+  document.getElementById('authError').style.display = 'none';
+  document.getElementById('authSuccess').style.display = 'none';
 }
 
-.auth-divider {
-  text-align: center; margin: 20px 0 12px;
-  display: flex; align-items: center; gap: 12px;
+function showAuthError(msg) {
+  const el = document.getElementById('authError');
+  el.textContent = msg; el.style.display = 'block';
+  document.getElementById('authSuccess').style.display = 'none';
 }
-.auth-divider::before, .auth-divider::after {
-  content: ''; flex: 1; height: 1px; background: var(--border);
+function showAuthSuccess(msg) {
+  const el = document.getElementById('authSuccess');
+  el.textContent = msg; el.style.display = 'block';
+  document.getElementById('authError').style.display = 'none';
 }
-.auth-divider span { font-family: var(--font-mono); font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--text2); }
+function previewEmail(val) {
+  const preview = document.getElementById('emailPreview');
+  const clean = val.trim().toLowerCase().replace(/[^a-z0-9._-]/g, '');
+  if (clean) { preview.style.display = 'block'; document.getElementById('emailPreviewText').textContent = clean + '@cs2-market.app'; }
+  else preview.style.display = 'none';
+}
 
-.btn-guest {
-  width: 100%; padding: 11px;
-  background: transparent; border: 1px dashed var(--border2);
-  border-radius: 8px; color: var(--text2);
-  font-family: var(--font); font-size: 14px; font-weight: 700;
-  letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer; transition: all 0.2s;
+async function doLogin() {
+  const input = document.getElementById('loginUsername').value.trim();
+  const password = document.getElementById('loginPassword').value;
+  if (!input || !password) { showAuthError('Wpisz login/email i hasło'); return; }
+  const btn = document.getElementById('loginBtn');
+  btn.disabled = true; btn.textContent = 'Logowanie...';
+  try {
+    let email = input.includes('@') ? input.toLowerCase() : `${input.toLowerCase()}@cs2-market.app`;
+    let result = await _sb.auth.signInWithPassword({ email, password });
+    if (result.error) {
+      const aliasEmail = input.includes('@') ? input.toLowerCase() : `${input.toLowerCase().replace(/[^a-z0-9._-]/g, '')}@cs2-market.app`;
+      const { data: profileData } = await _sb.from('profiles').select('username').eq('email_alias', aliasEmail).single();
+      if (profileData?.username) result = await _sb.auth.signInWithPassword({ email: `${profileData.username.toLowerCase()}@cs2-market.app`, password });
+    }
+    if (result.error) throw result.error;
+    await onLoginSuccess(result.data.user);
+  } catch(e) { showAuthError('Błędny login/email lub hasło'); }
+  finally { btn.disabled = false; btn.textContent = 'ZALOGUJ'; }
 }
-.btn-guest:hover { border-color: var(--accent); color: var(--accent); }
-.btn-guest:disabled { opacity: 0.5; cursor: not-allowed; }
-.auth-guest-note { text-align: center; font-family: var(--font-mono); font-size: 10px; color: var(--text2); opacity: 0.5; margin-top: 8px; }
 
-/* App */
-#appContent { padding: 0 0 60px; }
-.app-header {
-  display: flex; align-items: center; gap: 16px;
-  padding: 16px 0 20px; border-bottom: 1px solid var(--border); margin-bottom: 24px;
-  flex-wrap: wrap;
+async function doRegister() {
+  const username = document.getElementById('regUsername').value.trim();
+  const emailPrefix = document.getElementById('regEmailPrefix').value.trim().toLowerCase().replace(/[^a-z0-9._-]/g, '');
+  const password = document.getElementById('regPassword').value;
+  const steamId = document.getElementById('regSteamId').value.trim();
+  if (!username || username.length < 3) { showAuthError('Login musi mieć min. 3 znaki'); return; }
+  if (!password || password.length < 6) { showAuthError('Hasło musi mieć min. 6 znaków'); return; }
+  if (!/^[a-zA-Z0-9_]+$/.test(username)) { showAuthError('Login może zawierać tylko litery, cyfry i _'); return; }
+  const btn = document.getElementById('registerBtn');
+  btn.disabled = true; btn.textContent = 'Rejestracja...';
+  try {
+    const primaryEmail = `${username.toLowerCase()}@cs2-market.app`;
+    const emailAlias = emailPrefix && emailPrefix !== username.toLowerCase() ? `${emailPrefix}@cs2-market.app` : null;
+    const { data, error } = await _sb.auth.signUp({ email: primaryEmail, password });
+    if (error) throw error;
+    const { error: profileError } = await _sb.from('profiles').insert({ id: data.user.id, username, steam_id: steamId || null, email_alias: emailAlias || null });
+    if (profileError) throw profileError;
+    showAuthSuccess('Konto utworzone! Możesz się zalogować.');
+    switchAuthTab('login');
+    document.getElementById('loginUsername').value = username;
+  } catch(e) {
+    showAuthError(e.message?.includes('duplicate') || e.message?.includes('already') ? 'Ten login jest już zajęty' : 'Błąd rejestracji: ' + e.message);
+  } finally { btn.disabled = false; btn.textContent = 'ZAREJESTRUJ'; }
 }
-.app-username { font-family: var(--font-hud); font-size: 16px; color: var(--accent); }
-.portfolio-total { margin-left: auto; font-size: 14px; color: var(--text2); }
-.total-amount { font-family: var(--font-hud); font-size: 22px; font-weight: 700; color: var(--accent); margin-left: 8px; }
-.btn-logout {
-  background: transparent; border: 1px solid var(--border);
-  border-radius: 6px; padding: 6px 14px; color: var(--text2);
-  font-family: var(--font); font-size: 12px; font-weight: 600;
-  letter-spacing: 1px; text-transform: uppercase; cursor: pointer; transition: all 0.2s;
-}
-.btn-logout:hover { border-color: var(--red); color: var(--red); }
 
-/* Tabs */
-.app-tabs { display: flex; gap: 4px; margin-bottom: 24px; border-bottom: 1px solid var(--border); }
-.tab-btn {
-  background: none; border: none; border-bottom: 2px solid transparent;
-  padding: 10px 18px; margin-bottom: -1px;
-  font-family: var(--font); font-size: 14px; font-weight: 700;
-  color: var(--text2); cursor: pointer; transition: all 0.2s;
+async function onLoginSuccess(user) {
+  currentUser = user;
+  try {
+    const { data: profile, error: profileErr } = await _sb.from('profiles').select('*').eq('id', user.id).single();
+    if (!profileErr && profile) {
+      document.getElementById('headerUsername').textContent = profile.username;
+      if (profile.steam_id) { const si = document.getElementById('steamIdInput'); if (si) si.value = profile.steam_id; }
+    } else { document.getElementById('headerUsername').textContent = user.email?.split('@')[0] || 'user'; }
+    const { data: portfolio } = await _sb.from('portfolios').select('items').eq('user_id', user.id).single();
+    if (portfolio?.items && Array.isArray(portfolio.items) && portfolio.items.length > 0) {
+      items = portfolio.items; localStorage.setItem('cs2_items', JSON.stringify(items));
+    }
+  } catch(e) {}
+  document.getElementById('authScreen').style.display = 'none';
+  renderItems();
 }
-.tab-btn:hover { color: var(--accent); }
-.tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
 
-/* Portfolio */
-.panel-actions { display: flex; gap: 10px; margin-bottom: 20px; }
-.empty-state { text-align: center; padding: 48px 20px; color: var(--text2); }
-.portfolio-list { display: flex; flex-direction: column; gap: 10px; }
-.portfolio-item {
-  display: flex; align-items: center; gap: 16px;
-  background: var(--bg2); border: 1px solid var(--border);
-  border-radius: var(--radius); padding: 14px 18px;
-  transition: border-color 0.2s;
+async function doLogout() {
+  await _sb.auth.signOut();
+  currentUser = null; items = []; priceCache.clear(); aiHistory = [];
+  localStorage.removeItem('cs2_items');
+  renderItems();
+  document.getElementById('authScreen').style.display = 'flex';
+  document.getElementById('headerUsername').textContent = '';
 }
-.portfolio-item:hover { border-color: var(--border2); }
-.pi-info { flex: 1; }
-.pi-name { font-size: 15px; font-weight: 700; color: #e8f4f8; }
-.pi-qty { font-family: var(--font-mono); font-size: 12px; color: var(--text2); margin-top: 2px; }
-.pi-price-col { text-align: right; min-width: 110px; }
-.pi-price { font-family: var(--font-hud); font-size: 18px; font-weight: 700; color: var(--accent); display: block; }
-.pi-unit { font-family: var(--font-mono); font-size: 11px; color: var(--text2); }
-.pi-loading { font-family: var(--font-mono); font-size: 12px; color: var(--text2); animation: blink 1s infinite; }
-.pi-no-price { font-family: var(--font-mono); font-size: 14px; color: var(--text2); }
-@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
-.pi-actions { display: flex; gap: 6px; }
-.pi-btn {
-  background: none; border: 1px solid var(--border);
-  border-radius: 6px; padding: 6px 10px; color: var(--text2);
-  cursor: pointer; font-size: 13px; transition: all 0.2s;
-}
-.pi-refresh:hover { border-color: var(--accent); color: var(--accent); }
-.pi-remove:hover { border-color: var(--red); color: var(--red); }
 
-/* Search */
-.search-bar { display: flex; gap: 10px; margin-bottom: 20px; }
-.search-bar input {
-  flex: 1; background: var(--bg2); border: 1px solid var(--border);
-  border-radius: 8px; padding: 11px 14px; color: #e8f4f8;
-  font-family: var(--font); font-size: 14px; outline: none;
-}
-.search-bar input:focus { border-color: var(--accent); }
-.search-result-card {
-  background: var(--bg2); border: 1px solid var(--border2);
-  border-radius: var(--radius); padding: 22px;
-}
-.sr-name { font-size: 18px; font-weight: 700; color: #e8f4f8; margin-bottom: 10px; }
-.sr-price { font-family: var(--font-mono); font-size: 14px; color: var(--text2); margin-bottom: 4px; }
-.sr-price strong { color: var(--accent); font-size: 18px; }
-.sr-info { font-size: 13px; color: var(--text2); }
-.search-loading, .search-empty, .search-error { font-size: 14px; color: var(--text2); padding: 20px 0; }
-.search-error { color: var(--red); }
+const GUEST_DEFAULT_ITEMS = [
+  { name: 'AK-47 | Redline (Field-Tested)', qty: 1 },
+  { name: 'AWP | Asiimov (Field-Tested)', qty: 1 },
+  { name: 'M4A1-S | Decimator (Field-Tested)', qty: 1 },
+  { name: 'Glock-18 | Water Elemental (Field-Tested)', qty: 1 },
+  { name: 'Kilowatt Case', qty: 5 },
+];
 
-/* AI */
-.ai-chat {
-  height: 380px; overflow-y: auto;
-  background: var(--bg2); border: 1px solid var(--border);
-  border-radius: var(--radius); padding: 16px;
-  display: flex; flex-direction: column; gap: 12px;
-  margin-bottom: 12px;
+async function loginAsGuest() {
+  const guestBtn = document.querySelector('.btn-guest');
+  if (guestBtn) { guestBtn.disabled = true; guestBtn.textContent = 'Logowanie...'; }
+  currentUser = null;
+  items = GUEST_DEFAULT_ITEMS.map((g, idx) => ({ id: Date.now() + idx, name: g.name, qty: g.qty, price: null, priceRaw: null, iconUrl: '', loading: false }));
+  localStorage.setItem('cs2_items', JSON.stringify(items));
+  document.getElementById('headerUsername').textContent = 'Gość';
+  document.getElementById('authScreen').style.display = 'none';
+  if (guestBtn) { guestBtn.disabled = false; guestBtn.textContent = 'Zaloguj jako gość'; }
+  renderItems();
+  setTimeout(() => refreshAllItems(), 300);
 }
-.ai-input-row { display: flex; gap: 10px; }
-.ai-input-row input {
-  flex: 1; background: var(--bg2); border: 1px solid var(--border);
-  border-radius: 8px; padding: 11px 14px; color: #e8f4f8;
-  font-family: var(--font); font-size: 14px; outline: none;
-}
-.ai-input-row input:focus { border-color: var(--accent); }
-.chat-msg { max-width: 80%; padding: 11px 15px; border-radius: 12px; font-size: 14px; line-height: 1.6; white-space: pre-wrap; }
-.chat-user { background: rgba(0,212,255,0.12); border: 1px solid var(--border2); color: #e8f4f8; align-self: flex-end; border-radius: 12px 12px 2px 12px; }
-.chat-ai { background: var(--bg3); border: 1px solid var(--border); color: var(--text); align-self: flex-start; border-radius: 12px 12px 12px 2px; }
 
-/* Modal */
-.modal-overlay {
-  position: fixed; inset: 0;
-  background: rgba(0,0,0,0.75);
-  display: flex; align-items: center; justify-content: center;
-  z-index: 200; backdrop-filter: blur(4px);
+async function saveToSupabase() {
+  if (!currentUser) return;
+  try { await _sb.from('portfolios').upsert({ user_id: currentUser.id, items, updated_at: new Date().toISOString() }, { onConflict: 'user_id' }); } catch(e) {}
 }
-.modal {
-  background: var(--bg2); border: 1px solid var(--border2);
-  border-radius: 14px; padding: 28px;
-  width: 100%; max-width: 420px;
+
+(async () => {
+  const isPublic = await checkPublicPortfolio();
+  if (isPublic) return;
+  const { data: { session } } = await _sb.auth.getSession();
+  if (session) await onLoginSuccess(session.user);
+})();
+
+_sb.auth.onAuthStateChange(async (event, session) => {
+  if (event === 'SIGNED_OUT' && currentUser) {
+    currentUser = null; items = []; localStorage.removeItem('cs2_items');
+    document.getElementById('authScreen').style.display = 'flex';
+    document.getElementById('headerUsername').textContent = '';
+  } else if (event === 'TOKEN_REFRESHED' && session) currentUser = session.user;
+});
+
+// ─── CORE ─────────────────────────────────────────────────────
+let currentSort = 'default';
+let currentCategory = 'all';
+const STEAM_API_KEY = 'BD66D8B47D16AFE61244897621C4CE52';
+let items = JSON.parse(localStorage.getItem('cs2_items') || '[]');
+let suggestTimeout = null;
+const priceCache = new Map();
+const CACHE_TTL = 5 * 60 * 1000;
+const STEAM_USD_PLN = 3.6979;
+
+function showError(msg) {
+  const el = document.getElementById('errorNotice');
+  el.textContent = msg; el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 5000);
 }
-.modal h3 { font-size: 20px; margin-bottom: 20px; }
-.modal-field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
-.modal-field label { font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--text2); }
-.modal-field input {
-  background: var(--bg3); border: 1px solid var(--border);
-  border-radius: 8px; padding: 10px 14px; color: #e8f4f8;
-  font-family: var(--font); font-size: 14px; outline: none; width: 100%;
+
+function escapeHtml(str) {
+  return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
-.modal-field input:focus { border-color: var(--accent); }
-.modal-actions { display: flex; gap: 10px; margin-top: 20px; }
+
+async function steamFetch(steamUrl) {
+  const resp = await fetch(`${SUPABASE_FUNCTIONS_URL}/steam-price`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` },
+    body: JSON.stringify({ steamUrl })
+  });
+  if (!resp.ok) throw new Error(`Edge Function error: ${resp.status}`);
+  return resp.json();
+}
+
+async function fetchPrice(marketHashName) {
+  const cached = priceCache.get(marketHashName);
+  if (cached && Date.now() - cached.ts < CACHE_TTL) return cached.result;
+  try {
+    const [priceResp, searchData] = await Promise.all([
+      fetch(`${SUPABASE_FUNCTIONS_URL}/steam-price`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` },
+        body: JSON.stringify({ itemName: marketHashName })
+      }),
+      steamFetch(`https://steamcommunity.com/market/listings/730/${encodeURIComponent(marketHashName)}/render/?start=0&count=1&currency=6&format=json`).catch(() => null)
+    ]);
+    const data = await priceResp.json();
+    const assets = searchData?.assets;
+    let iconUrl = '';
+    if (assets) {
+      const appAssets = assets['730'] || assets[730];
+      if (appAssets) {
+        const ctx = appAssets['2'] || appAssets[2] || Object.values(appAssets)[0];
+        if (ctx) { const first = Object.values(ctx)[0]; iconUrl = first?.icon_url || ''; }
+      }
+    }
+    let result = null;
+    if (data.success && data.lowest_price) {
+      const raw = data.lowest_price;
+      const num = parseFloat(raw.replace(/[^\d,]/g, '').replace(',', '.'));
+      if (!isNaN(num) && num > 0) result = { price: num, raw: raw.includes('zł') ? raw : raw + ' zł', volume: data.volume || 0, iconUrl };
+    }
+    if (!result && iconUrl) result = { price: null, raw: null, volume: 0, iconUrl };
+    priceCache.set(marketHashName, { result, ts: Date.now() });
+    return result;
+  } catch(e) { return null; }
+}
+
+const WEAR_TRANSLATIONS = { 'prosto z fabryki':'Factory New','fn':'Factory New','lekkie zuzycie':'Minimal Wear','lekkie zużycie':'Minimal Wear','mw':'Minimal Wear','po testach bojowych':'Field-Tested','po testach':'Field-Tested','ft':'Field-Tested','mocne zuzycie':'Well-Worn','mocne zużycie':'Well-Worn','ww':'Well-Worn','po ciezkich walkach':'Battle-Scarred','po ciężkich walkach':'Battle-Scarred','bs':'Battle-Scarred' };
+
+function insertWear(wearEn) {
+  const input = document.getElementById('itemNameInput');
+  const withoutWear = input.value.replace(/\s*\([^)]*\)\s*$/, '').trim();
+  input.value = withoutWear + (withoutWear ? ' (' + wearEn + ')' : '(' + wearEn + ')');
+  input.focus(); onItemInput(input);
+}
+
+function translateWearInInput(val) {
+  return val.replace(/\(([^)]+)\)/g, (match, inner) => {
+    const key = inner.trim().toLowerCase();
+    return WEAR_TRANSLATIONS[key] ? '(' + WEAR_TRANSLATIONS[key] + ')' : match;
+  });
+}
+
+async function onItemInput(input) {
+  clearTimeout(suggestTimeout);
+  const val = input.value.trim();
+  if (val.length < 3) { document.getElementById('suggestions').style.display = 'none'; return; }
+  suggestTimeout = setTimeout(async () => {
+    try {
+      const url = `https://steamcommunity.com/market/search/render/?appid=730&norender=1&search_descriptions=0&query=${encodeURIComponent(val)}&start=0&count=6&currency=6`;
+      const data = await steamFetch(url);
+      if (data.results && data.results.length > 0) showSuggestions(data.results);
+      else document.getElementById('suggestions').style.display = 'none';
+    } catch(e) { document.getElementById('suggestions').style.display = 'none'; }
+  }, 400);
+}
+
+const suggestionIconCache = new Map();
+function showSuggestions(results) {
+  const box = document.getElementById('suggestions');
+  box.innerHTML = results.map(r => {
+    const iconUrl = r.asset_description?.icon_url || '';
+    const img = iconUrl ? `https://community.cloudflare.steamstatic.com/economy/image/${iconUrl}/62fx46f` : '';
+    if (iconUrl) suggestionIconCache.set(r.name, iconUrl);
+    return `<div class="suggestion-item" onclick="selectSuggestion('${escapeHtml(r.name)}')">
+      ${img ? `<img class="suggestion-img" src="${img}" onerror="this.style.display='none'">` : ''}
+      <div class="suggestion-info"><div class="suggestion-name">${escapeHtml(r.name)}</div><div class="suggestion-price">${r.sell_price_text || ''}</div></div>
+    </div>`;
+  }).join('');
+  box.style.display = 'block';
+}
+
+function selectSuggestion(name) {
+  document.getElementById('itemNameInput').value = name;
+  document.getElementById('suggestions').style.display = 'none';
+  document.getElementById('itemNameInput').focus();
+}
+
+document.addEventListener('click', e => { if (!e.target.closest('.input-group')) document.getElementById('suggestions').style.display = 'none'; });
+
+let addItemInProgress = false;
+async function addItem() {
+  if (addItemInProgress) return; addItemInProgress = true;
+  let name = document.getElementById('itemNameInput').value.trim();
+  name = translateWearInInput(name);
+  const qty = parseInt(document.getElementById('itemQtyInput').value) || 1;
+  if (!name) { showError('Wpisz nazwę przedmiotu!'); addItemInProgress = false; return; }
+  const exists = items.find(i => i.name === name);
+  if (exists) { exists.qty += qty; saveItems(); renderItems(); addItemInProgress = false; return; }
+  const item = { id: Date.now(), name, qty, price: null, priceRaw: null, iconUrl: null, loading: true };
+  items.push(item); saveItems(); renderItems();
+  document.getElementById('itemNameInput').value = '';
+  document.getElementById('itemQtyInput').value = '1';
+  const cachedIcon = suggestionIconCache.get(name);
+  if (cachedIcon) { item.iconUrl = cachedIcon; renderItems(); }
+  const result = await fetchPrice(name);
+  item.loading = false;
+  if (result) { if (result.price !== null) { item.price = result.price; item.priceRaw = result.raw; item.volume = result.volume; } if (result.iconUrl) item.iconUrl = result.iconUrl; }
+  saveItems(); renderItems(); addItemInProgress = false;
+}
+
+function updateItemPrice(item, result) {
+  if (!result || !result.price) return;
+  const today = new Date().toDateString();
+  const yesterday = new Date(Date.now() - 86400000).toDateString();
+  if (!item.snapshotPrice || !item.snapshotDate) { item.snapshotPrice = result.price; item.snapshotDate = today; }
+  else if (item.snapshotDate !== today && item.snapshotDate !== yesterday) { item.snapshotPrice = item.price || result.price; item.snapshotDate = yesterday; }
+  item.price = result.price; item.priceRaw = result.raw; item.lastUpdated = Date.now();
+}
+
+function increaseQty(id) { const item = items.find(i => i.id === id); if (!item) return; item.qty++; saveItems(); renderItems(); }
+function decreaseQty(id) { const item = items.find(i => i.id === id); if (!item) return; if (item.qty > 1) item.qty--; else items = items.filter(i => i.id !== id); saveItems(); renderItems(); }
+function setQty(id, val) { const item = items.find(i => i.id === id); if (!item) return; const p = parseInt(val, 10); if (isNaN(p) || p < 1) items = items.filter(i => i.id !== id); else item.qty = p; saveItems(); renderItems(); }
+function getPriceChange(item) { if (!item.snapshotPrice || !item.price) return null; const pct = ((item.price - item.snapshotPrice) / item.snapshotPrice) * 100; if (Math.abs(pct) < 0.01) return null; return pct; }
+
+let refreshStopped = false;
+let refreshGeneration = 0;
+
+function stopRefresh() {
+  refreshStopped = true; refreshGeneration++;
+  document.getElementById('stopRefreshBtn').style.display = 'none';
+  const btn = document.getElementById('refreshAllBtn');
+  btn.innerHTML = `<span id="refreshAllIcon">⟳</span> Odśwież wszystkie`; btn.disabled = false; btn.classList.remove('spinning');
+  items.forEach(i => { i.loading = false; }); saveItems(); renderItems();
+}
+
+async function refreshAllItems() {
+  if (items.length === 0) return;
+  refreshStopped = false;
+  const myGen = ++refreshGeneration;
+  const btn = document.getElementById('refreshAllBtn'), stopBtn = document.getElementById('stopRefreshBtn');
+  if (btn) { btn.disabled = true; btn.classList.add('spinning'); }
+  if (stopBtn) stopBtn.style.display = 'block';
+  const BATCH = 5; let done = 0;
+  const updateBtn = () => { if (btn) btn.innerHTML = `<span id="refreshAllIcon" style="display:inline-block;animation:spin 0.8s linear infinite">⟳</span> ${done}/${items.length}`; };
+  for (let i = 0; i < items.length; i += BATCH) {
+    if (refreshStopped || myGen !== refreshGeneration) break;
+    const batch = items.slice(i, i + BATCH);
+    batch.forEach(item => { item.loading = true; }); renderItems();
+    await Promise.all(batch.map(async (item) => {
+      if (refreshStopped || myGen !== refreshGeneration) { item.loading = false; return; }
+      const result = await fetchPrice(item.name);
+      if (refreshStopped || myGen !== refreshGeneration) { item.loading = false; return; }
+      item.loading = false; updateItemPrice(item, result); if (result && result.iconUrl) item.iconUrl = result.iconUrl; done++; updateBtn();
+    }));
+    if (refreshStopped || myGen !== refreshGeneration) break;
+    saveItems(); renderItems();
+    if (i + BATCH < items.length && !refreshStopped) await new Promise(r => setTimeout(r, 200));
+  }
+  if (myGen !== refreshGeneration) return;
+  if (btn) { btn.disabled = false; btn.classList.remove('spinning'); btn.innerHTML = refreshStopped ? `<span id="refreshAllIcon">⟳</span> Odśwież` : `<span id="refreshAllIcon">⟳</span> Odświeżono!`; if (!refreshStopped) setTimeout(() => { btn.innerHTML = `<span id="refreshAllIcon">⟳</span> Odśwież`; }, 2000); }
+  if (stopBtn) stopBtn.style.display = 'none';
+  saveItems(); renderItems();
+  if (!refreshStopped) autoSnapshot();
+}
+
+async function refreshItem(id) {
+  const item = items.find(i => i.id === id); if (!item) return;
+  item.loading = true; renderItems();
+  const result = await fetchPrice(item.name);
+  item.loading = false; updateItemPrice(item, result);
+  if (result) { if (result.volume) item.volume = result.volume; if (result.iconUrl) item.iconUrl = result.iconUrl; }
+  saveItems(); renderItems();
+  setTimeout(() => { const card = document.getElementById('card-' + id); if (card) { const el = card.querySelector('.item-price-total'); if (el) { el.classList.remove('price-flash'); void el.offsetWidth; el.classList.add('price-flash'); } } }, 50);
+}
+
+function removeItem(id) { items = items.filter(i => i.id !== id); saveItems(); renderItems(); }
+function saveItems() { localStorage.setItem('cs2_items', JSON.stringify(items)); saveToSupabase(); }
+
+function getWearTag(name) { for (const w of ['Factory New','Minimal Wear','Field-Tested','Well-Worn','Battle-Scarred']) { if (name.includes(w)) return w; } return null; }
+
+function buildCardHtml(item, idx) {
+  const wear = getWearTag(item.name);
+  const weaponName = item.name.includes('|') ? item.name.split('|')[0].trim() : item.name;
+  const skinName = item.name.includes('|') ? item.name.split('|')[1].replace(/\(.*\)/, '').trim() : '';
+  const imgSrc = item.iconUrl ? (item.iconUrl.startsWith('http') ? item.iconUrl : `https://community.cloudflare.steamstatic.com/economy/image/${item.iconUrl}/360fx230f`) : '';
+  let changeBadge = '';
+  const pct = getPriceChange(item);
+  if (pct !== null) {
+    const absPct = Math.abs(pct).toFixed(1);
+    if (pct >= 15) changeBadge = `<div class="price-change up"><span style="color:#39ff14">▲</span> +${absPct}%</div>`;
+    else if (pct <= -10) changeBadge = `<div class="price-change down"><span style="color:#ff4444">▼</span> −${absPct}%</div>`;
+    else if (pct > 0) changeBadge = `<div class="price-change neutral"><span style="color:#39ff14">▲</span> +${absPct}%</div>`;
+    else changeBadge = `<div class="price-change neutral"><span style="color:#ff4444">▼</span> −${absPct}%</div>`;
+  }
+  const delay = idx < 8 ? idx * 55 : 0;
+  return `<div class="item-card" id="card-${item.id}" style="animation-delay:${delay}ms">
+    <div class="item-refresh-overlay" style="display:none"><span class="item-refresh-spinner">⟳</span><span class="item-refresh-label">Odświeżanie</span></div>
+    <div class="item-img-banner">
+      ${imgSrc ? `<img src="${imgSrc}" onerror="this.style.display='none'" alt="${escapeHtml(item.name)}">` : '<div class="img-placeholder-big"></div>'}
+      ${changeBadge ? `<div class="change-badge-wrap">${changeBadge}</div>` : ''}
+    </div>
+    <div class="item-body">
+      <div class="item-weapon">${escapeHtml(weaponName)}</div>
+      <div class="item-skin">${escapeHtml(skinName)}</div>
+      <div style="display:flex;align-items:center;gap:8px;margin-top:6px">
+        ${wear ? `<div class="item-wear">${wear}</div>` : ''}
+        <div class="qty-control">
+          <button onclick="decreaseQty(${item.id})">−</button>
+          <input type="number" class="qty-input" value="${item.qty}" min="1" max="9999" onchange="setQty(${item.id},this.value)" onclick="this.select()" style="width:46px;text-align:center;background:#0f172a;border:1px solid rgba(255,255,255,0.1);color:#00ffa6;border-radius:6px;padding:2px 4px;font-size:14px;font-weight:600;outline:none">
+          <button onclick="increaseQty(${item.id})">+</button>
+        </div>
+      </div>
+    </div>
+    <div class="item-price-row">
+      <div class="item-price-single">${item.price !== null && item.price > 0 ? `${item.priceRaw || (item.price.toFixed(2).replace('.',',') + ' zł')} / szt.` : '<span style="color:#ff6b6b;font-size:12px">Nie znaleziono</span>'}</div>
+      <div class="item-price-total">${item.price !== null && item.price > 0 ? (item.price * item.qty).toFixed(2).replace('.', ',') + ' zł' : ''}</div>
+    </div>
+    ${pct !== null && item.snapshotPrice ? `<div class="price-history-row"><span class="price-history-label">Wczoraj:</span><span class="price-history-val">${item.snapshotPrice.toFixed(2).replace('.', ',')} zł</span></div>` : ''}
+    <div class="item-actions">
+      <button class="refresh-btn" onclick="refreshItem(${item.id})">⟳ Odśwież</button>
+      <button class="btn btn-danger" onclick="removeItem(${item.id})">X</button>
+    </div>
+  </div>`;
+}
+
+function updateCardOverlay(id, loading) { const card = document.getElementById('card-' + id); if (!card) return; const overlay = card.querySelector('.item-refresh-overlay'); if (!overlay) return; overlay.style.display = loading ? 'flex' : 'none'; }
+
+function renderItems() {
+  const grid = document.getElementById('itemsGrid');
+  if (items.length === 0) { grid.innerHTML = `<div class="empty-state"><div class="empty-icon"></div><div class="empty-title">Brak przedmiotów</div><div class="empty-sub">Dodaj swoje skiny CS2 powyżej</div></div>`; updateStats(); return; }
+  const sorted = getSortedItems();
+  const existingIds = [...grid.querySelectorAll('.item-card')].map(el => el.id);
+  const newIds = sorted.map(i => 'card-' + i.id);
+  const structureMatches = existingIds.length === newIds.length && existingIds.every((id, i) => id === newIds[i]);
+  if (!structureMatches) grid.innerHTML = sorted.map((item, idx) => buildCardHtml(item, idx)).join('');
+  sorted.forEach(item => {
+    updateCardOverlay(item.id, item.loading);
+    const card = document.getElementById('card-' + item.id); if (!card) return;
+    const imgEl = card.querySelector('.item-img-banner img');
+    if (item.iconUrl && !item.loading) {
+      const imgSrc = item.iconUrl.startsWith('http') ? item.iconUrl : `https://community.cloudflare.steamstatic.com/economy/image/${item.iconUrl}/360fx230f`;
+      if (!imgEl) { const banner = card.querySelector('.item-img-banner'); if (banner) { const ph = banner.querySelector('.img-placeholder-big'); if (ph) { const img = document.createElement('img'); img.src = imgSrc; img.alt = item.name; img.onerror = function(){this.style.display='none';}; ph.replaceWith(img); } } }
+      else if (!imgEl.src.includes(item.iconUrl.slice(0, 20))) imgEl.src = imgSrc;
+    }
+    const singleEl = card.querySelector('.item-price-single');
+    if (singleEl) singleEl.innerHTML = item.loading ? '<span class="item-price-loading">ładowanie...</span>' : item.price !== null && item.price > 0 ? `${item.priceRaw || (item.price.toFixed(2).replace('.',',') + ' zł')} / szt.` : '<span style="color:#ff6b6b;font-size:12px">Nie znaleziono</span>';
+    const totalEl = card.querySelector('.item-price-total');
+    if (totalEl && !item.loading) totalEl.textContent = item.price !== null && item.price > 0 ? (item.price * item.qty).toFixed(2).replace('.', ',') + ' zł' : '';
+  });
+  updateStats();
+}
+
+function updateStats() {
+  const total = items.reduce((s, i) => s + (i.price || 0) * i.qty, 0);
+  document.getElementById('totalDisplay').textContent = total > 0 ? total.toFixed(2).replace('.', ',') + ' zł' : '0,00 zł';
+  document.getElementById('statItems').textContent = items.length;
+  document.getElementById('statQty').textContent = items.reduce((s, i) => s + i.qty, 0);
+  const top = items.filter(i => i.price !== null && i.price > 0).sort((a, b) => b.price - a.price)[0];
+  document.getElementById('statTop').textContent = top ? (top.name.split('|')[1]?.trim() || top.name.split(' ')[0]) : '—';
+  const changeEl = document.getElementById('totalChangeDisplay');
+  const itemsWithSnapshot = items.filter(i => i.snapshotPrice && i.price && i.qty);
+  if (itemsWithSnapshot.length > 0) {
+    const totalNow = itemsWithSnapshot.reduce((s, i) => s + i.price * i.qty, 0);
+    const totalYesterday = itemsWithSnapshot.reduce((s, i) => s + i.snapshotPrice * i.qty, 0);
+    const diff = totalNow - totalYesterday;
+    const pct = totalYesterday > 0 ? (diff / totalYesterday) * 100 : 0;
+    if (Math.abs(diff) >= 0.01) {
+      const sign = diff >= 0 ? '+' : '−'; const arrow = diff >= 0 ? '▲' : '▼';
+      const color = diff >= 0 ? '#39ff14' : '#ff4444'; const bg = diff >= 0 ? 'rgba(57,255,20,0.1)' : 'rgba(255,68,68,0.1)'; const border = diff >= 0 ? 'rgba(57,255,20,0.3)' : 'rgba(255,68,68,0.3)';
+      changeEl.style.display = 'inline-block'; changeEl.style.color = color; changeEl.style.background = bg; changeEl.style.border = `1px solid ${border}`;
+      changeEl.textContent = `${arrow} ${sign}${Math.abs(diff).toFixed(2).replace('.', ',')} zł (${sign}${Math.abs(pct).toFixed(2)}%)`;
+    } else changeEl.style.display = 'none';
+  } else changeEl.style.display = 'none';
+}
+
+function toggleAddForm() {
+  const wrap = document.getElementById('addFormWrap'), btn = document.getElementById('addToggleBtn');
+  const open = wrap.style.display === 'none' || wrap.style.display === '';
+  wrap.style.display = open ? 'block' : 'none'; btn.textContent = open ? '✕ Zamknij' : '+ Dodaj skin';
+  if (open) document.getElementById('itemNameInput')?.focus();
+}
+
+function setCategory(cat) {
+  currentCategory = cat;
+  document.querySelectorAll('[id^="cat-"]').forEach(b => b.classList.remove('active'));
+  const btn = document.getElementById('cat-' + cat); if (btn) btn.classList.add('active');
+  renderItems();
+}
+
+function getItemCategory(name) {
+  const n = name.toLowerCase();
+  if (/knife|karambit|butterfly|bayonet|stiletto|talon|ursus|navaja|shadow|flip|gut|huntsman|falchion|bowie|m9|paracord|survival|nomad|skeleton|classic knife|kukri/.test(n)) return 'knife';
+  if (/gloves|wraps|hand wraps|moto gloves|specialist gloves|sport gloves|bloodhound|hydra/.test(n)) return 'gloves';
+  if (/\bcase\b|weapon case|operation|clutch case|fracture|snakebite|riptide|dreams|nightmares|revolution|recoil|prisma|horizon|spectrum|danger zone|hydra case|phoenix|falchion case|chroma|bravo|esports|huntsman case|breakout|kilowatt|gallery|musica/.test(n)) return 'case';
+  if (/capsule|autograph|legends|challengers|contenders/.test(n)) return 'capsule';
+  if (/sticker/.test(n)) return 'sticker';
+  if (/ak-47|m4a4|m4a1|awp|sg 553|aug|famas|galil|scar-20|g3sg1|mac-10|mp5|mp7|mp9|pp-bizon|p90|ump-45|xm1014|nova|mag-7|sawed-off|negev|m249|p2000|usp-s|glock|p250|five-seven|cz75|tec-9|desert eagle|r8|dual berettas/.test(n)) return 'weapon';
+  return 'other';
+}
+
+function setSort(sort) {
+  currentSort = sort; renderItems();
+}
+
+function getSortedItems() {
+  let filtered = currentCategory === 'all' ? [...items] : items.filter(i => getItemCategory(i.name) === currentCategory);
+  switch (currentSort) {
+    case 'price_desc': return filtered.sort((a, b) => (b.price || 0) - (a.price || 0));
+    case 'price_asc':  return filtered.sort((a, b) => (a.price || 0) - (b.price || 0));
+    case 'qty_desc':   return filtered.sort((a, b) => b.qty - a.qty);
+    case 'qty_asc':    return filtered.sort((a, b) => a.qty - b.qty);
+    case 'name':       return filtered.sort((a, b) => a.name.localeCompare(b.name));
+    default:           return filtered;
+  }
+}
+
+function switchTab(tab) {
+  ['add','search','trending','ai','wallet','history'].forEach(t => {
+    const el = document.getElementById('panel-' + t); if (el) el.style.display = t === tab ? '' : 'none';
+    const btn = document.getElementById('tab-' + t); if (btn) btn.className = 'tab' + (t === tab ? ' active' : '');
+  });
+  const wallet = document.getElementById('panel-wallet'); if (wallet) wallet.style.display = tab === 'add' ? '' : 'none';
+  if (tab === 'trending' && !trendingLoaded) loadTrending('all');
+  if (tab === 'history') loadHistory();
+}
+
+// ── HISTORIA ────────────────────────────────────────────────
+let historyChart = null, historyRange = 7, historyData = [];
+
+function setHistoryRange(days) {
+  historyRange = days;
+  [7,30,90].forEach(d => { const btn = document.getElementById('hrange-' + d); if (btn) btn.className = 'filter-btn' + (d === days ? ' active' : ''); });
+  renderHistory();
+}
+
+async function takeSnapshot() {
+  if (!currentUser) { showError('Snapshoty dostępne tylko po zalogowaniu'); return; }
+  const btn = document.getElementById('snapshotBtn'); btn.disabled = true; btn.textContent = '⟳ Zapisuję...';
+  const total = items.reduce((s, i) => s + (i.price || 0) * i.qty, 0);
+  const { error } = await _sb.from('portfolio_snapshots').insert({ user_id: currentUser.id, total_value: parseFloat(total.toFixed(2)), item_count: items.length });
+  btn.disabled = false; btn.textContent = 'Zapisz teraz';
+  if (error) { showError('Błąd zapisu: ' + error.message); return; }
+  await loadHistory(); showError('Snapshot zapisany!');
+}
+
+async function loadHistory() {
+  if (!currentUser) { document.getElementById('historyEmpty').style.display = 'block'; document.getElementById('historyStats').style.display = 'none'; document.getElementById('historyTableWrap').style.display = 'none'; if (historyChart) { historyChart.destroy(); historyChart = null; } return; }
+  const since = new Date(); since.setDate(since.getDate() - 90);
+  const { data, error } = await _sb.from('portfolio_snapshots').select('total_value,item_count,taken_at').eq('user_id', currentUser.id).gte('taken_at', since.toISOString()).order('taken_at', { ascending: true });
+  if (error) { showError('Błąd historii: ' + error.message); return; }
+  historyData = data || []; renderHistory();
+}
+
+function renderHistory() {
+  const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - historyRange);
+  const filtered = historyData.filter(r => new Date(r.taken_at) >= cutoff);
+  const empty = document.getElementById('historyEmpty'), stats = document.getElementById('historyStats'), table = document.getElementById('historyTableWrap'), canvas = document.getElementById('historyChart');
+  if (filtered.length === 0) { empty.style.display = 'block'; stats.style.display = 'none'; table.style.display = 'none'; canvas.style.display = 'none'; if (historyChart) { historyChart.destroy(); historyChart = null; } return; }
+  empty.style.display = 'none'; canvas.style.display = 'block'; stats.style.display = 'grid'; table.style.display = 'block';
+  const labels = filtered.map(r => { const d = new Date(r.taken_at); return d.toLocaleDateString('pl-PL', { day:'2-digit', month:'2-digit' }); });
+  const values = filtered.map(r => parseFloat(r.total_value));
+  if (historyChart) historyChart.destroy();
+  historyChart = new Chart(canvas, { type:'line', data:{ labels, datasets:[{ label:'Wartość portfela (zł)', data:values, borderColor:'#00d4ff', backgroundColor:'rgba(0,212,255,0.08)', borderWidth:2.5, pointBackgroundColor:'#00d4ff', pointRadius:filtered.length<=14?5:3, pointHoverRadius:7, fill:true, tension:0.35 }] }, options:{ responsive:true, maintainAspectRatio:false, interaction:{mode:'index',intersect:false}, plugins:{ legend:{display:false}, tooltip:{backgroundColor:'#0d1318',borderColor:'#1e2d3d',borderWidth:1,titleColor:'#7a9ab8',bodyColor:'#00d4ff',callbacks:{label:ctx=>` ${ctx.parsed.y.toFixed(2).replace('.',',')} zł`}} }, scales:{ x:{grid:{color:'rgba(30,45,61,0.5)'},ticks:{color:'#7a9ab8',font:{family:'Share Tech Mono',size:11}}}, y:{grid:{color:'rgba(30,45,61,0.5)'},ticks:{color:'#7a9ab8',font:{family:'Share Tech Mono',size:11},callback:v=>v.toFixed(0)+' zł'}} } } });
+  const max=Math.max(...values),min=Math.min(...values),first=values[0],last=values[values.length-1],diff=last-first,pct=first>0?(diff/first)*100:0,sign=diff>=0?'+':'−',color=diff>=0?'#39ff14':'#ff4444';
+  document.getElementById('hstat-max').textContent = max.toFixed(2).replace('.',',') + ' zł';
+  document.getElementById('hstat-min').textContent = min.toFixed(2).replace('.',',') + ' zł';
+  document.getElementById('hstat-count').textContent = filtered.length;
+  const changeEl = document.getElementById('hstat-change'); changeEl.style.color = color;
+  changeEl.textContent = `${sign}${Math.abs(diff).toFixed(2).replace('.',',')} zł (${sign}${Math.abs(pct).toFixed(1)}%)`;
+  const tbody = document.getElementById('historyTableBody');
+  const rows = [...filtered].reverse();
+  tbody.innerHTML = rows.map((r, i) => {
+    const prev = rows[i + 1]; const val = parseFloat(r.total_value); const d = new Date(r.taken_at);
+    const dateStr = d.toLocaleDateString('pl-PL',{day:'2-digit',month:'2-digit',year:'numeric'})+' '+d.toLocaleTimeString('pl-PL',{hour:'2-digit',minute:'2-digit'});
+    let changeHtml = '<span style="color:var(--text2)">—</span>';
+    if (prev) { const prevVal = parseFloat(prev.total_value); const chg = val - prevVal; const cls = chg>0?'color:#39ff14':chg<0?'color:#ff4444':'color:var(--text2)'; const s = chg>=0?'+':'−'; changeHtml = `<span style="${cls}">${s}${Math.abs(chg).toFixed(2).replace('.',',')} zł</span>`; }
+    return `<tr><td style="font-family:'Share Tech Mono',monospace;font-size:13px;color:var(--text2)">${dateStr}</td><td style="font-family:'Orbitron',monospace;font-weight:700;color:var(--accent)">${val.toFixed(2).replace('.',',')} zł</td><td style="color:var(--text2)">${r.item_count}</td><td>${changeHtml}</td></tr>`;
+  }).join('');
+}
+
+async function autoSnapshot() {
+  if (!currentUser) return;
+  const key = 'last_snapshot_' + currentUser.id;
+  const last = localStorage.getItem(key); const now = Date.now();
+  if (last && now - parseInt(last) < 6*60*60*1000) return;
+  const total = items.reduce((s, i) => s + (i.price || 0) * i.qty, 0);
+  if (total <= 0) return;
+  try { await _sb.from('portfolio_snapshots').insert({ user_id: currentUser.id, total_value: parseFloat(total.toFixed(2)), item_count: items.length }); localStorage.setItem(key, now.toString()); } catch(e) {}
+}
+
+// ── SEARCH ────────────────────────────────────────────────────
+let searchPage = 0, searchQuery = '', searchTotal = 0, searchResultsCache = [];
+const PAGE_SIZE = 20;
+
+async function doSearch(page = 0) {
+  const query = document.getElementById('searchInput').value.trim(); if (!query) return;
+  searchQuery = query; searchPage = page;
+  const sort = document.getElementById('searchSort').value;
+  const start = page * PAGE_SIZE;
+  document.getElementById('searchResults').innerHTML = '<div class="search-loading">Szukam na Steam Market...</div>';
+  document.getElementById('searchPager').innerHTML = '';
+  searchResultsCache = [];
+  const sortParam = sort==='price_asc'?'&sort_column=price&sort_dir=asc':sort==='price_desc'?'&sort_column=price&sort_dir=desc':sort==='name'?'&sort_column=name&sort_dir=asc':'&sort_column=popular&sort_dir=desc';
+  try {
+    const url = `https://steamcommunity.com/market/search/render/?appid=730&norender=1&search_descriptions=0&query=${encodeURIComponent(query)}&start=${start}&count=${PAGE_SIZE}&currency=6${sortParam}`;
+    const data = await steamFetch(url);
+    if (!data.success || !data.results || data.results.length === 0) { document.getElementById('searchResults').innerHTML = '<div class="search-empty">Brak wyników dla: <strong>' + escapeHtml(query) + '</strong></div>'; return; }
+    searchTotal = data.total_count || data.results.length;
+    await renderSearchResults(data.results); renderPager();
+  } catch(e) { document.getElementById('searchResults').innerHTML = `<div class="search-empty">Błąd: ${escapeHtml(e.message)}</div>`; }
+}
+
+async function renderSearchResults(results) {
+  const grid = document.getElementById('searchResults'); searchResultsCache = [];
+  grid.innerHTML = results.map(r => {
+    const iconUrl = r.asset_description?.icon_url || '';
+    const imgSrc = iconUrl ? `https://community.cloudflare.steamstatic.com/economy/image/${iconUrl}/200fx125f` : '';
+    const cents = r.sell_price || 0; const priceNum = parseFloat(((cents/100)*STEAM_USD_PLN).toFixed(2));
+    const priceDisplay = cents > 0 ? priceNum.toFixed(2).replace('.',',') + ' zł' : '—';
+    const name = r.name || ''; const inPortfolio = items.some(i => i.name === name);
+    const dataIdx = searchResultsCache.length;
+    searchResultsCache.push({ name, priceRaw: priceDisplay, priceNum, iconUrl });
+    return `<div class="search-card">
+      ${imgSrc ? `<img class="search-card-img" src="${imgSrc}" onerror="this.style.opacity=0.2" loading="lazy">` : '<div class="search-card-img" style="opacity:0.1"></div>'}
+      <div class="search-card-name" title="${escapeHtml(name)}">${escapeHtml(name)}</div>
+      <div class="search-card-price">${escapeHtml(priceDisplay)}</div>
+      <div class="search-card-add ${inPortfolio ? 'added' : ''}" onclick="addFromSearch(${dataIdx},this)">${inPortfolio ? 'W portfelu' : '+ Dodaj do portfela'}</div>
+    </div>`;
+  }).join('');
+}
+
+async function addFromSearch(idx, btn) {
+  const r = searchResultsCache[idx]; if (!r) return;
+  const { name, priceRaw, priceNum, iconUrl } = r;
+  const exists = items.find(i => i.name === name);
+  if (exists) { exists.qty += 1; if (iconUrl && !exists.iconUrl) exists.iconUrl = iconUrl; saveItems(); renderItems(); btn.textContent = 'W portfelu'; btn.className = 'search-card-add added'; return; }
+  items.push({ id: Date.now(), name, qty: 1, price: priceNum > 0 ? priceNum : null, priceRaw: priceNum > 0 ? priceRaw : null, iconUrl, loading: false });
+  saveItems(); renderItems(); btn.textContent = 'W portfelu'; btn.className = 'search-card-add added';
+}
+
+function renderPager() {
+  const pager = document.getElementById('searchPager'); const totalPages = Math.ceil(searchTotal / PAGE_SIZE); if (totalPages <= 1) return;
+  const pages = []; for (let i = 0; i < totalPages && i < 7; i++) pages.push(i);
+  pager.innerHTML = [searchPage > 0 ? `<button class="pager-btn" onclick="doSearch(${searchPage-1})">← Poprzednia</button>` : '', ...pages.map(p => `<button class="pager-btn ${p===searchPage?'active':''}" onclick="doSearch(${p})">${p+1}</button>`), searchPage < totalPages-1 ? `<button class="pager-btn" onclick="doSearch(${searchPage+1})">Następna →</button>` : ''].join('');
+}
+
+// ── TRENDING ─────────────────────────────────────────────────
+let trendingLoaded=false, trendingPage=0, trendingCategory='all', trendingTotal=0, trendingCache=[];
+const TREND_PAGE_SIZE = 20;
+const TREND_QUERIES = { all:'', rifle:'AK-47 M4A4 M4A1-S AWP', knife:'Knife', case:'Case', gloves:'Gloves Wraps', pistol:'Glock USP Desert Eagle' };
+
+async function loadTrending(category='all', page=0) {
+  trendingCategory=category; trendingPage=page; trendingLoaded=true;
+  document.querySelectorAll('[id^="tcat-"]').forEach(b => b.classList.remove('active'));
+  const catBtn = document.getElementById('tcat-'+category); if (catBtn) catBtn.classList.add('active');
+  const box = document.getElementById('trendingResults');
+  box.innerHTML = '<div class="search-loading">Ładuję gorące itemy...</div>';
+  document.getElementById('trendingPager').innerHTML = '';
+  const query = TREND_QUERIES[category] || '';
+  const start = page * TREND_PAGE_SIZE;
+  const url = `https://steamcommunity.com/market/search/render/?appid=730&norender=1&search_descriptions=0&query=${encodeURIComponent(query)}&start=${start}&count=${TREND_PAGE_SIZE}&sort_column=popular&sort_dir=desc`;
+  try {
+    const data = await steamFetch(url);
+    if (!data.success || !data.results?.length) { box.innerHTML = '<div class="search-empty">Brak wyników.</div>'; return; }
+    trendingTotal = data.total_count || data.results.length;
+    renderTrending(data.results); renderTrendingPager();
+  } catch(e) { box.innerHTML = `<div class="search-empty">Błąd: ${escapeHtml(e.message)}</div>`; }
+}
+
+function renderTrending(results) {
+  const box = document.getElementById('trendingResults'); trendingCache = [];
+  const maxVol = Math.max(...results.map(r => parseInt(r.sell_listings)||0), 1);
+  box.innerHTML = results.map((r, idx) => {
+    const iconUrl = r.asset_description?.icon_url || '';
+    const imgSrc = iconUrl ? `https://community.cloudflare.steamstatic.com/economy/image/${iconUrl}/200fx125f` : '';
+    const cents = r.sell_price || 0; const priceNum = parseFloat(((cents/100)*STEAM_USD_PLN).toFixed(2));
+    const priceDisplay = cents > 0 ? priceNum.toFixed(2).replace('.',',') + ' zł' : '—';
+    const vol = parseInt(r.sell_listings)||0; const volRatio = vol/maxVol;
+    const hotLevel = volRatio > 0.6 ? 'fire' : volRatio > 0.25 ? 'warm' : '';
+    const hotLabel = volRatio > 0.6 ? 'HOT' : volRatio > 0.25 ? 'Rosnący' : '';
+    const name = r.name || ''; const weaponName = name.includes('|') ? name.split('|')[0].trim() : name;
+    const skinName = name.includes('|') ? name.split('|')[1].replace(/\(.*\)/,'').trim() : '';
+    const inPortfolio = items.some(i => i.name === name);
+    const rank = trendingPage * TREND_PAGE_SIZE + idx + 1;
+    const dataIdx = trendingCache.length;
+    trendingCache.push({ name, priceRaw: priceDisplay, priceNum, iconUrl });
+    return `<div class="search-card" style="position:relative;animation-delay:${idx<10?idx*45:0}ms">
+      <div style="position:absolute;top:8px;left:8px;z-index:2;display:flex;flex-direction:column;gap:4px">
+        <div style="font-family:'Orbitron',monospace;font-size:10px;color:var(--text2);background:rgba(0,0,0,0.7);padding:2px 6px;border-radius:4px">#${rank}</div>
+        ${hotLabel ? `<div class="trend-hot-badge ${hotLevel}">${hotLabel}</div>` : ''}
+      </div>
+      ${imgSrc ? `<img class="search-card-img" src="${imgSrc}" onerror="this.style.opacity=0.1" loading="lazy">` : '<div class="search-card-img" style="opacity:0.1"></div>'}
+      <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text2);text-transform:uppercase;margin-top:4px">${escapeHtml(weaponName)}</div>
+      <div class="search-card-name">${escapeHtml(skinName||name)}</div>
+      <div class="search-card-price">${escapeHtml(priceDisplay)}</div>
+      <div class="trend-vol">Oferty: <span>${vol.toLocaleString('pl-PL')}</span></div>
+      <div class="search-card-add ${inPortfolio?'added':''}" onclick="addFromTrending(${dataIdx},this)">${inPortfolio?'W portfelu':'+ Dodaj do portfela'}</div>
+    </div>`;
+  }).join('');
+}
+
+async function addFromTrending(idx, btn) {
+  const r = trendingCache[idx]; if (!r) return;
+  const { name, priceRaw, priceNum, iconUrl } = r;
+  const exists = items.find(i => i.name === name);
+  if (exists) { exists.qty += 1; if (iconUrl && !exists.iconUrl) exists.iconUrl = iconUrl; saveItems(); renderItems(); btn.textContent='W portfelu'; btn.className='search-card-add added'; return; }
+  items.push({ id: Date.now(), name, qty:1, price: priceNum>0?priceNum:null, priceRaw: priceNum>0?priceRaw:null, iconUrl, loading:false });
+  saveItems(); renderItems(); btn.textContent='W portfelu'; btn.className='search-card-add added';
+}
+
+function renderTrendingPager() {
+  const pager = document.getElementById('trendingPager'); const totalPages = Math.ceil(trendingTotal/TREND_PAGE_SIZE); if (totalPages<=1){pager.innerHTML='';return;}
+  const pages=[]; for(let i=0;i<totalPages&&i<7;i++) pages.push(i);
+  pager.innerHTML=[trendingPage>0?`<button class="pager-btn" onclick="loadTrending('${trendingCategory}',${trendingPage-1})">← Poprzednia</button>`:'', ...pages.map(p=>`<button class="pager-btn ${p===trendingPage?'active':''}" onclick="loadTrending('${trendingCategory}',${p})">${p+1}</button>`), trendingPage<totalPages-1?`<button class="pager-btn" onclick="loadTrending('${trendingCategory}',${trendingPage+1})">Następna →</button>`:''].join('');
+}
+
+// ── AI ────────────────────────────────────────────────────────
+let aiHistory = [];
+
+function buildMarketContext() {
+  const total = items.reduce((s, i) => s + (i.price||0)*i.qty, 0);
+  const portfolioStr = items.length===0 ? 'Portfel jest pusty.' : items.map(item => {
+    const totalVal = ((item.price||0)*item.qty).toFixed(2); let changeStr='';
+    const chg = getPriceChange(item);
+    if (chg!==null) changeStr = ` | zmiana vs wczoraj: ${chg>0?'+':''}${chg.toFixed(1)}% (wczoraj: ${item.snapshotPrice.toFixed(2)} zł)`;
+    return `- ${item.name}: ${item.priceRaw||(item.price?.toFixed(2)+' zł')||'brak ceny'} x${item.qty} = ${totalVal} zł${changeStr}`;
+  }).join('\n');
+  const trendStr = trendingCache.length>0 ? trendingCache.slice(0,15).map((r,i)=>`${i+1}. ${r.name} — ${r.priceRaw}`).join('\n') : 'Trending nie zostało załadowane.';
+  return `Jesteś doświadczonym długoterminowym inwestorem na rynku skinów CS2. Patrzysz na perspektywę tygodni i miesięcy, nie godzin. Nie panikujesz z powodu chwilowych wahań.\n\nPORTFEL UŻYTKOWNIKA (łączna wartość: ${total.toFixed(2)} zł):\n${portfolioStr}\n\nAKTUALNIE TRENDING NA STEAM:\n${trendStr}\n\nOdpowiadaj po polsku. Bądź konkretny.`;
+}
+
+function addAiMessage(role, text, isTyping=false) {
+  const box = document.getElementById('aiMessages');
+  const div = document.createElement('div');
+  div.className = `ai-msg ai-msg-${role==='user'?'user':'bot'}`;
+  div.id = isTyping ? 'ai-typing' : '';
+  div.innerHTML = `<div class="ai-msg-content">${text.replace(/\n/g,'<br>').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\*(.*?)\*/g,'<em>$1</em>')}</div>`;
+  box.appendChild(div); box.scrollTop = box.scrollHeight; return div;
+}
+
+function clearAiChat() {
+  aiHistory = [];
+  document.getElementById('aiMessages').innerHTML = '<div class="ai-msg ai-msg-bot"><div class="ai-msg-content">Czat wyczyszczony. W czym mogę pomóc?</div></div>';
+}
+
+async function askAI(text) { document.getElementById('aiInput').value = text; await sendAiMessage(); }
+
+async function sendAiMessage() {
+  const input = document.getElementById('aiInput'); const text = input.value.trim(); if (!text) return;
+  const sendBtn = document.getElementById('aiSendBtn'); input.value = ''; sendBtn.disabled=true; sendBtn.innerHTML='<span>⟳</span>';
+  addAiMessage('user', text); aiHistory.push({role:'user',content:text});
+  if (aiHistory.length > 20) aiHistory = aiHistory.slice(-20);
+  addAiMessage('bot', '⟳ Analizuję dane rynkowe...', true);
+  try {
+    const systemPrompt = buildMarketContext();
+    const FREE_MODELS = ['openrouter/auto','deepseek/deepseek-r1:free','meta-llama/llama-4-scout:free','google/gemini-2.0-flash-exp:free','deepseek/deepseek-v3-base:free'];
+    let reply=null, lastError='';
+    for (const model of FREE_MODELS) {
+      try {
+        const response = await fetch(`${SUPABASE_FUNCTIONS_URL}/ai-chat`, { method:'POST', headers:{'Content-Type':'application/json','apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}, body:JSON.stringify({model, messages:[{role:'system',content:systemPrompt},...aiHistory]}) });
+        const data = await response.json();
+        if (response.ok && data.choices?.[0]?.message?.content) { reply=data.choices[0].message.content; break; }
+        lastError = data?.error?.message || `HTTP ${response.status}`;
+      } catch(e) { lastError=e.message; }
+      await new Promise(r=>setTimeout(r,800));
+    }
+    if (!reply) throw new Error('Wszystkie modele niedostępne. ' + lastError);
+    const typing = document.getElementById('ai-typing'); if (typing) typing.remove();
+    aiHistory.push({role:'assistant',content:reply}); addAiMessage('bot', reply);
+  } catch(e) { const typing=document.getElementById('ai-typing'); if(typing)typing.remove(); addAiMessage('bot','Błąd: '+e.message); }
+  sendBtn.disabled=false; sendBtn.innerHTML='<span>Wyślij</span>';
+  document.getElementById('aiMessages').scrollTop = 9999;
+}
+
+// ── IMPORT ────────────────────────────────────────────────────
+function toggleImportModal() {
+  const modal = document.getElementById('importModal'); const isOpen = modal.style.display!=='none';
+  modal.style.display = isOpen ? 'none' : 'flex'; if (!isOpen) document.getElementById('steamIdInput').focus();
+}
+
+async function extractSteamId(input) {
+  if (!input) return null; const trimmed = input.trim();
+  if (/^\d{17}$/.test(trimmed)) return trimmed;
+  const profileMatch = trimmed.match(/profiles\/(\d{17})/); if (profileMatch) return profileMatch[1];
+  const vanityMatch = trimmed.match(/id\/([^\/]+)/);
+  if (vanityMatch) { const data = await steamFetch(`https://api.steampowered.com/ISteamUser/ResolveVanityURL/v1/?key=${STEAM_API_KEY}&vanityurl=${vanityMatch[1]}`); if (data.response.success===1) return data.response.steamid; }
+  return null;
+}
+
+async function importInventory(mode='replace') {
+  const input = document.getElementById('steamIdInput').value.trim();
+  const steamId = await extractSteamId(input);
+  if (!steamId) { setImportStatus('error','Podaj poprawny link lub Steam ID'); return; }
+  const btn=document.getElementById('importBtn'), btn2=document.getElementById('importMergeBtn');
+  btn.disabled=true; btn2.disabled=true; setImportStatus('loading','⟳ Pobieranie ekwipunku Steam...');
+  try {
+    const data = await steamFetch(`https://steamcommunity.com/inventory/${steamId}/730/2?l=english&count=500`);
+    if (!data || data.error) throw new Error(data?.error||'Nie można pobrać ekwipunku. Sprawdź czy jest publiczny.');
+    if (!data.assets || data.assets.length===0) { setImportStatus('error','Ekwipunek jest pusty lub prywatny.'); btn.disabled=false; btn2.disabled=false; return; }
+    const descriptions = {}; (data.descriptions||[]).forEach(d => { descriptions[`${d.classid}_${d.instanceid}`]=d; });
+    const skinMap = {};
+    (data.assets||[]).forEach(asset => {
+      const desc = descriptions[`${asset.classid}_${asset.instanceid}`]; if (!desc||!desc.marketable) return;
+      const name = desc.market_hash_name; if (!name) return;
+      if (skinMap[name]) skinMap[name].qty++; else skinMap[name]={name,qty:1,iconUrl:desc.icon_url||''};
+    });
+    const newSkins = Object.values(skinMap);
+    if (newSkins.length===0) { setImportStatus('error','Nie znaleziono skinów CS2.'); btn.disabled=false; btn2.disabled=false; return; }
+    if (mode==='replace') items=[];
+    let added=0, updated=0;
+    newSkins.forEach(skin => {
+      const exists=items.find(i=>i.name===skin.name);
+      if (exists) { exists.qty+=skin.qty; exists.iconUrl=exists.iconUrl||skin.iconUrl; updated++; }
+      else { items.push({id:Date.now()+Math.random(),name:skin.name,qty:skin.qty,price:null,priceRaw:null,iconUrl:skin.iconUrl,loading:false}); added++; }
+    });
+    saveItems(); renderItems();
+    setImportStatus('success',`${mode==='replace'?'Zastąpiono':'Dodano'}: ${added+updated} skinów. Pobieram ceny...`);
+    await autoFetchAllPrices(); toggleImportModal();
+  } catch(e) { setImportStatus('error','Błąd: '+e.message); }
+  btn.disabled=false; btn2.disabled=false;
+}
+
+async function autoFetchAllPrices() {
+  refreshStopped=false;
+  const btn=document.getElementById('refreshAllBtn'), stopBtn=document.getElementById('stopRefreshBtn');
+  const unpricedItems = items.filter(i=>i.price===null);
+  if (btn) { btn.disabled=true; btn.classList.add('spinning'); btn.innerHTML=`<span style="display:inline-block;animation:spin 0.8s linear infinite">⟳</span> 0/${unpricedItems.length}`; }
+  if (stopBtn) stopBtn.style.display='block';
+  const BATCH=5; let done=0;
+  for (let i=0;i<unpricedItems.length;i+=BATCH) {
+    if (refreshStopped) break;
+    const batch=unpricedItems.slice(i,i+BATCH); batch.forEach(item=>{item.loading=true;}); renderItems();
+    await Promise.all(batch.map(async item=>{
+      const result=await fetchPrice(item.name); item.loading=false; updateItemPrice(item,result);
+      if(result&&result.iconUrl)item.iconUrl=result.iconUrl; done++;
+      if(btn)btn.innerHTML=`<span style="display:inline-block;animation:spin 0.8s linear infinite">⟳</span> ${done}/${unpricedItems.length}`;
+    }));
+    saveItems(); renderItems();
+    if(i+BATCH<unpricedItems.length&&!refreshStopped) await new Promise(r=>setTimeout(r,500));
+  }
+  if(btn){btn.disabled=false;btn.classList.remove('spinning');btn.innerHTML='<span>⟳</span> Gotowe!';}
+  if(stopBtn)stopBtn.style.display='none';
+}
+
+function setImportStatus(type, msg) {
+  const el=document.getElementById('importStatus'); el.style.display='block';
+  el.style.background=type==='error'?'rgba(255,68,68,0.1)':type==='success'?'rgba(57,255,20,0.08)':'rgba(0,212,255,0.08)';
+  el.style.border=`1px solid ${type==='error'?'rgba(255,68,68,0.3)':type==='success'?'rgba(57,255,20,0.3)':'rgba(0,212,255,0.2)'}`;
+  el.style.color=type==='error'?'#ff4444':type==='success'?'#39ff14':'#00d4ff';
+  el.style.padding='10px 14px'; el.style.borderRadius='8px'; el.style.fontSize='13px';
+  el.textContent=msg;
+}
+
+// ── SHARE ─────────────────────────────────────────────────────
+async function openShareModal() {
+  if (!currentUser) { showError('Musisz być zalogowany aby udostępnić portfel'); return; }
+  document.getElementById('shareModal').style.display='block';
+  document.getElementById('shareStatusMsg').style.display='none';
+  const {data,error} = await _sb.from('portfolios').select('is_public,public_id').eq('user_id',currentUser.id).single();
+  if (error) { showError('Błąd pobierania danych'); return; }
+  const toggle=document.getElementById('shareToggle'); toggle.checked=data?.is_public||false;
+  if (data?.is_public&&data?.public_id) showShareLink(data.public_id);
+  else document.getElementById('shareLinkSection').style.display='none';
+}
+
+function closeShareModal() { document.getElementById('shareModal').style.display='none'; }
+function showShareLink(publicId) { const link=`${location.origin}${location.pathname}?p=${publicId}`; document.getElementById('shareLinkInput').value=link; document.getElementById('shareLinkSection').style.display='block'; }
+
+async function togglePublicPortfolio(enabled) {
+  if (!currentUser) return;
+  const statusEl=document.getElementById('shareStatusMsg'); statusEl.style.display='none';
+  try {
+    if (enabled) {
+      const {data}=await _sb.from('portfolios').select('public_id').eq('user_id',currentUser.id).single();
+      const publicId=data?.public_id||(Math.random().toString(36).slice(2,10)+Math.random().toString(36).slice(2,10));
+      const {error}=await _sb.from('portfolios').update({is_public:true,public_id:publicId}).eq('user_id',currentUser.id);
+      if(error)throw error; showShareLink(publicId);
+      statusEl.style.cssText='display:block;background:rgba(57,255,20,0.1);border:1px solid rgba(57,255,20,0.3);color:#39ff14;margin-top:12px;padding:10px 14px;border-radius:8px;font-size:13px;text-align:center';
+      statusEl.textContent='Portfel jest teraz publiczny';
+    } else {
+      const {error}=await _sb.from('portfolios').update({is_public:false}).eq('user_id',currentUser.id);
+      if(error)throw error; document.getElementById('shareLinkSection').style.display='none';
+      statusEl.style.cssText='display:block;background:rgba(255,68,68,0.1);border:1px solid rgba(255,68,68,0.3);color:#ff4444;margin-top:12px;padding:10px 14px;border-radius:8px;font-size:13px;text-align:center';
+      statusEl.textContent='Portfel jest teraz prywatny';
+    }
+  } catch(e) { showError('Błąd: '+e.message); document.getElementById('shareToggle').checked=!enabled; }
+}
+
+function copyShareLink() {
+  const input=document.getElementById('shareLinkInput');
+  navigator.clipboard.writeText(input.value).then(()=>{const btn=document.getElementById('copyLinkBtn');btn.textContent='Skopiowano!';btn.style.background='#39ff14';setTimeout(()=>{btn.textContent='Kopiuj';btn.style.background='var(--accent)';},2000);});
+}
+
+// ── PUBLIC PORTFOLIO ──────────────────────────────────────────
+let pubAllItems=[], pubSort='default', pubCategory='all';
+
+function setPubSort(sort) {
+  pubSort=sort; ['default','price_desc','price_asc','name'].forEach(s=>{const btn=document.getElementById('pub-sort-'+s);if(btn)btn.className='filter-btn'+(s===sort?' active':'');});
+  renderPubGrid();
+}
+function setPubCategory(cat) {
+  pubCategory=cat; ['all','weapon','knife','gloves','case','other'].forEach(c=>{const btn=document.getElementById('pub-cat-'+c);if(btn)btn.className='filter-btn'+(c===cat?' active':'');});
+  renderPubGrid();
+}
+function renderPubGrid() {
+  let filtered=[...pubAllItems];
+  if(pubCategory!=='all') filtered=filtered.filter(item=>{const cat=getItemCategory(item.name);return pubCategory==='other'?!['weapon','knife','gloves','case','capsule','sticker'].includes(cat):cat===pubCategory;});
+  if(pubSort==='price_desc') filtered.sort((a,b)=>(b.price||0)-(a.price||0));
+  else if(pubSort==='price_asc') filtered.sort((a,b)=>(a.price||0)-(b.price||0));
+  else if(pubSort==='name') filtered.sort((a,b)=>a.name.localeCompare(b.name));
+  document.getElementById('pubItemsGrid').innerHTML=filtered.length===0?'<div style="text-align:center;padding:40px;color:var(--text2)">Brak przedmiotów w tej kategorii</div>':filtered.map(item=>buildPubCard(item)).join('');
+}
+function buildPubCard(item) {
+  const imgSrc=item.iconUrl?(item.iconUrl.startsWith('http')?item.iconUrl:`https://community.cloudflare.steamstatic.com/economy/image/${item.iconUrl}/360fx230f`):'';
+  const weaponName=item.name.includes('|')?item.name.split('|')[0].trim():item.name;
+  const skinName=item.name.includes('|')?item.name.split('|')[1].replace(/\(.*\)/,'').trim():'';
+  const wear=getWearTag(item.name);
+  return `<div class="item-card" style="animation:none">
+    <div class="item-img-banner">${imgSrc?`<img src="${imgSrc}" onerror="this.style.display='none'" alt="${escapeHtml(item.name)}">`:'<div class="img-placeholder-big"></div>'}</div>
+    <div class="item-body"><div class="item-weapon">${escapeHtml(weaponName)}</div><div class="item-skin">${escapeHtml(skinName)}</div><div style="display:flex;align-items:center;gap:8px;margin-top:6px">${wear?`<div class="item-wear">${wear}</div>`:''}${item.qty>1?`<div style="font-size:12px;color:var(--text2);font-family:'Share Tech Mono',monospace">x${item.qty}</div>`:''}</div></div>
+    <div class="item-price-row"><div class="item-price-single">${item.price?`${item.price.toFixed(2).replace('.',',')} zł / szt.`:'<span style="color:#ff6b6b;font-size:12px">brak ceny</span>'}</div><div class="item-price-total">${item.price?(item.price*(item.qty||1)).toFixed(2).replace('.',',')+' zł':''}</div></div>
+  </div>`;
+}
+
+async function checkPublicPortfolio() {
+  const params=new URLSearchParams(location.search); const publicId=params.get('p'); if(!publicId)return false;
+  document.getElementById('authScreen').style.display='none';
+  const view=document.getElementById('publicPortfolioView'); view.style.display='block';
+  document.getElementById('pubItemsGrid').innerHTML='<div style="text-align:center;padding:40px;color:var(--text2)">Ładowanie portfela...</div>';
+  const {data,error}=await _sb.from('portfolios').select('items,user_id').eq('public_id',publicId).eq('is_public',true).single();
+  if(error||!data){document.getElementById('pubItemsGrid').innerHTML='<div style="text-align:center;padding:40px;color:#ff6b6b">Portfel nie istnieje lub jest prywatny</div>';return true;}
+  let username=null;
+  if(data.user_id){const{data:profile}=await _sb.from('profiles').select('username').eq('id',data.user_id).single();username=profile?.username||null;}
+  pubAllItems=data.items||[];
+  const total=pubAllItems.reduce((s,i)=>s+(i.price||0)*(i.qty||1),0);
+  const count=pubAllItems.reduce((s,i)=>s+(i.qty||1),0);
+  document.getElementById('pubTotalValue').textContent=total.toFixed(2).replace('.',',')+' zł';
+  document.getElementById('pubItemCount').textContent=`${pubAllItems.length} przedmiotów · ${count} szt. łącznie`;
+  document.getElementById('pubUsername').textContent=username?`@${username}`:'';
+  document.getElementById('pubUsernameWrap').style.display=username?'flex':'none';
+  renderPubGrid(); return true;
+}
+
+setInterval(async()=>{
+  if(document.getElementById('stopRefreshBtn')?.style.display!=='none')return;
+  for(const item of items){if(!item.loading){const result=await fetchPrice(item.name);if(result){updateItemPrice(item,result);if(result.iconUrl)item.iconUrl=result.iconUrl;}await new Promise(r=>setTimeout(r,1000));}}
+  saveItems();renderItems();
+},5*60*1000);
+</script>
+
+
+<footer class="site-footer">
+  <div class="container footer-inner">
+    <div class="footer-author">
+      <img src="/favicon.png" alt="logo" style="height:28px;width:28px;object-fit:contain;opacity:0.7">
+      <div>
+        <div class="footer-made">Stronę stworzył</div>
+        <a href="https://rogoskacper.netlify.app/" target="_blank" rel="noopener" class="footer-name">Kacper Rogoś</a>
+      </div>
+    </div>
+    <div class="footer-copy">
+      © 2025 CS2 Market Tracker · Dane ze Steam Market
+    </div>
+    <div class="footer-contact-wrap">
+      <button class="footer-contact-btn" onclick="toggleContactForm()">Kontakt</button>
+      <div class="footer-form-box" id="contactFormBox" style="display:none">
+        <div class="footer-form-header">
+          <span>Wyślij wiadomość</span>
+          <button class="footer-form-close" onclick="toggleContactForm()">✕</button>
+        </div>
+        <form id="contactForm" action="https://formspree.io/f/xeepznno" method="POST" onsubmit="handleContact(event)">
+          <div class="footer-field" id="contactNameWrap">
+            <label>Imię</label>
+            <input type="text" name="name" id="contactName" placeholder="Twoje imię" autocomplete="off">
+          </div>
+          <div class="footer-field">
+            <label>Email</label>
+            <input type="email" name="email" id="contactEmail" placeholder="twoj@email.com" autocomplete="off">
+          </div>
+          <div class="footer-field">
+            <label>Wiadomość</label>
+            <textarea name="message" id="contactMessage" placeholder="Napisz coś..." rows="4"></textarea>
+          </div>
+          <label class="footer-anon-label">
+            <input type="checkbox" id="contactAnon" onchange="toggleAnon(this)">
+            <span class="footer-anon-check"></span>
+            Wiadomość anonimowa
+          </label>
+          <button type="submit" class="footer-submit-btn">Wyślij wiadomość</button>
+          <div id="contactStatus" style="display:none"></div>
+        </form>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script is:inline>
+function toggleContactForm() {
+  const box = document.getElementById('contactFormBox');
+  box.style.display = box.style.display === 'none' ? 'block' : 'none';
+}
+function toggleAnon(cb) {
+  const nameWrap = document.getElementById('contactNameWrap');
+  if (nameWrap) nameWrap.style.display = cb.checked ? 'none' : '';
+}
+async function handleContact(e) {
+  e.preventDefault();
+  const form = e.target;
+  const status = document.getElementById('contactStatus');
+  status.style.display = 'block';
+  status.textContent = 'Wysyłanie...';
+  status.style.color = 'var(--accent)';
+  try {
+    const res = await fetch(form.action, {
+      method: 'POST',
+      body: new FormData(form),
+      headers: { 'Accept': 'application/json' }
+    });
+    if (res.ok) {
+      status.textContent = 'Wiadomość wysłana! Dziękuję.';
+      status.style.color = '#39ff14';
+      form.reset();
+      setTimeout(() => toggleContactForm(), 2500);
+    } else {
+      status.textContent = 'Błąd wysyłania. Spróbuj ponownie.';
+      status.style.color = '#ff4444';
+    }
+  } catch(err) {
+    status.textContent = 'Błąd połączenia.';
+    status.style.color = '#ff4444';
+  }
+}
+</script>
+</body>
+</html>
+
+<style is:inline>
+ :root {
+ --bg: #070b0f;
+ --bg2: #0d1318;
+ --bg3: #111820;
+ --border: #1e2d3d;
+ --border2: #2a3f52;
+ --accent: #00d4ff;
+ --accent2: #ff6b35;
+ --accent3: #39ff14;
+ --text: #c8d8e8;
+ --text2: #7a9ab8;
+ --glow: 0 0 20px rgba(0,212,255,0.3);
+ --glow2: 0 0 20px rgba(255,107,53,0.3);
+ }
+
+ * { margin: 0; padding: 0; box-sizing: border-box; }
+
+ body {
+ font-family: 'Rajdhani', sans-serif;
+ background: var(--bg);
+ color: var(--text);
+ min-height: 100vh;
+ overflow-x: hidden;
+ }
+
+ /* Background grid */
+ body::before {
+ content: '';
+ position: fixed;
+ inset: 0;
+ background-image:
+ linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
+ linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
+ background-size: 40px 40px;
+ pointer-events: none;
+ z-index: 0;
+ }
+
+ .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 1; }
+
+ /* Header */
+ header {
+ border-bottom: 1px solid var(--border);
+ padding: 20px 0;
+ background: linear-gradient(180deg, rgba(0,212,255,0.05) 0%, transparent 100%);
+ position: sticky;
+ top: 0;
+ z-index: 100;
+ backdrop-filter: blur(12px);
+ }
+
+ .header-inner {
+ display: flex;
+ align-items: center;
+ justify-content: space-between;
+ gap: 16px;
+ }
+
+ /* Środkowa sekcja headera — portfel + import */
+ .header-center {
+ display: flex;
+ align-items: center;
+ gap: 10px;
+ flex-wrap: wrap;
+ flex: 1;
+ justify-content: flex-end;
+ }
+
+ /* Prawa sekcja — user + wyloguj, zawsze na końcu */
+ .header-right {
+ display: flex;
+ align-items: center;
+ gap: 8px;
+ border-left: 1px solid var(--border);
+ padding-left: 14px;
+ margin-left: 4px;
+ flex-shrink: 0;
+ }
+
+ .logo {
+ display: flex;
+ align-items: center;
+ gap: 12px;
+ }
+
+ .logo-icon {
+ width: 40px;
+ height: 40px;
+ background: linear-gradient(135deg, var(--accent), #0066ff);
+ clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+ display: flex;
+ align-items: center;
+ justify-content: center;
+ font-size: 18px;
+ animation: pulse 3s ease-in-out infinite;
+ }
+
+ @keyframes pulse {
+ 0%, 100% { box-shadow: 0 0 0 0 rgba(0,212,255,0.4); }
+ 50% { box-shadow: 0 0 0 8px rgba(0,212,255,0); }
+ }
+
+ .logo h1 {
+ font-family: 'Orbitron', monospace;
+ font-size: 20px;
+ font-weight: 900;
+ letter-spacing: 2px;
+ color: #fff;
+ }
+
+ .logo h1 span { color: var(--accent); }
+
+ .total-value {
+ display: flex;
+ flex-direction: column;
+ gap: 4px;
+ background: var(--bg2);
+ border: 1px solid var(--border);
+ border-radius: 10px;
+ padding: 10px 20px;
+ position: relative;
+ width: max-content;
+ min-width: 0;
+ flex-shrink: 1;
+ }
+
+ .total-value::before {
+ content: '';
+ position: absolute;
+ inset: 0;
+ background: linear-gradient(135deg, rgba(0,212,255,0.04) 0%, transparent 60%);
+ pointer-events: none;
+ }
+
+ .total-label {
+ font-family: 'Share Tech Mono', monospace;
+ font-size: 10px;
+ color: var(--text2);
+ text-transform: uppercase;
+ letter-spacing: 2px;
+ }
+
+ .total-amount {
+ font-family: 'Orbitron', monospace;
+ font-size: clamp(16px, 2vw, 28px);
+ font-weight: 900;
+ color: var(--accent3);
+ text-shadow: 0 0 28px rgba(57,255,20,0.55);
+ line-height: 1;
+ letter-spacing: 1px;
+ white-space: nowrap;
+ }
+
+ /* API Key Section */
+ .api-section {
+ margin: 32px 0;
+ background: var(--bg2);
+ border: 1px solid var(--border);
+ border-radius: 12px;
+ padding: 20px 24px;
+ display: flex;
+ align-items: center;
+ gap: 16px;
+ flex-wrap: wrap;
+ }
+
+ .api-badge {
+ font-family: 'Share Tech Mono', monospace;
+ font-size: 11px;
+ color: var(--accent);
+ text-transform: uppercase;
+ letter-spacing: 2px;
+ white-space: nowrap;
+ display: flex;
+ align-items: center;
+ gap: 6px;
+ }
+
+ .api-badge::before {
+ content: '';
+ width: 8px;
+ height: 8px;
+ border-radius: 50%;
+ background: var(--accent);
+ animation: blink 1.5s ease-in-out infinite;
+ }
+
+ @keyframes blink {
+ 0%, 100% { opacity: 1; }
+ 50% { opacity: 0.2; }
+ }
+
+ .api-badge.connected::before { background: var(--accent3); }
+ .api-badge.connected { color: var(--accent3); }
+
+ .input-group {
+ flex: 1;
+ min-width: 280px;
+ position: relative;
+ }
+
+ .input-group input {
+ width: 100%;
+ background: var(--bg3);
+ border: 1px solid var(--border2);
+ border-radius: 8px;
+ padding: 10px 16px;
+ font-family: 'Share Tech Mono', monospace;
+ font-size: 13px;
+ color: var(--text);
+ outline: none;
+ transition: border-color 0.2s, box-shadow 0.2s;
+ }
+
+ .input-group input:focus {
+ border-color: var(--accent);
+ box-shadow: var(--glow);
+ }
+
+ .input-group input::placeholder { color: var(--text2); }
+
+ .btn {
+ font-family: 'Rajdhani', sans-serif;
+ font-size: 14px;
+ font-weight: 700;
+ letter-spacing: 1.5px;
+ text-transform: uppercase;
+ padding: 10px 24px;
+ border: none;
+ border-radius: 8px;
+ cursor: pointer;
+ transition: all 0.2s;
+ white-space: nowrap;
+ }
+
+ .btn-primary {
+ background: linear-gradient(135deg, var(--accent), #0088cc);
+ color: #000;
+ box-shadow: 0 0 0 0 rgba(0,212,255,0.4);
+ transition: transform 0.15s ease, box-shadow 0.2s ease;
+ }
+
+ .btn-primary:hover {
+ box-shadow: var(--glow), 0 6px 20px rgba(0,212,255,0.3);
+ transform: translateY(-2px);
+ }
+
+ .btn-primary:active {
+ transform: translateY(0) scale(0.97);
+ box-shadow: none;
+ }
+
+ .btn-danger {
+ background: transparent;
+ color: #ff4444;
+ border: 1px solid #ff4444;
+ font-size: 12px;
+ padding: 6px 12px;
+ }
+
+ .btn-danger:hover {
+ background: rgba(255,68,68,0.1);
+ }
+
+ /* Add Item Section */
+ .add-section {
+ margin-bottom: 32px;
+ background: var(--bg2);
+ border: 1px solid var(--border);
+ border-radius: 12px;
+ padding: 24px;
+ }
+
+ .section-title {
+ font-family: 'Orbitron', monospace;
+ font-size: 13px;
+ font-weight: 700;
+ letter-spacing: 3px;
+ text-transform: uppercase;
+ color: var(--accent);
+ margin-bottom: 16px;
+ display: flex;
+ align-items: center;
+ gap: 10px;
+ }
+
+ .section-title::after {
+ content: '';
+ flex: 1;
+ height: 1px;
+ background: linear-gradient(90deg, var(--border2), transparent);
+ }
+
+ .add-form {
+ display: flex;
+ gap: 12px;
+ flex-wrap: wrap;
+ }
+
+ .add-form .input-group {
+ flex: 2;
+ min-width: 200px;
+ }
+
+ .add-form .input-small {
+ flex: 0 0 120px;
+ }
+
+ /* Items Grid */
+ .items-grid {
+ display: grid;
+ grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+ gap: 16px;
+ margin-bottom: 40px;
+ }
+
+ .item-card {
+ background: var(--bg2);
+ border: 1px solid var(--border);
+ border-radius: 12px;
+ padding: 16px;
+ display: flex;
+ flex-direction: column;
+ gap: 12px;
+ transition: transform 0.22s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.22s ease, border-color 0.2s ease;
+ position: relative;
+ overflow: hidden;
+ animation: fadeInCard 0.45s ease both;
+ }
+
+ @keyframes fadeInCard {
+ from { opacity: 0; transform: translateY(18px) scale(0.97); }
+ to { opacity: 1; transform: translateY(0) scale(1); }
+ }
+
+ /* stagger delay – ustawiany inline przez JS */
+ .item-card::before {
+ content: '';
+ position: absolute;
+ top: 0; left: 0; right: 0;
+ height: 2px;
+ background: linear-gradient(90deg, var(--accent), #0066ff, transparent);
+ opacity: 0;
+ transition: opacity 0.25s ease;
+ }
+
+ .item-card:hover {
+ border-color: var(--border2);
+ transform: translateY(-6px) scale(1.01);
+ box-shadow: 0 16px 40px rgba(0,0,0,0.55), 0 0 0 1px rgba(0,212,255,0.08);
+ }
+
+ .item-card:hover::before { opacity: 1; }
+
+ /* Overlay odświeżania — pojedyncza karta */
+ .item-refresh-overlay {
+ display: none;
+ position: absolute;
+ inset: 0;
+ z-index: 10;
+ background: rgba(7, 11, 15, 0.82);
+ backdrop-filter: blur(3px);
+ border-radius: 12px;
+ flex-direction: column;
+ align-items: center;
+ justify-content: center;
+ gap: 8px;
+ pointer-events: none;
+ }
+
+ .item-refresh-spinner {
+ font-size: 26px;
+ color: var(--accent);
+ animation: spin 0.8s linear infinite;
+ display: inline-block;
+ line-height: 1;
+ }
+
+ .item-refresh-label {
+ font-family: 'Orbitron', monospace;
+ font-size: 11px;
+ letter-spacing: 0.12em;
+ text-transform: uppercase;
+ color: var(--accent);
+ opacity: 0.85;
+ }
+
+ /* flash ceny po odświeżeniu */
+ @keyframes priceFlash {
+ 0%   { color: var(--accent3); text-shadow: 0 0 0 transparent; }
+ 30%  { color: #fff; text-shadow: 0 0 14px rgba(57,255,20,0.9); }
+ 100% { color: var(--accent3); text-shadow: 0 0 20px rgba(57,255,20,0.5); }
+ }
+ .price-flash { animation: priceFlash 0.7s ease; }
+
+ .item-header {
+ display: flex;
+ align-items: flex-start;
+ gap: 12px;
+ }
+
+ .item-img-wrap {
+ width: 72px;
+ height: 52px;
+ background: var(--bg3);
+ border: 1px solid var(--border);
+ border-radius: 6px;
+ display: flex;
+ align-items: center;
+ justify-content: center;
+ flex-shrink: 0;
+ overflow: hidden;
+ }
+
+ .item-img-wrap img {
+ max-width: 100%;
+ max-height: 100%;
+ object-fit: contain;
+ }
+
+ .item-img-banner {
+ width: 100%;
+ height: 130px;
+ background: linear-gradient(135deg, var(--bg3) 0%, #0a1520 100%);
+ border-radius: 8px;
+ display: flex;
+ align-items: center;
+ justify-content: center;
+ overflow: hidden;
+ margin-bottom: 10px;
+ }
+
+ .item-img-banner img {
+ width: 100%;
+ height: 100%;
+ object-fit: contain;
+ padding: 8px;
+ filter: drop-shadow(0 4px 12px rgba(0,0,0,0.6));
+ transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1), filter 0.3s ease;
+ }
+
+ .item-card:hover .item-img-banner img {
+ transform: scale(1.1);
+ filter: drop-shadow(0 6px 18px rgba(0,212,255,0.25));
+ }
+
+ .img-placeholder-big { font-size: 48px; opacity: 0.15; }
+ .img-loading { font-size: 24px; color: var(--text2); animation: spin 1s linear infinite; }
+
+ .item-body { padding: 0 2px; margin-bottom: 10px; }
+
+ .item-weapon {
+ font-family: 'Share Tech Mono', monospace;
+ font-size: 10px;
+ color: var(--text2);
+ text-transform: uppercase;
+ letter-spacing: 1.5px;
+ opacity: 0.7;
+ }
+
+ .item-skin {
+ font-size: 17px;
+ font-weight: 800;
+ color: #fff;
+ white-space: nowrap;
+ overflow: hidden;
+ text-overflow: ellipsis;
+ margin-top: 1px;
+ letter-spacing: 0.3px;
+ }
+
+ .item-info { flex: 1; min-width: 0; }
+ .item-name { font-size: 14px; font-weight: 600; color: #fff; }
+
+ .item-wear {
+ font-family: 'Share Tech Mono', monospace;
+ font-size: 9px;
+ color: var(--text2);
+ background: rgba(255,255,255,0.04);
+ border: 1px solid var(--border);
+ border-radius: 4px;
+ padding: 2px 6px;
+ display: inline-block;
+ letter-spacing: 0.5px;
+ opacity: 0.75;
+ }
+
+ .item-qty {
+ font-family: 'Share Tech Mono', monospace;
+ font-size: 11px;
+ color: var(--accent);
+ background: rgba(0,212,255,0.1);
+ border: 1px solid rgba(0,212,255,0.2);
+ border-radius: 4px;
+ padding: 2px 8px;
+ display: inline-block;
+ }
+
+ .item-price-row {
+ display: flex;
+ align-items: baseline;
+ justify-content: space-between;
+ gap: 8px;
+ }
+
+ .item-price-single {
+ font-family: 'Share Tech Mono', monospace;
+ font-size: 11px;
+ color: var(--text2);
+ opacity: 0.65;
+ }
+
+ .item-price-total {
+ font-family: 'Orbitron', monospace;
+ font-size: 22px;
+ font-weight: 900;
+ color: var(--accent3);
+ letter-spacing: 0.5px;
+ }
+
+ .item-price-loading {
+ font-family: 'Share Tech Mono', monospace;
+ font-size: 12px;
+ color: var(--text2);
+ animation: blink 1s ease-in-out infinite;
+ }
+
+ .item-actions {
+ display: flex;
+ gap: 8px;
+ align-items: center;
+ }
+
+ .refresh-btn {
+ background: transparent;
+ border: 1px solid var(--border2);
+ color: var(--text2);
+ border-radius: 6px;
+ padding: 5px 10px;
+ font-size: 13px;
+ cursor: pointer;
+ transition: transform 0.15s ease, border-color 0.2s, color 0.2s, box-shadow 0.2s;
+ flex: 1;
+ }
+
+ .refresh-btn:hover {
+ border-color: var(--accent);
+ color: var(--accent);
+ transform: translateY(-1px);
+ box-shadow: 0 4px 12px rgba(0,212,255,0.15);
+ }
+
+ .refresh-btn:active { transform: scale(0.95); }
+
+ /* Rarity colors */
+ .rarity-consumer { border-top-color: #b0b0b0; }
+ .rarity-industrial { border-top-color: #5e98d9; }
+ .rarity-milspec { border-top-color: #4b69ff; }
+ .rarity-restricted { border-top-color: #8847ff; }
+ .rarity-classified { border-top-color: #d32ce6; }
+ .rarity-covert { border-top-color: #eb4b4b; }
+ .rarity-extraordinary { border-top-color: #e4ae39; }
+
+ /* Empty state */
+ .empty-state {
+ grid-column: 1 / -1;
+ text-align: center;
+ padding: 60px 20px;
+ color: var(--text2);
+ }
+
+ .empty-icon { font-size: 48px; margin-bottom: 16px; opacity: 0.3; }
+ .empty-title { font-family: 'Orbitron', monospace; font-size: 16px; color: var(--text2); margin-bottom: 8px; }
+ .empty-sub { font-size: 14px; color: var(--text2); opacity: 0.6; }
+
+ /* Suggestions dropdown */
+ .suggestions {
+ position: absolute;
+ top: calc(100% + 4px);
+ left: 0; right: 0;
+ background: var(--bg2);
+ border: 1px solid var(--border2);
+ border-radius: 8px;
+ z-index: 200;
+ max-height: 240px;
+ overflow-y: auto;
+ box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+ }
+
+ .suggestion-item {
+ padding: 10px 14px;
+ cursor: pointer;
+ font-size: 13px;
+ border-bottom: 1px solid var(--border);
+ transition: background 0.15s;
+ display: flex;
+ align-items: center;
+ gap: 10px;
+ }
+
+ .suggestion-item:last-child { border-bottom: none; }
+ .suggestion-item:hover { background: rgba(0,212,255,0.08); }
+
+ .suggestion-img { width: 32px; height: 24px; object-fit: contain; }
+
+ .suggestion-info { flex: 1; min-width: 0; }
+ .suggestion-name { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+ .suggestion-price { font-family: 'Share Tech Mono', monospace; font-size: 11px; color: var(--accent3); }
+
+ /* Error / notice */
+ .notice {
+ background: rgba(255,107,53,0.1);
+ border: 1px solid rgba(255,107,53,0.3);
+ border-radius: 8px;
+ padding: 12px 16px;
+ font-size: 13px;
+ color: var(--accent2);
+ margin-bottom: 16px;
+ display: none;
+ }
+
+ .notice.show { display: block; }
+
+ /* Stats bar */
+ .stats-bar {
+ display: flex;
+ gap: 16px;
+ margin-bottom: 24px;
+ flex-wrap: wrap;
+ }
+
+ .stat-card {
+ background: var(--bg2);
+ border: 1px solid var(--border);
+ border-radius: 8px;
+ padding: 12px 20px;
+ display: flex;
+ flex-direction: column;
+ gap: 4px;
+ }
+
+ .stat-label {
+ font-family: 'Share Tech Mono', monospace;
+ font-size: 10px;
+ color: var(--text2);
+ text-transform: uppercase;
+ letter-spacing: 2px;
+ }
+
+ .stat-value {
+ font-family: 'Orbitron', monospace;
+ font-size: 20px;
+ font-weight: 700;
+ color: #fff;
+ }
+
+ /* Ukryj strzałki w input[type=number] */
+ input[type=number]::-webkit-inner-spin-button,
+ input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+ input[type=number] { -moz-appearance: textfield; }
+
+ scrollbar-width: thin;
+ ::-webkit-scrollbar { width: 6px; }
+ ::-webkit-scrollbar-track { background: var(--bg); }
+ ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+ /* Tabs */
+ .tabs {
+ display: flex;
+ gap: 4px;
+ margin-bottom: 16px;
+ background: var(--bg2);
+ border: 1px solid var(--border);
+ border-radius: 10px;
+ padding: 4px;
+ width: fit-content;
+ }
+
+ .tab {
+ font-family: 'Rajdhani', sans-serif;
+ font-size: 14px;
+ font-weight: 700;
+ letter-spacing: 1px;
+ padding: 8px 20px;
+ border: none;
+ border-radius: 7px;
+ cursor: pointer;
+ background: transparent;
+ color: var(--text2);
+ transition: color 0.2s ease, background 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+ }
+
+ .tab.active {
+ background: var(--bg3);
+ color: var(--accent);
+ border: 1px solid var(--border2);
+ box-shadow: var(--glow);
+ }
+
+ .tab:hover:not(.active) { color: var(--text); transform: translateY(-1px); }
+
+ /* Search results */
+ .search-results-grid {
+ display: grid;
+ grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+ gap: 12px;
+ }
+ .qty-control {
+ display: flex;
+ align-items: center;
+ gap: 6px;
+ margin-left: auto;
+}
+
+.qty-control button {
+ background: #0f172a;
+ border: 1px solid rgba(255,255,255,0.1);
+ color: #00ffa6;
+ width: 26px;
+ height: 26px;
+ border-radius: 6px;
+ cursor: pointer;
+ transition: 0.2s;
+ font-size: 16px;
+}
+
+.qty-control button:hover {
+ background: #00ffa6;
+ color: black;
+}
+
+.qty-control span {
+ min-width: 22px;
+ text-align: center;
+ font-weight: 600;
+}
+
+ .search-card {
+ background: var(--bg3);
+ border: 1px solid var(--border);
+ border-radius: 10px;
+ padding: 12px;
+ display: flex;
+ flex-direction: column;
+ gap: 8px;
+ cursor: pointer;
+ transition: transform 0.2s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.2s ease, border-color 0.2s ease;
+ animation: fadeInCard 0.35s ease both;
+ }
+
+ .search-card:hover {
+ border-color: var(--accent);
+ box-shadow: var(--glow), 0 12px 32px rgba(0,0,0,0.4);
+ transform: translateY(-5px) scale(1.02);
+ }
+
+ .search-card-img {
+ width: 100%;
+ height: 80px;
+ object-fit: contain;
+ background: var(--bg2);
+ border-radius: 6px;
+ padding: 4px;
+ }
+
+ .search-card-name {
+ font-size: 12px;
+ font-weight: 600;
+ color: var(--text);
+ line-height: 1.3;
+ display: -webkit-box;
+ -webkit-line-clamp: 2;
+ -webkit-box-orient: vertical;
+ overflow: hidden;
+ }
+
+ .search-card-price {
+ font-family: 'Orbitron', monospace;
+ font-size: 14px;
+ font-weight: 700;
+ color: var(--accent3);
+ }
+
+ .search-card-vol {
+ font-family: 'Share Tech Mono', monospace;
+ font-size: 10px;
+ color: var(--text2);
+ }
+
+ .search-card-add {
+ font-family: 'Rajdhani', sans-serif;
+ font-size: 12px;
+ font-weight: 700;
+ letter-spacing: 1px;
+ padding: 6px;
+ background: rgba(0,212,255,0.1);
+ border: 1px solid rgba(0,212,255,0.3);
+ border-radius: 6px;
+ color: var(--accent);
+ cursor: pointer;
+ transition: background 0.2s, box-shadow 0.2s, transform 0.15s ease;
+ text-align: center;
+ }
+
+ .search-card-add:hover {
+ background: rgba(0,212,255,0.2);
+ box-shadow: var(--glow);
+ transform: translateY(-1px);
+ }
+
+ .search-card-add:active { transform: scale(0.95); }
+
+ .search-card-add.added {
+ background: rgba(57,255,20,0.1);
+ border-color: rgba(57,255,20,0.3);
+ color: var(--accent3);
+ }
+
+ .search-empty {
+ grid-column: 1/-1;
+ text-align: center;
+ padding: 40px;
+ color: var(--text2);
+ font-size: 14px;
+ }
+
+ .search-loading {
+ grid-column: 1/-1;
+ text-align: center;
+ padding: 40px;
+ color: var(--text2);
+ font-family: 'Share Tech Mono', monospace;
+ font-size: 13px;
+ animation: blink 1s ease-in-out infinite;
+ }
+
+ .pager-btn {
+ font-family: 'Share Tech Mono', monospace;
+ font-size: 12px;
+ padding: 6px 14px;
+ background: var(--bg3);
+ border: 1px solid var(--border2);
+ border-radius: 6px;
+ color: var(--text2);
+ cursor: pointer;
+ transition: all 0.2s;
+ }
+
+ .pager-btn:hover, .pager-btn.active {
+ border-color: var(--accent);
+ color: var(--accent);
+ }
+
+ .btn-refresh-all {
+ font-family: 'Rajdhani', sans-serif;
+ font-size: 14px;
+ font-weight: 700;
+ letter-spacing: 1px;
+ padding: 0 20px;
+ background: transparent;
+ border: 1px solid var(--border2);
+ border-radius: 8px;
+ color: var(--text2);
+ cursor: pointer;
+ transition: all 0.2s;
+ display: flex;
+ align-items: center;
+ gap: 8px;
+ white-space: nowrap;
+ }
+
+ .btn-refresh-all:hover {
+ border-color: var(--accent);
+ color: var(--accent);
+ box-shadow: var(--glow);
+ }
+
+ .btn-stop-refresh {
+ font-family: 'Rajdhani', sans-serif;
+ font-size: 13px;
+ font-weight: 700;
+ letter-spacing: 1px;
+ padding: 8px 16px;
+ background: rgba(255,68,68,0.1);
+ border: 1px solid rgba(255,68,68,0.4);
+ border-radius: 8px;
+ color: #ff4444;
+ cursor: pointer;
+ transition: all 0.2s;
+ white-space: nowrap;
+ }
+ .btn-stop-refresh:hover {
+ background: rgba(255,68,68,0.2);
+ box-shadow: 0 0 12px rgba(255,68,68,0.3);
+ }
+
+ .btn-refresh-all.spinning #refreshAllIcon {
+ display: inline-block;
+ animation: spin 0.8s linear infinite;
+ }
+
+ /* Wear guide */
+ .wear-guide {
+ display: flex;
+ flex-wrap: wrap;
+ align-items: center;
+ gap: 8px;
+ margin-top: 14px;
+ padding-top: 14px;
+ border-top: 1px solid var(--border);
+ }
+
+ .wear-guide-label {
+ font-family: 'Share Tech Mono', monospace;
+ font-size: 11px;
+ color: var(--text2);
+ text-transform: uppercase;
+ letter-spacing: 1px;
+ white-space: nowrap;
+ }
+
+ .wear-chip {
+ font-size: 12px;
+ color: var(--text2);
+ background: var(--bg3);
+ border: 1px solid var(--border);
+ border-radius: 6px;
+ padding: 4px 10px;
+ cursor: pointer;
+ transition: all 0.15s;
+ white-space: nowrap;
+ }
+
+ .wear-chip b {
+ color: var(--accent);
+ font-weight: 600;
+ }
+
+ .wear-chip:hover {
+ border-color: var(--accent);
+ color: var(--text);
+ background: rgba(0,212,255,0.06);
+ }
+
+ .wear-chip:active {
+ transform: scale(0.97);
+ }
+
+ .btn-refresh-all:disabled {
+ opacity: 0.5;
+ cursor: not-allowed;
+ }
+
+
+ @keyframes spin {
+ from { transform: rotate(0deg); }
+ to { transform: rotate(360deg); }
+ }
+
+ /* Price change badges */
+ .item-img-banner { position: relative; }
+
+ .change-badge-wrap {
+ position: absolute;
+ top: 8px;
+ right: 8px;
+ }
+
+ .price-change {
+ font-family: 'Orbitron', monospace;
+ font-size: 11px;
+ font-weight: 700;
+ padding: 4px 8px;
+ border-radius: 6px;
+ letter-spacing: 0.5px;
+ }
+
+ .price-change.up {
+ background: rgba(57,255,20,0.15);
+ border: 1px solid rgba(57,255,20,0.5);
+ color: #39ff14;
+ box-shadow: 0 0 10px rgba(57,255,20,0.3);
+ }
+
+ .price-change.down {
+ background: rgba(255,68,68,0.15);
+ border: 1px solid rgba(255,68,68,0.5);
+ color: #ff4444;
+ box-shadow: 0 0 10px rgba(255,68,68,0.3);
+ }
+
+ .price-change.neutral {
+ background: rgba(200,200,200,0.08);
+ border: 1px solid rgba(200,200,200,0.2);
+ color: var(--text2);
+ }
+
+ .price-history-row {
+ display: flex;
+ justify-content: space-between;
+ align-items: center;
+ padding: 5px 0;
+ border-top: 1px solid var(--border);
+ margin-top: 4px;
+ }
+
+ .price-history-label {
+ font-family: 'Share Tech Mono', monospace;
+ font-size: 10px;
+ color: var(--text2);
+ text-transform: uppercase;
+ letter-spacing: 1px;
+ }
+
+ .price-history-val {
+ font-family: 'Share Tech Mono', monospace;
+ font-size: 12px;
+ color: var(--text2);
+ opacity: 0.7;
+ }
+
+ /* AI Panel */
+ .ai-panel {
+ background: var(--bg2);
+ border: 1px solid var(--border);
+ border-radius: 12px;
+ overflow: hidden;
+ display: flex;
+ flex-direction: column;
+ height: 75vh;
+ min-height: 500px;
+ }
+
+ .ai-header {
+ display: flex;
+ align-items: center;
+ gap: 14px;
+ padding: 16px 20px;
+ border-bottom: 1px solid var(--border);
+ background: linear-gradient(135deg, rgba(0,212,255,0.05), transparent);
+ flex-shrink: 0;
+ }
+
+ .ai-avatar {
+ font-size: 28px;
+ width: 46px;
+ height: 46px;
+ background: var(--bg3);
+ border: 1px solid var(--border2);
+ border-radius: 12px;
+ display: flex;
+ align-items: center;
+ justify-content: center;
+ flex-shrink: 0;
+ }
+
+ .ai-title {
+ font-family: 'Orbitron', monospace;
+ font-size: 14px;
+ font-weight: 700;
+ color: var(--accent);
+ }
+
+ .ai-subtitle {
+ font-size: 12px;
+ color: var(--text2);
+ margin-top: 2px;
+ }
+
+ .ai-clear-btn {
+ margin-left: auto;
+ background: transparent;
+ border: 1px solid var(--border2);
+ color: var(--text2);
+ border-radius: 6px;
+ padding: 6px 12px;
+ font-size: 12px;
+ cursor: pointer;
+ transition: all 0.2s;
+ white-space: nowrap;
+ }
+
+ .ai-clear-btn:hover { border-color: #ff4444; color: #ff4444; }
+
+ .ai-suggestions {
+ display: flex;
+ align-items: center;
+ gap: 8px;
+ padding: 10px 16px;
+ border-bottom: 1px solid var(--border);
+ flex-wrap: wrap;
+ flex-shrink: 0;
+ background: var(--bg3);
+ }
+
+ .ai-suggest-label {
+ font-family: 'Share Tech Mono', monospace;
+ font-size: 10px;
+ color: var(--text2);
+ text-transform: uppercase;
+ letter-spacing: 1px;
+ white-space: nowrap;
+ }
+
+ .ai-chip {
+ font-family: 'Rajdhani', sans-serif;
+ font-size: 12px;
+ font-weight: 600;
+ padding: 5px 12px;
+ background: var(--bg2);
+ border: 1px solid var(--border2);
+ border-radius: 20px;
+ color: var(--text);
+ cursor: pointer;
+ transition: all 0.2s;
+ white-space: nowrap;
+ }
+
+ .ai-chip:hover {
+ border-color: var(--accent);
+ color: var(--accent);
+ background: rgba(0,212,255,0.06);
+ }
+
+ .ai-messages {
+ flex: 1;
+ overflow-y: auto;
+ padding: 16px;
+ display: flex;
+ flex-direction: column;
+ gap: 12px;
+ }
+
+ .ai-msg { display: flex; gap: 10px; }
+
+ .ai-msg-bot { align-items: flex-start; }
+ .ai-msg-user { align-items: flex-start; flex-direction: row-reverse; }
+
+ .ai-msg-content {
+ max-width: 75%;
+ padding: 12px 16px;
+ border-radius: 12px;
+ font-size: 14px;
+ line-height: 1.6;
+ white-space: pre-wrap;
+ }
+
+ .ai-msg-bot .ai-msg-content {
+ background: var(--bg3);
+ border: 1px solid var(--border);
+ color: var(--text);
+ border-top-left-radius: 2px;
+ }
+
+ .ai-msg-user .ai-msg-content {
+ background: rgba(0,212,255,0.1);
+ border: 1px solid rgba(0,212,255,0.25);
+ color: var(--text);
+ border-top-right-radius: 2px;
+ }
+
+ .ai-msg-typing .ai-msg-content {
+ color: var(--text2);
+ animation: blink 1.2s ease-in-out infinite;
+ }
+
+ .ai-input-row {
+ display: flex;
+ gap: 10px;
+ padding: 14px 16px;
+ border-top: 1px solid var(--border);
+ flex-shrink: 0;
+ }
+
+ .ai-input {
+ flex: 1;
+ background: var(--bg3);
+ border: 1px solid var(--border2);
+ border-radius: 8px;
+ padding: 10px 16px;
+ font-family: 'Rajdhani', sans-serif;
+ font-size: 14px;
+ color: var(--text);
+ outline: none;
+ transition: border-color 0.2s, box-shadow 0.2s;
+ }
+
+ .ai-input:focus {
+ border-color: var(--accent);
+ box-shadow: var(--glow);
+ }
+
+ .ai-input::placeholder { color: var(--text2); }
+
+ .ai-send-btn {
+ font-family: 'Rajdhani', sans-serif;
+ font-size: 14px;
+ font-weight: 700;
+ letter-spacing: 1px;
+ padding: 10px 22px;
+ background: linear-gradient(135deg, var(--accent), #0088cc);
+ border: none;
+ border-radius: 8px;
+ color: #000;
+ cursor: pointer;
+ transition: all 0.2s;
+ white-space: nowrap;
+ }
+
+ .ai-send-btn:hover { box-shadow: var(--glow); transform: translateY(-1px); }
+ .ai-send-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+ /* Trending */
+ .trending-header { }
+
+ .trend-hot-badge {
+ position: absolute;
+ top: 8px;
+ left: 8px;
+ font-size: 11px;
+ font-weight: 700;
+ font-family: 'Orbitron', monospace;
+ padding: 3px 8px;
+ border-radius: 6px;
+ letter-spacing: 0.5px;
+ }
+
+ .trend-hot-badge.fire {
+ background: rgba(255,107,53,0.2);
+ border: 1px solid rgba(255,107,53,0.6);
+ color: #ff6b35;
+ box-shadow: 0 0 10px rgba(255,107,53,0.3);
+ }
+
+ .trend-hot-badge.warm {
+ background: rgba(255,200,0,0.12);
+ border: 1px solid rgba(255,200,0,0.4);
+ color: #ffc800;
+ }
+
+ .trend-vol {
+ font-family: 'Share Tech Mono', monospace;
+ font-size: 10px;
+ color: var(--text2);
+ margin-top: 2px;
+ }
+
+ .trend-vol span {
+ color: var(--accent2);
+ font-weight: 700;
+ }
+
+ .btn-portfolio-save, .btn-portfolio-load {
+ font-family: 'Rajdhani', sans-serif;
+ font-size: 13px;
+ font-weight: 700;
+ letter-spacing: 1px;
+ padding: 8px 14px;
+ background: transparent;
+ border: 1px solid var(--border2);
+ border-radius: 8px;
+ color: var(--text2);
+ cursor: pointer;
+ transition: all 0.2s;
+ white-space: nowrap;
+ }
+ .btn-portfolio-save:hover, .btn-portfolio-load:hover {
+ border-color: var(--accent);
+ color: var(--accent);
+ }
+
+ .btn-import-header {
+ font-family: 'Rajdhani', sans-serif;
+ font-size: 13px;
+ font-weight: 700;
+ letter-spacing: 1px;
+ padding: 8px 18px;
+ background: transparent;
+ border: 1px solid rgba(57,255,20,0.4);
+ border-radius: 8px;
+ color: #39ff14;
+ cursor: pointer;
+ transition: all 0.2s;
+ white-space: nowrap;
+ }
+ .btn-import-header:hover {
+ background: rgba(57,255,20,0.08);
+ box-shadow: 0 0 14px rgba(57,255,20,0.25);
+ }
+
+ /* Import Modal */
+ .import-modal {
+ position: fixed;
+ inset: 0;
+ background: rgba(0,0,0,0.7);
+ backdrop-filter: blur(4px);
+ z-index: 500;
+ display: flex;
+ align-items: center;
+ justify-content: center;
+ padding: 20px;
+ }
+
+ .import-modal-box {
+ background: var(--bg2);
+ border: 1px solid var(--border2);
+ border-radius: 16px;
+ width: 100%;
+ max-width: 540px;
+ padding: 28px;
+ box-shadow: 0 24px 64px rgba(0,0,0,0.6);
+ animation: fadeIn 0.2s ease;
+ }
+
+ .import-modal-header {
+ display: flex;
+ align-items: center;
+ justify-content: space-between;
+ margin-bottom: 24px;
+ }
+
+ .import-modal-title {
+ font-family: 'Orbitron', monospace;
+ font-size: 15px;
+ font-weight: 700;
+ color: var(--accent);
+ letter-spacing: 1px;
+ }
+
+ .import-modal-close {
+ background: transparent;
+ border: 1px solid var(--border2);
+ color: var(--text2);
+ border-radius: 6px;
+ width: 32px;
+ height: 32px;
+ cursor: pointer;
+ font-size: 14px;
+ transition: all 0.2s;
+ }
+ .import-modal-close:hover { border-color: #ff4444; color: #ff4444; }
+
+ .import-steps {
+ display: flex;
+ flex-direction: column;
+ gap: 16px;
+ margin-bottom: 4px;
+ }
+
+ .import-step {
+ display: flex;
+ gap: 14px;
+ align-items: flex-start;
+ }
+
+ .import-step-num {
+ width: 28px;
+ height: 28px;
+ border-radius: 50%;
+ background: rgba(0,212,255,0.12);
+ border: 1px solid rgba(0,212,255,0.3);
+ color: var(--accent);
+ font-family: 'Orbitron', monospace;
+ font-size: 12px;
+ font-weight: 700;
+ display: flex;
+ align-items: center;
+ justify-content: center;
+ flex-shrink: 0;
+ margin-top: 2px;
+ }
+
+ .import-step-title {
+ font-size: 14px;
+ font-weight: 700;
+ color: var(--text);
+ margin-bottom: 4px;
+ }
+
+ .import-step-desc {
+ font-size: 13px;
+ color: var(--text2);
+ line-height: 1.5;
+ }
+
+ .import-step-desc a {
+ color: var(--accent);
+ text-decoration: none;
+ }
+ .import-step-desc a:hover { text-decoration: underline; }
+ .import-step-desc b { color: var(--text); }
+
+ /* Import ekwipunku */
+ .import-section {
+ margin-top: 20px;
+ padding-top: 20px;
+ border-top: 1px solid var(--border);
+ }
+
+ .import-title {
+ font-family: 'Orbitron', monospace;
+ font-size: 12px;
+ font-weight: 700;
+ letter-spacing: 2px;
+ color: var(--accent);
+ margin-bottom: 8px;
+ }
+
+ .import-desc {
+ font-size: 13px;
+ color: var(--text2);
+ margin-bottom: 12px;
+ line-height: 1.5;
+ }
+
+ .import-desc b { color: var(--text); }
+
+ .import-form {
+ display: flex;
+ gap: 10px;
+ flex-wrap: wrap;
+ }
+
+ .btn-import {
+ font-family: 'Rajdhani', sans-serif;
+ font-size: 14px;
+ font-weight: 700;
+ letter-spacing: 1px;
+ padding: 10px 22px;
+ background: linear-gradient(135deg, #39ff14, #00aa00);
+ border: none;
+ border-radius: 8px;
+ color: #000;
+ cursor: pointer;
+ transition: all 0.2s;
+ white-space: nowrap;
+ }
+
+ .btn-import:hover { box-shadow: 0 0 20px rgba(57,255,20,0.4); transform: translateY(-1px); }
+ .btn-import:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+ .import-status {
+ margin-top: 12px;
+ padding: 10px 14px;
+ border-radius: 8px;
+ font-size: 13px;
+ font-family: 'Share Tech Mono', monospace;
+ }
+
+ .import-status.loading {
+ background: rgba(0,212,255,0.08);
+ border: 1px solid rgba(0,212,255,0.2);
+ color: var(--accent);
+ animation: blink 1s ease-in-out infinite;
+ }
+
+ .import-status.success {
+ background: rgba(57,255,20,0.08);
+ border: 1px solid rgba(57,255,20,0.2);
+ color: #39ff14;
+ }
+
+ .import-status.error {
+ background: rgba(255,68,68,0.08);
+ border: 1px solid rgba(255,68,68,0.2);
+ color: #ff4444;
+ }
+
+ /* Filter bar */
+ .filter-bar {
+ display: flex;
+ flex-direction: column;
+ gap: 8px;
+ margin-bottom: 20px;
+ }
+
+ .filter-row {
+ display: flex;
+ align-items: center;
+ gap: 6px;
+ flex-wrap: wrap;
+ }
+
+ .filter-label {
+ font-family: 'Share Tech Mono', monospace;
+ font-size: 11px;
+ color: var(--text2);
+ text-transform: uppercase;
+ letter-spacing: 2px;
+ white-space: nowrap;
+ margin-right: 4px;
+ }
+
+ .filter-btn {
+ font-family: 'Rajdhani', sans-serif;
+ font-size: 13px;
+ font-weight: 600;
+ letter-spacing: 0.5px;
+ padding: 6px 14px;
+ background: var(--bg2);
+ border: 1px solid var(--border);
+ border-radius: 20px;
+ color: var(--text2);
+ cursor: pointer;
+ transition: all 0.2s;
+ white-space: nowrap;
+ }
+
+ .filter-btn:hover {
+ border-color: var(--border2);
+ color: var(--text);
+ }
+
+ .filter-btn.active {
+ background: rgba(0,212,255,0.1);
+ border-color: var(--accent);
+ color: var(--accent);
+ box-shadow: 0 0 10px rgba(0,212,255,0.15);
+ }
+  /* ── AUTH SCREEN ─────────────────────────────────────── */
+  #authScreen {
+    position: fixed;
+    inset: 0;
+    background: var(--bg);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  .auth-box {
+    background: var(--bg2);
+    border: 1px solid var(--border2);
+    border-radius: 16px;
+    padding: 36px 32px;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 24px 64px rgba(0,0,0,0.6);
+  }
+
+  .auth-logo {
+    text-align: center;
+    margin-bottom: 28px;
+  }
+
+  .auth-logo h1 {
+    font-family: 'Orbitron', monospace;
+    font-size: 22px;
+    font-weight: 900;
+    color: #fff;
+    letter-spacing: 2px;
+  }
+
+  .auth-logo h1 span { color: var(--accent); }
+  .auth-logo p { font-size: 13px; color: var(--text2); margin-top: 4px; }
+
+  .auth-tabs {
+    display: flex;
+    gap: 4px;
+    background: var(--bg3);
+    border-radius: 8px;
+    padding: 4px;
+    margin-bottom: 24px;
+  }
+
+  .auth-tab {
+    flex: 1;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    padding: 8px;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--text2);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .auth-tab.active {
+    background: var(--bg2);
+    color: var(--accent);
+    border: 1px solid var(--border2);
+  }
+
+  .auth-field {
+    margin-bottom: 14px;
+  }
+
+  .auth-field label {
+    display: block;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--text2);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+  }
+
+  .auth-field input {
+    width: 100%;
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 15px;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.2s;
+    box-sizing: border-box;
+  }
+
+  .auth-field input:focus {
+    border-color: var(--accent);
+    box-shadow: var(--glow);
+  }
+
+  .auth-btn {
+    width: 100%;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    padding: 12px;
+    background: linear-gradient(135deg, var(--accent), #0088cc);
+    border: none;
+    border-radius: 8px;
+    color: #000;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 8px;
+  }
+
+  .auth-btn:hover { box-shadow: var(--glow); transform: translateY(-1px); }
+  .auth-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  .auth-error {
+    background: rgba(255,68,68,0.1);
+    border: 1px solid rgba(255,68,68,0.3);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 13px;
+    color: #ff6b6b;
+    margin-top: 12px;
+    display: none;
+  }
+
+  .auth-success {
+    background: rgba(57,255,20,0.08);
+    border: 1px solid rgba(57,255,20,0.2);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 13px;
+    color: #39ff14;
+    margin-top: 12px;
+    display: none;
+  }
+
+  /* User info w headerze */
+  .user-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .user-name {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--text2);
+    letter-spacing: 0.5px;
+  }
+
+  .btn-logout {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 6px 14px;
+    background: transparent;
+    border: 1px solid rgba(255,68,68,0.35);
+    border-radius: 6px;
+    color: rgba(255,100,100,0.7);
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s, color 0.2s, transform 0.15s, box-shadow 0.2s;
+    white-space: nowrap;
+  }
+
+  .btn-logout:hover {
+    background: rgba(255,68,68,0.1);
+    border-color: #ff4444;
+    color: #ff6666;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(255,68,68,0.2);
+  }
+
+  .btn-logout:active { transform: scale(0.95); }
+
+  /* ── MOBILE ───────────────────────────────────────────── */
+  @media (max-width: 600px) {
+
+    /* Header */
+    .header-inner {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 10px 0;
+    }
+
+    .header-center {
+      width: 100%;
+      justify-content: flex-start;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .header-right {
+      width: 100%;
+      border-left: none;
+      border-top: 1px solid var(--border);
+      padding-left: 0;
+      padding-top: 8px;
+      margin-left: 0;
+      justify-content: flex-end;
+    }
+
+    .total-value {
+      flex: 1;
+      min-width: 160px;
+      padding: 8px 12px;
+    }
+
+    .total-amount { font-size: 22px; }
+
+    .btn-import-header,
+    .btn-portfolio-save,
+    .btn-portfolio-load {
+      font-size: 12px;
+      padding: 6px 10px;
+    }
+
+    /* Tabs — scrollable */
+    .tabs {
+      width: 100%;
+      overflow-x: auto;
+      flex-wrap: nowrap;
+      border-radius: 8px;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .tab {
+      font-size: 12px;
+      padding: 8px 12px;
+      white-space: nowrap;
+    }
+
+    /* Add form */
+    .add-form {
+      flex-direction: column;
+    }
+
+    .add-form .input-group,
+    .add-form .input-small {
+      flex: none;
+      width: 100%;
+    }
+
+    /* Stats bar */
+    .stats-bar {
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .stat-card {
+      flex: 1;
+      min-width: 80px;
+      padding: 8px 12px;
+    }
+
+    .stat-value { font-size: 16px; }
+
+    .btn-refresh-all,
+    .btn-stop-refresh {
+      font-size: 12px;
+      padding: 8px 12px;
+    }
+
+    /* Filter bar */
+    .filter-btn {
+      font-size: 12px;
+      padding: 5px 10px;
+    }
+
+    /* Items grid — 1 kolumna na małych, 2 na większych */
+    .items-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    .item-img-banner { height: 90px; }
+    .item-skin { font-size: 12px; }
+    .item-weapon { font-size: 10px; }
+    .item-price-total { font-size: 14px; }
+    .item-price-single { font-size: 11px; }
+
+    /* Search results */
+    .search-results-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    /* AI panel */
+    .ai-panel { height: 65vh; }
+    .ai-suggestions { gap: 6px; }
+    .ai-chip { font-size: 11px; padding: 4px 8px; }
+
+    /* Import modal */
+    .import-modal-box {
+      padding: 18px;
+      max-width: 100%;
+      margin: 10px;
+    }
+
+    /* Wear guide */
+    .wear-guide { gap: 6px; }
+    .wear-chip { font-size: 11px; padding: 3px 8px; }
+
+    /* Container padding */
+    .container { padding: 0 12px; }
+  }
+
+  /* Bardzo małe telefony */
+  @media (max-width: 380px) {
+    .items-grid { grid-template-columns: 1fr; }
+    .search-results-grid { grid-template-columns: 1fr; }
+  }
+
+
+/* ── HISTORIA ───────────────────────────────────────────── */
+.history-header {
+ display: flex;
+ align-items: flex-start;
+ justify-content: space-between;
+ gap: 16px;
+ flex-wrap: wrap;
+ margin-bottom: 4px;
+}
+
+.history-range-bar {
+ display: flex;
+ gap: 8px;
+ margin-bottom: 20px;
+ flex-wrap: wrap;
+}
+
+.history-chart-wrap {
+ position: relative;
+ background: var(--bg2);
+ border: 1px solid var(--border);
+ border-radius: 16px;
+ padding: 24px;
+ margin-bottom: 20px;
+ min-height: 280px;
+ display: flex;
+ align-items: center;
+ justify-content: center;
+}
+
+.history-chart-wrap canvas {
+ width: 100% !important;
+ max-height: 280px;
+}
+
+.history-empty {
+ text-align: center;
+ padding: 40px;
+}
+
+.history-stats-row {
+ display: grid;
+ grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+ gap: 12px;
+ margin-bottom: 24px;
+}
+
+.history-stat-card {
+ background: var(--bg2);
+ border: 1px solid var(--border);
+ border-radius: 12px;
+ padding: 16px 20px;
+ display: flex;
+ flex-direction: column;
+ gap: 6px;
+}
+
+.history-stat-label {
+ font-size: 11px;
+ text-transform: uppercase;
+ letter-spacing: 0.08em;
+ color: var(--text2);
+ font-family: 'Share Tech Mono', monospace;
+}
+
+.history-stat-value {
+ font-family: 'Orbitron', monospace;
+ font-size: 18px;
+ font-weight: 700;
+ color: var(--text);
+}
+
+.history-table-wrap {
+ background: var(--bg2);
+ border: 1px solid var(--border);
+ border-radius: 16px;
+ padding: 20px 24px;
+ overflow-x: auto;
+}
+
+.history-table {
+ width: 100%;
+ border-collapse: collapse;
+ font-size: 14px;
+}
+
+.history-table th {
+ text-align: left;
+ padding: 8px 16px;
+ font-family: 'Share Tech Mono', monospace;
+ font-size: 11px;
+ text-transform: uppercase;
+ letter-spacing: 0.08em;
+ color: var(--text2);
+ border-bottom: 1px solid var(--border);
+}
+
+.history-table td {
+ padding: 12px 16px;
+ border-bottom: 1px solid rgba(30,45,61,0.5);
+ color: var(--text);
+ font-family: 'Rajdhani', sans-serif;
+ font-size: 15px;
+}
+
+.history-table tr:last-child td { border-bottom: none; }
+
+.history-table tr:hover td {
+ background: rgba(0,212,255,0.03);
+}
+
+.history-change-up   { color: #39ff14; font-weight: 700; }
+.history-change-down { color: #ff4444; font-weight: 700; }
+.history-change-neu  { color: var(--text2); }
+
+/* ── STOPKA ─────────────────────────────────────────────────── */
+.site-footer {
+ margin-top: 64px;
+ border-top: 1px solid var(--border);
+ background: linear-gradient(180deg, transparent 0%, rgba(0,212,255,0.03) 100%);
+ padding: 28px 0 24px;
+}
+
+.footer-inner {
+ display: flex;
+ align-items: center;
+ justify-content: space-between;
+ gap: 24px;
+ flex-wrap: wrap;
+}
+
+.footer-author {
+ display: flex;
+ align-items: center;
+ gap: 10px;
+}
+
+.footer-made {
+ font-size: 11px;
+ color: var(--text2);
+ text-transform: uppercase;
+ letter-spacing: 0.08em;
+ font-family: 'Share Tech Mono', monospace;
+}
+
+.footer-name {
+ font-family: 'Orbitron', monospace;
+ font-size: 13px;
+ font-weight: 700;
+ color: var(--accent);
+ text-decoration: none;
+ transition: color 0.2s, text-shadow 0.2s;
+}
+
+.footer-name:hover {
+ color: #fff;
+ text-shadow: 0 0 12px rgba(0,212,255,0.7);
+}
+
+.footer-copy {
+ font-family: 'Share Tech Mono', monospace;
+ font-size: 11px;
+ color: var(--text2);
+ opacity: 0.6;
+ text-align: center;
+}
+
+.footer-contact-wrap {
+ position: relative;
+}
+
+.footer-contact-btn {
+ font-family: 'Rajdhani', sans-serif;
+ font-size: 14px;
+ font-weight: 700;
+ letter-spacing: 1px;
+ text-transform: uppercase;
+ padding: 9px 20px;
+ background: transparent;
+ border: 1px solid var(--border2);
+ border-radius: 8px;
+ color: var(--text2);
+ cursor: pointer;
+ transition: all 0.2s;
+}
+
+.footer-contact-btn:hover {
+ border-color: var(--accent);
+ color: var(--accent);
+ box-shadow: 0 0 12px rgba(0,212,255,0.15);
+}
+
+/* Formularz kontaktowy — popup nad przyciskiem */
+.footer-form-box {
+ position: absolute;
+ bottom: calc(100% + 12px);
+ right: 0;
+ width: 320px;
+ background: var(--bg2);
+ border: 1px solid var(--border2);
+ border-radius: 14px;
+ padding: 20px;
+ box-shadow: 0 -8px 40px rgba(0,0,0,0.5), 0 0 0 1px rgba(0,212,255,0.08);
+ z-index: 200;
+ animation: fadeInUp 0.2s ease;
+}
+
+@keyframes fadeInUp {
+ from { opacity: 0; transform: translateY(8px); }
+ to   { opacity: 1; transform: translateY(0); }
+}
+
+.footer-form-header {
+ display: flex;
+ align-items: center;
+ justify-content: space-between;
+ margin-bottom: 16px;
+ font-family: 'Orbitron', monospace;
+ font-size: 13px;
+ font-weight: 700;
+ color: var(--accent);
+}
+
+.footer-form-close {
+ background: none;
+ border: none;
+ color: var(--text2);
+ font-size: 16px;
+ cursor: pointer;
+ padding: 2px 6px;
+ border-radius: 4px;
+ transition: color 0.2s;
+}
+
+.footer-form-close:hover { color: #fff; }
+
+.footer-field {
+ display: flex;
+ flex-direction: column;
+ gap: 5px;
+ margin-bottom: 12px;
+}
+
+.footer-field label {
+ font-family: 'Share Tech Mono', monospace;
+ font-size: 11px;
+ text-transform: uppercase;
+ letter-spacing: 0.08em;
+ color: var(--text2);
+}
+
+.footer-field input,
+.footer-field textarea {
+ background: var(--bg3);
+ border: 1px solid var(--border);
+ border-radius: 8px;
+ padding: 9px 12px;
+ font-family: 'Rajdhani', sans-serif;
+ font-size: 14px;
+ color: var(--text);
+ outline: none;
+ transition: border-color 0.2s;
+ resize: none;
+ width: 100%;
+}
+
+.footer-field input:focus,
+.footer-field textarea:focus {
+ border-color: var(--accent);
+}
+
+/* Checkbox anonimowy */
+.footer-anon-label {
+ display: flex;
+ align-items: center;
+ gap: 9px;
+ cursor: pointer;
+ margin-bottom: 14px;
+ font-family: 'Rajdhani', sans-serif;
+ font-size: 13px;
+ color: var(--text2);
+ user-select: none;
+}
+
+.footer-anon-label input[type="checkbox"] { display: none; }
+
+.footer-anon-check {
+ width: 18px;
+ height: 18px;
+ border: 1px solid var(--border2);
+ border-radius: 4px;
+ background: var(--bg3);
+ display: flex;
+ align-items: center;
+ justify-content: center;
+ flex-shrink: 0;
+ transition: all 0.15s;
+}
+
+.footer-anon-label input:checked + .footer-anon-check {
+ background: var(--accent);
+ border-color: var(--accent);
+}
+
+.footer-anon-label input:checked + .footer-anon-check::after {
+ content: '✓';
+ font-size: 12px;
+ color: #000;
+ font-weight: 700;
+}
+
+.footer-submit-btn {
+ width: 100%;
+ padding: 11px;
+ background: linear-gradient(135deg, var(--accent), #0066ff);
+ border: none;
+ border-radius: 8px;
+ color: #000;
+ font-family: 'Orbitron', monospace;
+ font-size: 12px;
+ font-weight: 700;
+ letter-spacing: 1px;
+ cursor: pointer;
+ transition: opacity 0.2s, transform 0.1s;
+}
+
+.footer-submit-btn:hover { opacity: 0.9; }
+.footer-submit-btn:active { transform: scale(0.98); }
+.footer-submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+#contactStatus {
+ margin-top: 10px;
+ padding: 8px 12px;
+ border-radius: 7px;
+ font-family: 'Rajdhani', sans-serif;
+ font-size: 13px;
+ text-align: center;
+}
+
+#contactStatus.ok  { background: rgba(57,255,20,0.1); color: #39ff14; border: 1px solid rgba(57,255,20,0.3); }
+#contactStatus.err { background: rgba(255,68,68,0.1); color: #ff6b6b; border: 1px solid rgba(255,68,68,0.3); }
 
 @media (max-width: 600px) {
-  .portfolio-item { flex-wrap: wrap; }
-  .pi-price-col { min-width: auto; }
-  .app-header { flex-direction: column; align-items: flex-start; }
-  .portfolio-total { margin-left: 0; }
+ .footer-inner { flex-direction: column; align-items: flex-start; gap: 16px; }
+ .footer-copy  { text-align: left; }
+ .footer-form-box { right: auto; left: 0; width: 290px; }
+}
+
+/* ── PUBLICZNE PORTFELE ─────────────────────────────────── */
+.btn-share-portfolio {
+ background: linear-gradient(135deg, rgba(0,212,255,0.15), rgba(0,212,255,0.05));
+ border: 1px solid rgba(0,212,255,0.4);
+ color: var(--accent);
+ border-radius: 10px;
+ padding: 8px 16px;
+ font-family: 'Orbitron', monospace;
+ font-size: 11px;
+ font-weight: 700;
+ cursor: pointer;
+ letter-spacing: 0.05em;
+ transition: all 0.2s;
+ white-space: nowrap;
+}
+
+.btn-share-portfolio:hover {
+ background: rgba(0,212,255,0.2);
+ border-color: var(--accent);
+ box-shadow: 0 0 12px rgba(0,212,255,0.3);
+}
+
+/* Toggle switch */
+.share-toggle {
+ position: relative;
+ display: inline-block;
+ width: 48px;
+ height: 26px;
+ flex-shrink: 0;
+}
+
+.share-toggle input { opacity: 0; width: 0; height: 0; }
+
+.share-toggle-slider {
+ position: absolute;
+ inset: 0;
+ background: rgba(255,255,255,0.1);
+ border: 1px solid var(--border2);
+ border-radius: 26px;
+ cursor: pointer;
+ transition: 0.3s;
+}
+
+.share-toggle-slider::before {
+ content: '';
+ position: absolute;
+ left: 3px;
+ top: 50%;
+ transform: translateY(-50%);
+ width: 18px;
+ height: 18px;
+ background: var(--text2);
+ border-radius: 50%;
+ transition: 0.3s;
+}
+
+.share-toggle input:checked + .share-toggle-slider {
+ background: rgba(0,212,255,0.2);
+ border-color: var(--accent);
+}
+
+.share-toggle input:checked + .share-toggle-slider::before {
+ transform: translate(22px, -50%);
+ background: var(--accent);
+}
+
+/* Publiczny portfel — responsywny grid dopasowany do okna */
+#pubItemsGrid {
+ grid-template-columns: repeat(auto-fill, minmax(min(220px, 100%), 1fr));
+}
+
+/* ── EMAIL PREFIX w rejestracji ─────────────────────────── */
+.auth-email-wrap {
+ display: flex;
+ align-items: center;
+ background: var(--bg3, #0f172a);
+ border: 1px solid rgba(255,255,255,0.08);
+ border-radius: 8px;
+ overflow: hidden;
+ transition: border-color 0.2s;
+}
+
+.auth-email-wrap:focus-within {
+ border-color: var(--accent);
+ box-shadow: 0 0 0 2px rgba(0,212,255,0.1);
+}
+
+.auth-email-wrap input {
+ flex: 1;
+ background: transparent;
+ border: none !important;
+ box-shadow: none !important;
+ border-radius: 0 !important;
+ padding: 10px 12px;
+ color: var(--text);
+ font-size: 14px;
+ outline: none;
+}
+
+.auth-email-domain {
+ padding: 0 12px;
+ font-family: 'Share Tech Mono', monospace;
+ font-size: 12px;
+ color: var(--accent);
+ opacity: 0.7;
+ white-space: nowrap;
+ border-left: 1px solid rgba(255,255,255,0.06);
+ line-height: 40px;
+}
+
+.auth-email-preview {
+ margin-top: 5px;
+ font-family: 'Share Tech Mono', monospace;
+ font-size: 11px;
+ color: var(--text2);
+ opacity: 0.8;
+}
+
+.auth-email-preview span {
+ color: var(--accent);
+}
+
+/* ── PUBLIC PORTFOLIO HEADER CARD ──────────────────────── */
+.pub-header-card {
+ display: flex;
+ align-items: center;
+ justify-content: space-between;
+ gap: 16px;
+ background: var(--bg2);
+ border: 1px solid var(--border2);
+ border-radius: 16px;
+ padding: 20px 24px;
+ margin-bottom: 24px;
+ flex-wrap: wrap;
+}
+
+.pub-header-left {
+ display: flex;
+ flex-direction: column;
+ gap: 4px;
+}
+
+.pub-header-label {
+ font-size: 11px;
+ color: var(--text2);
+ font-family: 'Share Tech Mono', monospace;
+ letter-spacing: 0.1em;
+ text-transform: uppercase;
+}
+
+.pub-header-value {
+ font-family: 'Orbitron', monospace;
+ font-size: 28px;
+ font-weight: 900;
+ color: var(--accent);
+ line-height: 1.1;
+}
+
+.pub-header-sub {
+ font-size: 13px;
+ color: var(--text2);
+ margin-top: 2px;
+}
+
+.pub-header-right {
+ display: flex;
+ flex-direction: column;
+ align-items: center;
+ gap: 6px;
+ text-align: center;
+}
+
+.pub-avatar {
+ width: 48px;
+ height: 48px;
+ border-radius: 50%;
+ background: linear-gradient(135deg, var(--accent), #0066ff);
+ display: flex;
+ align-items: center;
+ justify-content: center;
+ font-size: 22px;
+ box-shadow: 0 0 16px rgba(0,212,255,0.3);
+}
+
+.pub-username {
+ font-family: 'Orbitron', monospace;
+ font-size: 15px;
+ font-weight: 700;
+ color: var(--text);
+ letter-spacing: 0.03em;
+}
+
+.pub-username-label {
+ font-family: 'Share Tech Mono', monospace;
+ font-size: 10px;
+ color: var(--text2);
+ text-transform: uppercase;
+ letter-spacing: 0.08em;
+ opacity: 0.7;
+}
+
+@media (max-width: 480px) {
+ .pub-header-card { flex-direction: column; align-items: flex-start; }
+ .pub-header-right { flex-direction: row; align-items: center; gap: 10px; }
+ .pub-header-value { font-size: 22px; }
+}
+
+/* ── KOMPAKTOWY TOOLBAR ─────────────────────────────────── */
+.toolbar {
+ display: flex;
+ align-items: center;
+ gap: 12px;
+ background: var(--bg2);
+ border: 1px solid var(--border);
+ border-radius: 14px;
+ padding: 10px 16px;
+ margin-bottom: 16px;
+ flex-wrap: wrap;
+}
+
+.toolbar-stats {
+ display: flex;
+ align-items: center;
+ gap: 8px;
+ flex: 1;
+ min-width: 0;
+ flex-wrap: wrap;
+}
+
+.stat-pill {
+ display: flex;
+ align-items: baseline;
+ gap: 5px;
+ background: var(--bg3);
+ border: 1px solid var(--border);
+ border-radius: 8px;
+ padding: 5px 10px;
+ white-space: nowrap;
+}
+
+.stat-pill-label {
+ font-family: 'Share Tech Mono', monospace;
+ font-size: 10px;
+ color: var(--text2);
+ text-transform: uppercase;
+ letter-spacing: 0.05em;
+}
+
+.stat-pill-value {
+ font-family: 'Orbitron', monospace;
+ font-size: 14px;
+ font-weight: 700;
+ color: var(--text);
+}
+
+.stat-pill-top .stat-pill-value {
+ font-size: 12px;
+ color: var(--accent);
+ max-width: 160px;
+ overflow: hidden;
+ text-overflow: ellipsis;
+}
+
+.toolbar-filters {
+ display: flex;
+ gap: 8px;
+ align-items: center;
+}
+
+.toolbar-actions {
+ display: flex;
+ gap: 8px;
+ align-items: center;
+ flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+ .toolbar { gap: 8px; padding: 10px 12px; }
+ .stat-pill-top { display: none; }
+ .toolbar-filters, .toolbar-actions { width: 100%; }
+ .toolbar-filters select { flex: 1; }
+}
+
+@media (max-width: 480px) {
+ .toolbar-stats { width: 100%; }
+}
+
+/* ── FILTER SELECT ──────────────────────────────────────── */
+.filter-select {
+ background: var(--bg3);
+ border: 1px solid var(--border2);
+ border-radius: 8px;
+ padding: 7px 12px;
+ font-family: 'Rajdhani', sans-serif;
+ font-size: 14px;
+ font-weight: 600;
+ color: var(--text);
+ outline: none;
+ cursor: pointer;
+ transition: border-color 0.2s;
+ appearance: none;
+ -webkit-appearance: none;
+ background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%237a9ab8' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+ background-repeat: no-repeat;
+ background-position: right 10px center;
+ padding-right: 28px;
+}
+
+.filter-select:hover,
+.filter-select:focus {
+ border-color: var(--accent);
+}
+
+/* Przycisk dodaj skin */
+.add-toggle-bar {
+ margin-bottom: 12px;
+}
+
+.btn-add-toggle {
+ background: linear-gradient(135deg, rgba(0,212,255,0.15), rgba(0,212,255,0.05));
+ border: 1px solid rgba(0,212,255,0.4);
+ color: var(--accent);
+ border-radius: 10px;
+ padding: 9px 20px;
+ font-family: 'Orbitron', monospace;
+ font-size: 12px;
+ font-weight: 700;
+ cursor: pointer;
+ letter-spacing: 0.05em;
+ transition: all 0.2s;
+}
+
+.btn-add-toggle:hover {
+ background: rgba(0,212,255,0.2);
+ border-color: var(--accent);
+ box-shadow: 0 0 12px rgba(0,212,255,0.3);
+}
+
+/* ── NAWIGACJA MIĘDZY STRONAMI ─────────────────────────── */
+.site-nav {
+ display: flex;
+ align-items: center;
+ gap: 6px;
+ margin-left: 20px;
+}
+
+.site-nav-link {
+ font-family: 'Orbitron', monospace;
+ font-size: 11px;
+ font-weight: 700;
+ letter-spacing: 0.05em;
+ text-decoration: none;
+ color: var(--text2);
+ padding: 7px 14px;
+ border-radius: 10px;
+ border: 1px solid transparent;
+ transition: all 0.2s;
+ white-space: nowrap;
+}
+
+.site-nav-link:hover {
+ color: var(--text);
+ border-color: var(--border2);
+ background: var(--bg2);
+}
+
+.site-nav-link.active {
+ color: var(--accent);
+ border-color: rgba(0,212,255,0.35);
+ background: rgba(0,212,255,0.08);
+}
+
+@media (max-width: 600px) {
+ .site-nav { margin-left: 10px; gap: 4px; }
+ .site-nav-link { padding: 6px 10px; font-size: 10px; }
 }
 </style>
+</body>
+</html>
