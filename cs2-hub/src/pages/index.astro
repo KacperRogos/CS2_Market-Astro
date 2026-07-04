@@ -1,5 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import Icon from '../components/Icon.astro';
 import { getAllCases } from '../lib/cases';
 
 const CASES = await getAllCases();
@@ -60,25 +61,25 @@ const schema = {
     <h2 class="section-title">Co znajdziesz na CS2 Trading Hub</h2>
     <div class="features-grid">
       <a href="/kalkulator" class="feature-card">
-        <div class="feature-icon">🎲</div>
+        <div class="feature-icon"><Icon name="dice" size={26} /></div>
         <h3>Kalkulator skrzynek</h3>
         <p>Sprawdź prawdziwe szanse drop rate dla każdego skina. Oficjalne dane Valve — ile skrzynek musisz otworzyć statystycznie.</p>
         <span class="feature-link">Otwórz kalkulator →</span>
       </a>
       <a href="/skins" class="feature-card">
-        <div class="feature-icon">🔫</div>
+        <div class="feature-icon"><Icon name="crosshair" size={26} /></div>
         <h3>Baza skinów</h3>
         <p>Opisy, statystyki i ceny wszystkich skinów CS2. Float range, rarity, historia wartości — wszystko przed zakupem.</p>
         <span class="feature-link">Przeglądaj skiny →</span>
       </a>
       <a href="/trending" class="feature-card">
-        <div class="feature-icon">📈</div>
+        <div class="feature-icon"><Icon name="trending" size={26} /></div>
         <h3>Trending</h3>
         <p>Najgorętsze skiny na Steam Market teraz. Śledź co zyskuje na wartości i nie przegap okazji.</p>
         <span class="feature-link">Zobacz trending →</span>
       </a>
       <a href="/app" class="feature-card">
-        <div class="feature-icon">💼</div>
+        <div class="feature-icon"><Icon name="briefcase" size={26} /></div>
         <h3>Portfel skinów</h3>
         <p>Śledź wartość swojej kolekcji w czasie rzeczywistym. Import z Steam, historia wartości, AI doradca.</p>
         <span class="feature-link">Zarządzaj portfelem →</span>
