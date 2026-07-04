@@ -1,5 +1,6 @@
 ---
 import Layout from '../../layouts/Layout.astro';
+import Icon from '../../components/Icon.astro';
 ---
 
 <Layout title="Panel admina — CS2 Trading Hub" description="Panel zarządzania danymi." noindex={true}>
@@ -33,22 +34,22 @@ import Layout from '../../layouts/Layout.astro';
 
   <div class="admin-cards">
     <a href="/admin/dodaj" class="admin-card">
-      <div class="admin-card-icon">➕</div>
+      <span class="admin-card-icon"><Icon name="plus" size={22} /></span>
       <h3>Dodaj skina</h3>
       <p>Formularz dodawania nowego skina do bazy.</p>
     </a>
     <a href="/admin/skiny" class="admin-card">
-      <div class="admin-card-icon">📋</div>
+      <span class="admin-card-icon"><Icon name="list" size={22} /></span>
       <h3>Istniejące skiny</h3>
       <p>Przeglądaj i usuwaj skiny z bazy.</p>
     </a>
     <a href="/admin/dodaj-skrzynke" class="admin-card">
-      <div class="admin-card-icon">📦</div>
+      <span class="admin-card-icon"><Icon name="box" size={22} /></span>
       <h3>Dodaj skrzynkę</h3>
       <p>Formularz dodawania nowej skrzynki i jej zawartości.</p>
     </a>
     <a href="/admin/skrzynki" class="admin-card">
-      <div class="admin-card-icon">🗃️</div>
+      <span class="admin-card-icon"><Icon name="archive" size={22} /></span>
       <h3>Istniejące skrzynki</h3>
       <p>Przeglądaj i usuwaj skrzynki z bazy.</p>
     </a>
@@ -61,7 +62,10 @@ import Layout from '../../layouts/Layout.astro';
       w panelu <strong>nie pojawi się od razu</strong> na żywej stronie. Kliknij poniżej,
       żeby uruchomić nowy build na Netlify z aktualnymi danymi z bazy (trwa zwykle 1-3 minuty).
     </p>
-    <button id="rebuildBtn" class="btn btn-primary">🚀 Rebuduj stronę</button>
+    <button id="rebuildBtn" class="btn btn-primary btn-icon">
+      <Icon name="refresh" size={16} />
+      <span>Rebuduj stronę</span>
+    </button>
     <p id="rebuildStatus" class="success-text"></p>
   </section>
 </div>
@@ -71,11 +75,13 @@ import Layout from '../../layouts/Layout.astro';
 
   const rebuildBtn = document.getElementById('rebuildBtn');
   const rebuildStatus = document.getElementById('rebuildStatus');
+  const rebuildLabel = rebuildBtn?.querySelector('span');
 
   rebuildBtn?.addEventListener('click', async () => {
     rebuildStatus.textContent = '';
+    rebuildStatus.className = 'success-text';
     rebuildBtn.disabled = true;
-    rebuildBtn.textContent = 'Wysyłanie...';
+    if (rebuildLabel) rebuildLabel.textContent = 'Wysyłanie...';
 
     try {
       const { data: { session } } = await supabase.auth.getSession();
@@ -97,14 +103,14 @@ import Layout from '../../layouts/Layout.astro';
         return;
       }
 
-      rebuildStatus.textContent = '✅ Rebuild uruchomiony na Netlify — poczekaj 1-3 minuty i odśwież stronę.';
+      rebuildStatus.textContent = 'Rebuild uruchomiony na Netlify — poczekaj 1-3 minuty i odśwież stronę.';
       rebuildStatus.className = 'success-text';
     } catch (err) {
       rebuildStatus.textContent = 'Błąd sieci: ' + err.message;
       rebuildStatus.className = 'error-text';
     } finally {
       rebuildBtn.disabled = false;
-      rebuildBtn.textContent = '🚀 Rebuduj stronę';
+      if (rebuildLabel) rebuildLabel.textContent = 'Rebuduj stronę';
     }
   });
 

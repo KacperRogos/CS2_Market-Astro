@@ -1,5 +1,6 @@
 ---
 import Layout from '../../layouts/Layout.astro';
+import Icon from '../../components/Icon.astro';
 ---
 
 <Layout title="Istniejące skrzynki — Panel admina" description="Lista skrzynek w bazie." noindex={true}>
@@ -27,7 +28,7 @@ import Layout from '../../layouts/Layout.astro';
   <div class="dash-header">
     <h1>Istniejące skrzynki (<span id="caseCount">0</span>)</h1>
     <div class="dash-header-actions">
-      <a href="/admin/dodaj-skrzynke" class="btn btn-primary">➕ Dodaj skrzynkę</a>
+      <a href="/admin/dodaj-skrzynke" class="btn btn-primary btn-icon"><Icon name="plus" size={16} /><span>Dodaj skrzynkę</span></a>
       <a href="/admin" class="btn btn-ghost">← Panel</a>
       <button id="logoutBtn" class="btn btn-ghost">Wyloguj</button>
     </div>

@@ -1,8 +1,9 @@
 ---
 import Layout from '../../layouts/Layout.astro';
+import Icon from '../../components/Icon.astro';
 import { WEAPONS_BY_CATEGORY, WEAPON_CATEGORIES } from '../../data/skins';
 
-const ALL_WEAPONS = [...Object.values(WEAPONS_BY_CATEGORY).flat(), '★ (nóż / rękawice)'];
+const ALL_WEAPONS = Object.values(WEAPONS_BY_CATEGORY).flat();
 const WEARS = ['Factory New', 'Minimal Wear', 'Field-Tested', 'Well-Worn', 'Battle-Scarred'];
 const CASE_RARITIES = [
   ['mil-spec', 'Mil-Spec (niebieskie)'],
@@ -71,7 +72,7 @@ const categoryOptions = Object.entries(WEAPON_CATEGORIES);
           ten skin równocześnie w głównej tabeli <code>skins</code> — bez tego trafi tylko do tej skrzynki.
         </p>
         <div id="skinRows"></div>
-        <button type="button" id="addSkinRowBtn" class="btn btn-ghost btn-small" style="margin-top:10px">➕ Dodaj skin do skrzynki</button>
+        <button type="button" id="addSkinRowBtn" class="btn btn-ghost btn-small btn-icon" style="margin-top:10px"><Icon name="plus" size={14} /><span>Dodaj skin do skrzynki</span></button>
       </fieldset>
 
       <button type="submit" class="btn btn-primary" id="submitBtn">Dodaj skrzynkę</button>
@@ -82,7 +83,7 @@ const categoryOptions = Object.entries(WEAPON_CATEGORIES);
 
 <template id="skinRowTemplate">
   <div class="case-skin-row">
-    <button type="button" class="remove-row-btn" title="Usuń ten skin ze skrzynki">✕</button>
+    <button type="button" class="remove-row-btn" title="Usuń ten skin ze skrzynki"><Icon name="x" size={16} /></button>
 
     <label class="full">Istniejący skin z bazy (opcjonalnie — autouzupełni pola poniżej)
       <select class="admin-input row-existing">
