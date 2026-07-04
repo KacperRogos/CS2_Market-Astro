@@ -1,0 +1,197 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { WEAPON_CATEGORIES, RARITY_MAP, WEAPONS_BY_CATEGORY } from '../../data/skins';
+
+const categoryOptions = Object.entries(WEAPON_CATEGORIES);
+const rarityOptions = Object.entries(RARITY_MAP).map(([key, v]) => [key, v.label]);
+const WEARS = ['Factory New', 'Minimal Wear', 'Field-Tested', 'Well-Worn', 'Battle-Scarred'];
+---
+
+<Layout title="Dodaj skina — Panel admina" description="Formularz dodawania skina." noindex={true}>
+
+<div id="authScreen" class="auth-screen">
+  <div class="auth-box">
+    <h1>Panel admina</h1>
+    <p class="auth-sub">Zaloguj się, żeby zarządzać danymi.</p>
+    <form id="loginForm">
+      <label>
+        Email
+        <input class="admin-input" type="email" id="loginEmail" required autocomplete="username" />
+      </label>
+      <label>
+        Hasło
+        <input class="admin-input" type="password" id="loginPassword" required autocomplete="current-password" />
+      </label>
+      <button type="submit" class="btn btn-primary" id="loginBtn">Zaloguj</button>
+      <p id="loginError" class="error-text"></p>
+    </form>
+  </div>
+</div>
+
+<div id="adminContent" class="container admin-content" style="display:none">
+  <div class="dash-header">
+    <h1>Dodaj skina</h1>
+    <div class="dash-header-actions">
+      <a href="/admin" class="btn btn-ghost">← Panel</a>
+      <button id="logoutBtn" class="btn btn-ghost">Wyloguj</button>
+    </div>
+  </div>
+  <p id="dashError" class="error-text"></p>
+
+  <section class="panel">
+    <form id="skinForm" class="skin-form">
+      <div class="form-row">
+        <label>Kategoria
+          <select class="admin-input" id="f_category" required>
+            {categoryOptions.map(([key, label]) => <option value={key}>{label}</option>)}
+          </select>
+        </label>
+        <label>Broń
+          <select class="admin-input" id="f_weapon" required></select>
+        </label>
+      </div>
+
+      <label class="full">Nazwa skina (np. Redline)
+        <input class="admin-input" type="text" id="f_name" required />
+      </label>
+
+      <div class="form-row">
+        <label>Rzadkość
+          <select class="admin-input" id="f_rarity" required>
+            {rarityOptions.map(([key, label]) => <option value={key}>{label}</option>)}
+          </select>
+        </label>
+        <label>Rok wydania <input class="admin-input" type="number" id="f_releaseYear" min="2013" max="2100" required /></label>
+      </div>
+
+      <div class="form-row">
+        <label>Min float <input class="admin-input" type="number" id="f_minFloat" min="0" max="1" step="0.001" value="0" required /></label>
+        <label>Max float <input class="admin-input" type="number" id="f_maxFloat" min="0" max="1" step="0.001" value="1" required /></label>
+      </div>
+
+      <fieldset class="wears-fieldset">
+        <legend>Dostępne wear</legend>
+        {WEARS.map(w => (
+          <label class="wear-check">
+            <input type="checkbox" class="f_wear" value={w} checked />
+            {w}
+          </label>
+        ))}
+      </fieldset>
+
+      <label class="full">Opis
+        <textarea class="admin-input" id="f_description" rows="3" required></textarea>
+      </label>
+
+      <label class="full">Lore (opcjonalnie)
+        <textarea class="admin-input" id="f_lore" rows="2"></textarea>
+      </label>
+
+      <div class="form-row">
+        <label>Kolekcja (opcjonalnie) <input class="admin-input" type="text" id="f_collection" /></label>
+        <label>Skrzynka źródłowa (opcjonalnie) <input class="admin-input" type="text" id="f_caseSource" /></label>
+      </div>
+
+      <label class="full">Link do Steam Market
+        <input class="admin-input" type="url" id="f_steamMarketUrl" required />
+      </label>
+
+      <label class="full">Tagi (oddzielone przecinkiem)
+        <input class="admin-input" type="text" id="f_tags" placeholder="popular, investment, trading" />
+      </label>
+
+      <button type="submit" class="btn btn-primary" id="submitBtn">Dodaj skin</button>
+      <p id="formSuccess" class="success-text"></p>
+    </form>
+  </section>
+</div>
+
+<script define:vars={{ WEAPONS_BY_CATEGORY }}>
+  window.__WEAPONS_BY_CATEGORY = WEAPONS_BY_CATEGORY;
+</script>
+
+<script>
+  import { supabase, guardAdminPage } from '../../lib/adminAuth';
+
+  const dashError = document.getElementById('dashError');
+  const skinForm = document.getElementById('skinForm');
+  const formSuccess = document.getElementById('formSuccess');
+  const categorySelect = document.getElementById('f_category');
+  const weaponSelect = document.getElementById('f_weapon');
+
+  function slugify(str) {
+    return str
+      .toLowerCase()
+      .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)/g, '');
+  }
+
+  function populateWeapons() {
+    const category = categorySelect.value;
+    const weapons = window.__WEAPONS_BY_CATEGORY[category] || [];
+    weaponSelect.innerHTML = weapons.map(w => `<option value="${w}">${w}</option>`).join('');
+  }
+
+  categorySelect.addEventListener('change', populateWeapons);
+
+  skinForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    formSuccess.textContent = '';
+    dashError.textContent = '';
+
+    const weapon = weaponSelect.value;
+    const name = document.getElementById('f_name').value.trim();
+    const slug = slugify(`${weapon} ${name}`);
+
+    const wears = Array.from(document.querySelectorAll('.f_wear:checked')).map(el => el.value);
+    const tags = document.getElementById('f_tags').value
+      .split(',').map(t => t.trim()).filter(Boolean);
+
+    const row = {
+      id: slug,
+      slug,
+      weapon,
+      name,
+      category: categorySelect.value,
+      rarity: document.getElementById('f_rarity').value,
+      min_float: parseFloat(document.getElementById('f_minFloat').value),
+      max_float: parseFloat(document.getElementById('f_maxFloat').value),
+      wears,
+      description: document.getElementById('f_description').value.trim(),
+      lore: document.getElementById('f_lore').value.trim() || null,
+      collection: document.getElementById('f_collection').value.trim() || null,
+      case_source: document.getElementById('f_caseSource').value.trim() || null,
+      release_year: parseInt(document.getElementById('f_releaseYear').value, 10),
+      steam_market_url: document.getElementById('f_steamMarketUrl').value.trim(),
+      tags,
+    };
+
+    const { data, error } = await supabase
+      .from('skins')
+      .upsert(row, { onConflict: 'id' })
+      .select('id');
+
+    if (error) {
+      dashError.textContent = 'Nie udało się zapisać skina: ' + error.message;
+      return;
+    }
+    if (!data || data.length === 0) {
+      dashError.textContent =
+        'Zapis nie powiódł się po cichu (0 wierszy) — najprawdopodobniej Twoje konto nie jest w tabeli "admins" w Supabase (RLS blokuje zapis).';
+      return;
+    }
+
+    formSuccess.textContent = `Zapisano: ${weapon} | ${name}`;
+    skinForm.reset();
+    document.getElementById('f_minFloat').value = '0';
+    document.getElementById('f_maxFloat').value = '1';
+    document.querySelectorAll('.f_wear').forEach(el => el.checked = true);
+    populateWeapons();
+  });
+
+  guardAdminPage(() => {
+    populateWeapons();
+  });
+</script>
+</Layout>

@@ -1,6 +1,3 @@
-// Case calculator interactive logic
-// Used on /kalkulator/[slug] pages
-
 interface CalcState {
   quantity: number;
   targetRarity: string;

@@ -7,6 +7,7 @@ interface Props {
   canonical?: string;
   ogImage?: string;
   schema?: object;
+  noindex?: boolean;
 }
 
 const {
@@ -15,6 +16,7 @@ const {
   canonical = Astro.url.href,
   ogImage = '/og-image.png',
   schema,
+  noindex = false,
 } = Astro.props;
 
 const fullTitle = title.includes('CS2') ? title : `${title} | CS2 Trading Hub`;
@@ -28,7 +30,7 @@ const fullTitle = title.includes('CS2') ? title : `${title} | CS2 Trading Hub`;
 
   <title>{fullTitle}</title>
   <meta name="description" content={description} />
-  <meta name="robots" content="index, follow" />
+  <meta name="robots" content={noindex ? 'noindex, nofollow' : 'index, follow'} />
   <meta name="author" content="CS2 Trading Hub" />
   <link rel="canonical" href={canonical} />
 

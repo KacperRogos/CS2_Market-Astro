@@ -1,6 +1,8 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import { CASES } from '../data/cases';
+import { getAllCases } from '../lib/cases';
+
+const CASES = await getAllCases();
 
 const schema = {
   "@context": "https://schema.org",

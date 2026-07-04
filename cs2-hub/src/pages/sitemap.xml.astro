@@ -1,6 +1,9 @@
 ---
-import { CASES } from '../data/cases';
-import { SKINS } from '../data/skins';
+import { getAllCases } from '../lib/cases';
+import { getAllSkins } from '../lib/skins';
+
+const CASES = await getAllCases();
+const SKINS = await getAllSkins();
 
 const baseUrl = 'https://cs2-market.netlify.app';
 

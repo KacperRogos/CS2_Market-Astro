@@ -1,0 +1,90 @@
+---
+import Layout from '../../layouts/Layout.astro';
+---
+
+<Layout title="Istniejące skrzynki — Panel admina" description="Lista skrzynek w bazie." noindex={true}>
+
+<div id="authScreen" class="auth-screen">
+  <div class="auth-box">
+    <h1>Panel admina</h1>
+    <p class="auth-sub">Zaloguj się, żeby zarządzać danymi.</p>
+    <form id="loginForm">
+      <label>
+        Email
+        <input class="admin-input" type="email" id="loginEmail" required autocomplete="username" />
+      </label>
+      <label>
+        Hasło
+        <input class="admin-input" type="password" id="loginPassword" required autocomplete="current-password" />
+      </label>
+      <button type="submit" class="btn btn-primary" id="loginBtn">Zaloguj</button>
+      <p id="loginError" class="error-text"></p>
+    </form>
+  </div>
+</div>
+
+<div id="adminContent" class="container admin-content" style="display:none">
+  <div class="dash-header">
+    <h1>Istniejące skrzynki (<span id="caseCount">0</span>)</h1>
+    <div class="dash-header-actions">
+      <a href="/admin/dodaj-skrzynke" class="btn btn-primary">➕ Dodaj skrzynkę</a>
+      <a href="/admin" class="btn btn-ghost">← Panel</a>
+      <button id="logoutBtn" class="btn btn-ghost">Wyloguj</button>
+    </div>
+  </div>
+  <p id="dashError" class="error-text"></p>
+
+  <section class="panel">
+    <div id="caseList" class="skin-list"></div>
+  </section>
+</div>
+
+<script>
+  import { supabase, guardAdminPage } from '../../lib/adminAuth';
+
+  const dashError = document.getElementById('dashError');
+  const caseList = document.getElementById('caseList');
+  const caseCount = document.getElementById('caseCount');
+
+  async function loadCases() {
+    dashError.textContent = '';
+    const { data, error } = await supabase.from('cases').select('*').order('release_year', { ascending: false });
+    if (error) {
+      dashError.textContent = 'Nie udało się pobrać skrzynek: ' + error.message;
+      return;
+    }
+    caseCount.textContent = data.length;
+    caseList.innerHTML = data.map(c => `
+      <div class="skin-row" data-id="${c.id}">
+        <span class="skin-row-name">${c.name}</span>
+        <span class="skin-row-meta">${c.release_year} · ${Array.isArray(c.skins) ? c.skins.length : 0} skinów</span>
+        <button class="btn btn-ghost btn-small delete-btn" data-id="${c.id}">Usuń</button>
+      </div>
+    `).join('') || '<p class="empty-text">Brak skrzynek w bazie.</p>';
+
+    caseList.querySelectorAll('.delete-btn').forEach(btn => {
+      btn.addEventListener('click', () => deleteCase(btn.getAttribute('data-id')));
+    });
+  }
+
+  async function deleteCase(id) {
+    if (!confirm('Na pewno usunąć tę skrzynkę?')) return;
+    dashError.textContent = '';
+
+    const { data, error } = await supabase.from('cases').delete().eq('id', id).select('id');
+
+    if (error) {
+      dashError.textContent = 'Nie udało się usunąć: ' + error.message;
+      return;
+    }
+    if (!data || data.length === 0) {
+      dashError.textContent =
+        'Usuwanie nie powiodło się po cichu (0 wierszy) — sprawdź czy Twoje konto jest w tabeli "admins" w Supabase.';
+      return;
+    }
+    await loadCases();
+  }
+
+  guardAdminPage(loadCases);
+</script>
+</Layout>

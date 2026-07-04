@@ -21,7 +21,13 @@ export interface SkinEntry {
 
 const STANDARD_WEARS = ['Factory New', 'Minimal Wear', 'Field-Tested', 'Well-Worn', 'Battle-Scarred'];
 
-export const SKINS: SkinEntry[] = [
+/**
+ * @deprecated Dane skinów żyją teraz w Supabase (tabela `skins`).
+ * Ta tablica została użyta wyłącznie do jednorazowego seedu (seed-skins.ts)
+ * i zostaje tu tylko jako historyczne źródło/backup — strony NIE powinny
+ * już jej importować. Zamiast tego używaj funkcji z `src/lib/skins.ts`.
+ */
+export const SEED_SKINS: SkinEntry[] = [
   // AK-47
   {
     id: 'ak47-redline',
@@ -251,18 +257,6 @@ export const SKINS: SkinEntry[] = [
   },
 ];
 
-export function getSkinBySlug(slug: string): SkinEntry | undefined {
-  return SKINS.find(s => s.slug === slug);
-}
-
-export function getSkinsByCategory(category: WeaponCategory): SkinEntry[] {
-  return SKINS.filter(s => s.category === category);
-}
-
-export function getSkinsByWeapon(weapon: string): SkinEntry[] {
-  return SKINS.filter(s => s.weapon === weapon);
-}
-
 export const WEAPON_CATEGORIES: Record<WeaponCategory, string> = {
   rifle: 'Karabiny',
   pistol: 'Pistolety',
@@ -283,4 +277,22 @@ export const RARITY_MAP = {
   covert:        { label: 'Covert', color: '#eb4b4b' },
   contraband:    { label: 'Contraband', color: '#e4ae39' },
   extraordinary: { label: 'Extraordinary', color: '#e4ae39' },
+};
+
+// Pełna lista broni CS2 pogrupowana po kategoriach — używana m.in. w /admin/dodaj
+// do wypełniania rozwijanej listy "Broń" zależnej od wybranej kategorii.
+export const WEAPONS_BY_CATEGORY: Record<WeaponCategory, string[]> = {
+  rifle: ['AK-47', 'M4A4', 'M4A1-S', 'FAMAS', 'Galil AR', 'AUG', 'SG 553'],
+  pistol: ['Desert Eagle', 'USP-S', 'Glock-18', 'P250', 'Five-SeveN', 'Tec-9', 'CZ75-Auto', 'Dual Berettas', 'P2000', 'R8 Revolver'],
+  smg: ['MP9', 'MAC-10', 'MP7', 'UMP-45', 'P90', 'PP-Bizon', 'MP5-SD'],
+  sniper: ['AWP', 'SSG 08', 'SCAR-20', 'G3SG1'],
+  shotgun: ['Nova', 'XM1014', 'Sawed-Off', 'MAG-7'],
+  heavy: ['Negev', 'M249'],
+  knife: [
+    'Karambit', 'M9 Bayonet', 'Bayonet', 'Butterfly Knife', 'Flip Knife', 'Gut Knife',
+    'Huntsman Knife', 'Falchion Knife', 'Bowie Knife', 'Shadow Daggers', 'Talon Knife',
+    'Ursus Knife', 'Navaja Knife', 'Stiletto Knife', 'Nomad Knife', 'Skeleton Knife',
+    'Paracord Knife', 'Survival Knife', 'Classic Knife', 'Kukri Knife',
+  ],
+  gloves: ['Sport Gloves', 'Specialist Gloves', 'Moto Gloves', 'Hand Wraps', 'Driver Gloves', 'Hydra Gloves', 'Broken Fang Gloves'],
 };
