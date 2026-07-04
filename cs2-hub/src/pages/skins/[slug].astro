@@ -1,9 +1,11 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import { SKINS, RARITY_MAP, WEAPON_CATEGORIES, getSkinsByWeapon } from '../../data/skins';
+import { RARITY_MAP, WEAPON_CATEGORIES } from '../../data/skins';
+import { getAllSkins, getSkinsByWeapon } from '../../lib/skins';
 
 export async function getStaticPaths() {
-  return SKINS.map(skin => ({
+  const skins = await getAllSkins();
+  return skins.map(skin => ({
     params: { slug: skin.slug },
     props: { skin },
   }));
@@ -11,7 +13,7 @@ export async function getStaticPaths() {
 
 const { skin } = Astro.props;
 const rarityInfo = RARITY_MAP[skin.rarity];
-const relatedSkins = getSkinsByWeapon(skin.weapon).filter(s => s.slug !== skin.slug);
+const relatedSkins = (await getSkinsByWeapon(skin.weapon)).filter(s => s.slug !== skin.slug);
 
 // Float bar segments
 const wearBoundaries = [

@@ -1,6 +1,9 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import { CASES, DROP_RATES, RARITY_LABELS, avgCasesNeeded, avgCostNeeded } from '../../data/cases';
+import { DROP_RATES, RARITY_LABELS, avgCasesNeeded, avgCostNeeded } from '../../data/cases';
+import { getAllCases } from '../../lib/cases';
+
+const CASES = await getAllCases();
 
 const schema = {
   "@context": "https://schema.org",

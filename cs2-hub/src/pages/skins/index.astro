@@ -1,7 +1,9 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import { SKINS, WEAPON_CATEGORIES, RARITY_MAP, type WeaponCategory } from '../../data/skins';
+import { WEAPON_CATEGORIES, RARITY_MAP, type WeaponCategory } from '../../data/skins';
+import { getAllSkins } from '../../lib/skins';
 
+const SKINS = await getAllSkins();
 const categories = [...new Set(SKINS.map(s => s.category))] as WeaponCategory[];
 
 const schema = {

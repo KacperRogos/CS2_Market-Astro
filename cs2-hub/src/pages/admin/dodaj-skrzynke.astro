@@ -1,0 +1,395 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { WEAPONS_BY_CATEGORY, WEAPON_CATEGORIES } from '../../data/skins';
+
+const ALL_WEAPONS = [...Object.values(WEAPONS_BY_CATEGORY).flat(), '★ (nóż / rękawice)'];
+const WEARS = ['Factory New', 'Minimal Wear', 'Field-Tested', 'Well-Worn', 'Battle-Scarred'];
+const CASE_RARITIES = [
+  ['mil-spec', 'Mil-Spec (niebieskie)'],
+  ['restricted', 'Restricted (fioletowe)'],
+  ['classified', 'Classified (różowe)'],
+  ['covert', 'Covert (czerwone)'],
+  ['rare-special', 'Nóż / Rękawice (złote)'],
+];
+const categoryOptions = Object.entries(WEAPON_CATEGORIES);
+---
+
+<Layout title="Dodaj skrzynkę — Panel admina" description="Formularz dodawania skrzynki." noindex={true}>
+
+<div id="authScreen" class="auth-screen">
+  <div class="auth-box">
+    <h1>Panel admina</h1>
+    <p class="auth-sub">Zaloguj się, żeby zarządzać danymi.</p>
+    <form id="loginForm">
+      <label>
+        Email
+        <input class="admin-input" type="email" id="loginEmail" required autocomplete="username" />
+      </label>
+      <label>
+        Hasło
+        <input class="admin-input" type="password" id="loginPassword" required autocomplete="current-password" />
+      </label>
+      <button type="submit" class="btn btn-primary" id="loginBtn">Zaloguj</button>
+      <p id="loginError" class="error-text"></p>
+    </form>
+  </div>
+</div>
+
+<div id="adminContent" class="container admin-content" style="display:none">
+  <div class="dash-header">
+    <h1>Dodaj skrzynkę</h1>
+    <div class="dash-header-actions">
+      <a href="/admin" class="btn btn-ghost">← Panel</a>
+      <button id="logoutBtn" class="btn btn-ghost">Wyloguj</button>
+    </div>
+  </div>
+  <p id="dashError" class="error-text"></p>
+  <p id="dashInfo" class="success-text"></p>
+
+  <section class="panel">
+    <h2>Dane skrzynki</h2>
+    <form id="caseForm" class="skin-form">
+      <label class="full">Nazwa skrzynki (np. Revolution Case)
+        <input class="admin-input" type="text" id="c_name" required />
+      </label>
+
+      <div class="form-row">
+        <label>Rok wydania <input class="admin-input" type="number" id="c_releaseYear" min="2013" max="2100" required /></label>
+        <label>Cena klucza (PLN) <input class="admin-input" type="number" id="c_keyPrice" min="0" step="0.01" value="10.49" required /></label>
+        <label>Cena skrzynki (PLN) <input class="admin-input" type="number" id="c_casePrice" min="0" step="0.01" value="0.10" required /></label>
+      </div>
+
+      <label class="full">Opis
+        <textarea class="admin-input" id="c_description" rows="3" required></textarea>
+      </label>
+
+      <fieldset class="wears-fieldset">
+        <legend>Zawartość skrzynki</legend>
+        <p class="hint-text">
+          Dla każdego skina: albo wybierz go z listy "Istniejący skin z bazy" (autouzupełni dane),
+          albo wpisz dane ręcznie. Zaznaczony checkbox "zapisz też w bazie skinów" doda/zaktualizuje
+          ten skin równocześnie w głównej tabeli <code>skins</code> — bez tego trafi tylko do tej skrzynki.
+        </p>
+        <div id="skinRows"></div>
+        <button type="button" id="addSkinRowBtn" class="btn btn-ghost btn-small" style="margin-top:10px">➕ Dodaj skin do skrzynki</button>
+      </fieldset>
+
+      <button type="submit" class="btn btn-primary" id="submitBtn">Dodaj skrzynkę</button>
+      <p id="formSuccess" class="success-text"></p>
+    </form>
+  </section>
+</div>
+
+<template id="skinRowTemplate">
+  <div class="case-skin-row">
+    <button type="button" class="remove-row-btn" title="Usuń ten skin ze skrzynki">✕</button>
+
+    <label class="full">Istniejący skin z bazy (opcjonalnie — autouzupełni pola poniżej)
+      <select class="admin-input row-existing">
+        <option value="">— nowy skin, wpisz ręcznie —</option>
+      </select>
+    </label>
+
+    <div class="form-row">
+      <label>Nazwa skina <input class="admin-input row-name" type="text" required /></label>
+      <label>Broń
+        <select class="admin-input row-weapon" required>
+          {ALL_WEAPONS.map(w => <option value={w}>{w}</option>)}
+        </select>
+      </label>
+      <label>Rzadkość (w skrzynce)
+        <select class="admin-input row-rarity" required>
+          {CASE_RARITIES.map(([key, label]) => <option value={key}>{label}</option>)}
+        </select>
+      </label>
+    </div>
+    <div class="form-row">
+      <label>Min float <input class="admin-input row-minfloat" type="number" min="0" max="1" step="0.001" value="0" required /></label>
+      <label>Max float <input class="admin-input row-maxfloat" type="number" min="0" max="1" step="0.001" value="0.80" required /></label>
+      <label>Steam Market URL <input class="admin-input row-steamurl" type="url" /></label>
+    </div>
+    <div class="wear-checks">
+      {WEARS.map(w => (
+        <label class="wear-check">
+          <input type="checkbox" class="row-wear" value={w} checked />
+          {w}
+        </label>
+      ))}
+    </div>
+
+    <div class="sync-box">
+      <label class="wear-check">
+        <input type="checkbox" class="row-sync" checked />
+        Zapisz też (lub zaktualizuj) w głównej bazie skinów
+      </label>
+      <div class="form-row sync-fields">
+        <label>Kategoria (do bazy skinów)
+          <select class="admin-input row-category">
+            {categoryOptions.map(([key, label]) => <option value={key}>{label}</option>)}
+          </select>
+        </label>
+        <label>Opis (do bazy skinów, opcjonalnie — inaczej wygeneruje się prosty domyślny)
+          <input class="admin-input row-description" type="text" />
+        </label>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+  import { supabase, guardAdminPage } from '../../lib/adminAuth';
+
+  const dashError = document.getElementById('dashError');
+  const dashInfo = document.getElementById('dashInfo');
+  const caseForm = document.getElementById('caseForm');
+  const formSuccess = document.getElementById('formSuccess');
+  const skinRows = document.getElementById('skinRows');
+  const addSkinRowBtn = document.getElementById('addSkinRowBtn');
+  const rowTemplate = document.getElementById('skinRowTemplate');
+
+  // Reverse-lookup: nazwa broni -> kategoria (do wstępnego uzupełnienia pola "Kategoria")
+  const WEAPON_TO_CATEGORY = {};
+  // (wypełniane niżej z danych wstrzykniętych przez define:vars)
+
+  let existingSkins = []; // pełna lista skinów z bazy, pobrana raz po zalogowaniu
+
+  function slugify(str) {
+    return str
+      .toLowerCase()
+      .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)/g, '');
+  }
+
+  function caseRarityFromSkin(skin) {
+    if (skin.category === 'knife' || skin.category === 'gloves') return 'rare-special';
+    if (['mil-spec', 'restricted', 'classified', 'covert'].includes(skin.rarity)) return skin.rarity;
+    return 'mil-spec';
+  }
+
+  function skinRarityFromCase(caseRarity) {
+    return caseRarity === 'rare-special' ? 'extraordinary' : caseRarity;
+  }
+
+  function populateExistingDropdown(select) {
+    select.innerHTML = '<option value="">— nowy skin, wpisz ręcznie —</option>' +
+      existingSkins.map(s => `<option value="${s.slug}">${s.weapon} | ${s.name}</option>`).join('');
+  }
+
+  function fillRowFromExistingSkin(row, skin) {
+    row.querySelector('.row-name').value = skin.name;
+    const weaponSelect = row.querySelector('.row-weapon');
+    if ([...weaponSelect.options].some(o => o.value === skin.weapon)) {
+      weaponSelect.value = skin.weapon;
+    }
+    row.querySelector('.row-rarity').value = caseRarityFromSkin(skin);
+    row.querySelector('.row-minfloat').value = skin.minFloat;
+    row.querySelector('.row-maxfloat').value = skin.maxFloat;
+    row.querySelector('.row-steamurl').value = skin.steamMarketUrl || '';
+    row.querySelectorAll('.row-wear').forEach(cb => {
+      cb.checked = skin.wears.includes(cb.value);
+    });
+    const categorySelect = row.querySelector('.row-category');
+    if (skin.category) categorySelect.value = skin.category;
+    row.querySelector('.row-description').value = skin.description || '';
+  }
+
+  function addSkinRow() {
+    const clone = rowTemplate.content.cloneNode(true);
+    const row = clone.querySelector('.case-skin-row');
+
+    row.querySelector('.remove-row-btn').addEventListener('click', (e) => {
+      e.target.closest('.case-skin-row').remove();
+    });
+
+    const existingSelect = row.querySelector('.row-existing');
+    populateExistingDropdown(existingSelect);
+    existingSelect.addEventListener('change', () => {
+      if (!existingSelect.value) return;
+      const skin = existingSkins.find(s => s.slug === existingSelect.value);
+      if (skin) fillRowFromExistingSkin(row, skin);
+    });
+
+    // Wstępne odgadnięcie kategorii przy ręcznym wpisywaniu broni
+    row.querySelector('.row-weapon').addEventListener('change', (e) => {
+      if (existingSelect.value) return; // nie nadpisuj gdy wybrano istniejący skin
+      const guessed = window.__WEAPON_TO_CATEGORY[e.target.value];
+      if (guessed) row.querySelector('.row-category').value = guessed;
+    });
+
+    skinRows.appendChild(clone);
+  }
+  addSkinRowBtn.addEventListener('click', addSkinRow);
+
+  function readSkinRows() {
+    return Array.from(skinRows.querySelectorAll('.case-skin-row')).map(row => {
+      const wears = Array.from(row.querySelectorAll('.row-wear:checked')).map(el => el.value);
+      const steamUrl = row.querySelector('.row-steamurl').value.trim();
+      return {
+        name: row.querySelector('.row-name').value.trim(),
+        weapon: row.querySelector('.row-weapon').value,
+        rarity: row.querySelector('.row-rarity').value,
+        wears,
+        minFloat: parseFloat(row.querySelector('.row-minfloat').value),
+        maxFloat: parseFloat(row.querySelector('.row-maxfloat').value),
+        steamUrl,
+        sync: row.querySelector('.row-sync').checked,
+        category: row.querySelector('.row-category').value,
+        description: row.querySelector('.row-description').value.trim(),
+      };
+    });
+  }
+
+  caseForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    formSuccess.textContent = '';
+    dashError.textContent = '';
+    dashInfo.textContent = '';
+
+    const caseName = document.getElementById('c_name').value.trim();
+    const caseSlug = slugify(caseName);
+    const releaseYear = parseInt(document.getElementById('c_releaseYear').value, 10);
+    const rows = readSkinRows();
+
+    if (rows.length === 0) {
+      dashError.textContent = 'Dodaj przynajmniej jeden skin do zawartości skrzynki.';
+      return;
+    }
+
+    // 1) Zsynchronizuj oznaczone skiny z główną tabelą "skins"
+    const toSync = rows.filter(r => r.sync);
+    let syncedCount = 0;
+    for (const r of toSync) {
+      if (!r.steamUrl) {
+        dashError.textContent = `Skin "${r.name}" ma zaznaczoną synchronizację z bazą skinów, ale brak Steam Market URL (jest wymagany w tabeli skins).`;
+        return;
+      }
+      const skinSlug = slugify(`${r.weapon} ${r.name}`);
+      const skinRow = {
+        id: skinSlug,
+        slug: skinSlug,
+        weapon: r.weapon,
+        name: r.name,
+        category: r.category,
+        rarity: skinRarityFromCase(r.rarity),
+        min_float: r.minFloat,
+        max_float: r.maxFloat,
+        wears: r.wears,
+        description: r.description || `${r.weapon} | ${r.name} — skin ze skrzynki ${caseName}.`,
+        collection: null,
+        case_source: caseName,
+        release_year: releaseYear,
+        steam_market_url: r.steamUrl,
+        tags: [],
+      };
+      const { error: skinError } = await supabase.from('skins').upsert(skinRow, { onConflict: 'id' });
+      if (skinError) {
+        dashError.textContent = `Nie udało się zapisać skina "${r.name}" w bazie skinów: ${skinError.message}`;
+        return;
+      }
+      syncedCount++;
+    }
+
+    // 2) Zapisz samą skrzynkę (JSONB z pełną zawartością, tak jak dotychczas)
+    const skinsForCase = rows.map(r => ({
+      name: r.name,
+      weapon: r.weapon,
+      rarity: r.rarity,
+      wears: r.wears,
+      minFloat: r.minFloat,
+      maxFloat: r.maxFloat,
+      ...(r.steamUrl ? { steamUrl: r.steamUrl } : {}),
+    }));
+
+    const caseRow = {
+      id: caseSlug,
+      slug: caseSlug,
+      name: caseName,
+      release_year: releaseYear,
+      key_price: parseFloat(document.getElementById('c_keyPrice').value),
+      case_price: parseFloat(document.getElementById('c_casePrice').value),
+      description: document.getElementById('c_description').value.trim(),
+      skins: skinsForCase,
+    };
+
+    const { data, error } = await supabase
+      .from('cases')
+      .upsert(caseRow, { onConflict: 'id' })
+      .select('id');
+
+    if (error) {
+      dashError.textContent = 'Nie udało się zapisać skrzynki: ' + error.message;
+      return;
+    }
+    if (!data || data.length === 0) {
+      dashError.textContent =
+        'Zapis nie powiódł się po cichu (0 wierszy) — sprawdź czy Twoje konto jest w tabeli "admins" w Supabase.';
+      return;
+    }
+
+    formSuccess.textContent =
+      `Zapisano skrzynkę: ${caseName} (${rows.length} skinów, ${syncedCount} zsynchronizowanych z bazą skinów).`;
+    caseForm.reset();
+    skinRows.innerHTML = '';
+    await loadExistingSkins();
+    addSkinRow();
+  });
+
+  async function loadExistingSkins() {
+    const { data, error } = await supabase.from('skins').select('*').order('weapon').order('name');
+    if (error) {
+      dashInfo.textContent = 'Uwaga: nie udało się pobrać listy istniejących skinów (' + error.message + '). Możesz nadal dodawać skiny ręcznie.';
+      existingSkins = [];
+      return;
+    }
+    existingSkins = (data || []).map(s => ({
+      slug: s.slug,
+      name: s.name,
+      weapon: s.weapon,
+      category: s.category,
+      rarity: s.rarity,
+      minFloat: s.min_float,
+      maxFloat: s.max_float,
+      wears: s.wears,
+      steamMarketUrl: s.steam_market_url,
+      description: s.description,
+    }));
+  }
+
+  guardAdminPage(async () => {
+    await loadExistingSkins();
+    addSkinRow();
+  });
+</script>
+
+<script define:vars={{ WEAPONS_BY_CATEGORY }}>
+  window.__WEAPON_TO_CATEGORY = Object.fromEntries(
+    Object.entries(WEAPONS_BY_CATEGORY).flatMap(([category, weapons]) =>
+      weapons.map(w => [w, category])
+    )
+  );
+</script>
+
+<style>
+  .case-skin-row {
+    position: relative;
+    background: var(--bg3); border: 1px solid var(--border); border-radius: 8px;
+    padding: 16px; margin-bottom: 12px;
+    display: flex; flex-direction: column; gap: 14px;
+  }
+  .remove-row-btn {
+    position: absolute; top: 10px; right: 10px;
+    background: none; border: none; color: var(--text2); cursor: pointer;
+    font-size: 14px; line-height: 1; padding: 4px;
+  }
+  .remove-row-btn:hover { color: var(--red); }
+  .wear-checks { display: flex; flex-wrap: wrap; gap: 4px 0; }
+  .hint-text { font-size: 12px; color: var(--text2); margin-bottom: 14px; line-height: 1.5; }
+  .hint-text code { background: var(--bg3); padding: 1px 5px; border-radius: 4px; }
+  .sync-box {
+    border-top: 1px dashed var(--border); padding-top: 12px;
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .sync-fields { padding-left: 4px; }
+</style>
+</Layout>

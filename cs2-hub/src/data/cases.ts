@@ -49,7 +49,13 @@ export const RARITY_COLORS: Record<Rarity, string> = {
 const STANDARD_WEARS = ['Factory New', 'Minimal Wear', 'Field-Tested', 'Well-Worn', 'Battle-Scarred'];
 const NO_FN_WEARS = ['Minimal Wear', 'Field-Tested', 'Well-Worn', 'Battle-Scarred'];
 
-export const CASES: Case[] = [
+/**
+ * @deprecated Dane skrzynek żyją teraz w Supabase (tabela `cases`).
+ * Ta tablica została użyta wyłącznie do jednorazowego seedu (seed-cases.ts)
+ * i zostaje tu jako historyczny backup — strony NIE powinny jej już importować.
+ * Zamiast tego używaj funkcji z `src/lib/cases.ts`.
+ */
+export const SEED_CASES: Case[] = [
   {
     id: 'revolution',
     name: 'Revolution Case',
@@ -192,10 +198,6 @@ export const CASES: Case[] = [
     ],
   },
 ];
-
-export function getCaseBySlug(slug: string): Case | undefined {
-  return CASES.find(c => c.slug === slug);
-}
 
 export function getSkinsByRarity(c: Case, rarity: Rarity): Skin[] {
   return c.skins.filter(s => s.rarity === rarity);

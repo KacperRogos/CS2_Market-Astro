@@ -1,20 +1,22 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import {
-  CASES, DROP_RATES, RARITY_LABELS,
+  DROP_RATES, RARITY_LABELS,
   avgCasesNeeded, avgCostNeeded,
   type Case, type Rarity
 } from '../../data/cases';
+import { getAllCases } from '../../lib/cases';
 
 export async function getStaticPaths() {
-  return CASES.map(c => ({
+  const cases = await getAllCases();
+  return cases.map(c => ({
     params: { slug: c.slug },
-    props: { caseData: c },
+    props: { caseData: c, allCases: cases },
   }));
 }
 
-interface Props { caseData: Case; }
-const { caseData } = Astro.props;
+interface Props { caseData: Case; allCases: Case[]; }
+const { caseData, allCases } = Astro.props;
 
 const rarityOrder: Rarity[] = ['rare-special', 'covert', 'classified', 'restricted', 'mil-spec'];
 const skinsByRarity = rarityOrder.reduce((acc, rarity) => {
@@ -206,7 +208,7 @@ const schema = {
     <div class="other-cases">
       <h3>Inne skrzynki w kalkulatorze</h3>
       <div class="other-cases-list">
-        {CASES.filter(c => c.id !== caseData.id).map(c => (
+        {allCases.filter(c => c.id !== caseData.id).map(c => (
           <a href={`/kalkulator/${c.slug}`} class="other-case-link">{c.name} →</a>
         ))}
       </div>

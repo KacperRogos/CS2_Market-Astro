@@ -9,16 +9,21 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "seed:skins": "tsx src/scripts/seed-skins.ts",
+    "seed:cases": "tsx src/scripts/seed-cases.ts"
   },
   "dependencies": {
     "@astrojs/netlify": "^8.0.0",
-    "@astrojs/tailwind": "^6.0.2",
+    "@supabase/supabase-js": "^2.45.4",
     "@tailwindcss/postcss": "^4.3.1",
     "@tailwindcss/vite": "^4.3.1",
     "astro": "^7.0.2",
     "rxjs": "^7.8.2",
     "tailwindcss": "^4.3.1",
     "typescript": "5.8"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.2"
   }
 }
