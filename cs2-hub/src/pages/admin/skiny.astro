@@ -1,5 +1,6 @@
 ---
 import Layout from '../../layouts/Layout.astro';
+import Icon from '../../components/Icon.astro';
 ---
 
 <Layout title="Istniejące skiny — Panel admina" description="Lista skinów w bazie." noindex={true}>
@@ -27,7 +28,7 @@ import Layout from '../../layouts/Layout.astro';
   <div class="dash-header">
     <h1>Istniejące skiny (<span id="skinCount">0</span>)</h1>
     <div class="dash-header-actions">
-      <a href="/admin/dodaj" class="btn btn-primary">➕ Dodaj skina</a>
+      <a href="/admin/dodaj" class="btn btn-primary btn-icon"><Icon name="plus" size={16} /><span>Dodaj skina</span></a>
       <a href="/admin" class="btn btn-ghost">← Panel</a>
       <button id="logoutBtn" class="btn btn-ghost">Wyloguj</button>
     </div>
