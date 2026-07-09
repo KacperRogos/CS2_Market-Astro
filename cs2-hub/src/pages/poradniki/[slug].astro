@@ -1,5 +1,6 @@
 ---
 import Layout from '../../layouts/Layout.astro';
+import Icon from '../../components/Icon.astro';
 
 const articles: Record<string, {
   title: string;
@@ -289,16 +290,16 @@ const articles: Record<string, {
 <p>Przy bezpośrednich transakcjach poza platformami, scammer "płaci" fałszywym przelewem lub potwierdzeniem płatności. Gotówka lub zweryfikowana wpłata przed wydaniem skina.</p>
 
 <h2>Checklista bezpiecznej transakcji</h2>
-<ul>
-  <li>✅ Używaj tylko znanych, zaufanych platform (Steam, Buff163, Skinport)</li>
-  <li>✅ Nigdy nie handluj poza platformami z nieznajomymi</li>
-  <li>✅ Włącz Steam Guard i uwierzytelnianie dwuetapowe</li>
-  <li>✅ Weryfikuj URL strony przed logowaniem</li>
-  <li>✅ Sprawdzaj dokładnie oferty wymiany przed akceptacją</li>
-  <li>✅ Nie klikaj linków od nieznajomych w grze ani na Steam</li>
-  <li>✅ Sprawdź historię i reputację konta przed transakcją</li>
-  <li>❌ Nigdy nie podawaj hasła, kodu Steam Guard ani pliku loginusers.vdf</li>
-  <li>❌ Nie instaluj żadnych "narzędzi do handlu" od nieznajomych</li>
+<ul class="safety-checklist">
+  <li class="check-item"><Icon name="check" size={14} /> Używaj tylko znanych, zaufanych platform (Steam, Buff163, Skinport)</li>
+  <li class="check-item"><Icon name="check" size={14} /> Nigdy nie handluj poza platformami z nieznajomymi</li>
+  <li class="check-item"><Icon name="check" size={14} /> Włącz Steam Guard i uwierzytelnianie dwuetapowe</li>
+  <li class="check-item"><Icon name="check" size={14} /> Weryfikuj URL strony przed logowaniem</li>
+  <li class="check-item"><Icon name="check" size={14} /> Sprawdzaj dokładnie oferty wymiany przed akceptacją</li>
+  <li class="check-item"><Icon name="check" size={14} /> Nie klikaj linków od nieznajomych w grze ani na Steam</li>
+  <li class="check-item"><Icon name="check" size={14} /> Sprawdź historię i reputację konta przed transakcją</li>
+  <li class="cross-item"><Icon name="x" size={14} /> Nigdy nie podawaj hasła, kodu Steam Guard ani pliku loginusers.vdf</li>
+  <li class="cross-item"><Icon name="x" size={14} /> Nie instaluj żadnych "narzędzi do handlu" od nieznajomych</li>
 </ul>
 
 <h2>Co zrobić jeśli zostałeś oszukany?</h2>
@@ -525,10 +526,282 @@ const articles: Record<string, {
 <p>Zawsze zachowuj historię transakcji z platform handlowych. W przypadku kontroli, dokumentacja pokazująca koszty zakupu i ceny sprzedaży pozwoli obliczyć faktyczny dochód (nie przychód).</p>
     `,
   },
+  'case-hardened-blue-gem': {
+    title: 'Case Hardened i blue gem – jak działa ranking wzorów AK-47 i noży',
+    description: 'Wyjaśniamy czym jest "blue gem", jak czytać ranking wzorów Case Hardened i na co patrzeć przy zakupie.',
+    category: 'Edukacja', readTime: '9 min', date: '2025-07-02',
+    tags: ['case hardened', 'blue gem', 'pattern'],
+    content: `
+<h2>Czym jest wykończenie Case Hardened?</h2>
+<p>Case Hardened to jedno z najstarszych wykończeń w CS2 — dostępne od 2013 roku dla AK-47, noży i kilku innych broni. Charakteryzuje się metalicznym wzorem powstałym z symulacji procesu hartowania stali: mieszanką błękitu, złota, fioletu i szarości. Kluczowa cecha: wzór (pattern) jest generowany raz, w momencie odblokowania przedmiotu, i zostaje z nim na zawsze — nie da się go zmienić.</p>
+<h2>Czym jest "blue gem"?</h2>
+<p>"Blue gem" to potoczne określenie patternów, w których niebieski kolor dominuje na najbardziej eksponowanych częściach broni — dla AK-47 to głównie lufa i magazynek. Im więcej błękitu w widocznych miejscach i im mniej złota/brązu, tym wyżej pattern jest ceniony przez kolekcjonerów.</p>
+<p>To czysto estetyczna preferencja społeczności, ale ma ogromne przełożenie na cenę — różnica między "przeciętnym" a legendarnym blue gem patternem potrafi wynosić kilkadziesiąt tysięcy złotych przy tej samej nazwie skina i tym samym wear.</p>
+<h2>Jak sprawdzić numer patternu</h2>
+<p>Każdy Case Hardened ma numer patternu (pattern index) od 0 do 999, widoczny w inspekcji przedmiotu na Steam. Społeczność stworzyła rankingi (np. na CSGOFloat czy CS.Money), gdzie możesz sprawdzić czy dany numer jest ceniony, przeciętny, czy wręcz unikany.</p>
+<ul>
+  <li><strong>Legendarne blue gemy AK-47</strong> — patterny takie jak #661 czy #955 osiągały ceny liczone w dziesiątkach tysięcy dolarów</li>
+  <li><strong>Przeciętne patterny</strong> — większość mieszanki kolorów, sprzedają się w cenie zbliżonej do bazowej</li>
+  <li><strong>Unikane patterny</strong> — dominacja złota/brązu, notowane poniżej ceny bazowej</li>
+</ul>
+<h2>Case Hardened na nożach</h2>
+<p>Ten sam mechanizm dotyczy noży Case Hardened (np. Karambit, Butterfly Knife). Tu stawki są jeszcze wyższe — blue gem karambit potrafi kosztować kilkukrotność ceny zwykłej wersji tego samego noża.</p>
+<h2>Na co uważać przy zakupie</h2>
+<p>Zawsze sprawdzaj pattern index PRZED zakupem, nie po. Wielu sprzedających świadomie nie wspomina o słabym patternie w opisie oferty, licząc że kupujący nie sprawdzi. Skorzystaj z narzędzi społecznościowych do weryfikacji rankingu, zanim zapłacisz premium za "blue gem", który wcale nim nie jest.</p>
+    `,
+  },
+  'doppler-gamma-doppler-fazy': {
+    title: 'Doppler i Gamma Doppler – przewodnik po fazach i gemach',
+    description: 'Tłumaczymy różnice między fazami Dopplera i Gamma Dopplera i jak nie przepłacić.',
+    category: 'Edukacja', readTime: '8 min', date: '2025-08-11',
+    tags: ['doppler', 'gamma doppler', 'noże'],
+    content: `
+<h2>Czym jest wykończenie Doppler?</h2>
+<p>Doppler to jedno z najpopularniejszych wykończeń dla noży CS2 — kolorowy, marmurkowy wzór inspirowany efektem Dopplera w fizyce. W przeciwieństwie do Case Hardened, Doppler nie ma numeru patternu do sprawdzenia — zamiast tego każdy egzemplarz losowo trafia do jednej z kilku "faz" (phase), które różnią się kolorystyką i rzadkością.</p>
+<h2>Fazy zwykłego Dopplera</h2>
+<ul>
+  <li><strong>Phase 1</strong> — fioletowo-niebieski, najczęstsza faza, najniższa cena</li>
+  <li><strong>Phase 2</strong> — podobna do Phase 1, nieco inny układ kolorów</li>
+  <li><strong>Phase 3</strong> — różowo-fioletowy</li>
+  <li><strong>Phase 4</strong> — najbardziej niebieski spośród standardowych faz, ceniona wyżej</li>
+  <li><strong>Ruby</strong> — intensywna czerwień, jedna z najrzadszych i najdroższych faz</li>
+  <li><strong>Sapphire</strong> — głęboki, jednolity niebieski — najbardziej pożądana faza w standardowym Dopplerze</li>
+  <li><strong>Black Pearl</strong> — czarny z tęczowym połyskiem, rzadka i ceniona</li>
+</ul>
+<h2>Gamma Doppler — inna pula faz</h2>
+<p>Gamma Doppler to osobne wykończenie (nie mylić ze zwykłym Dopplerem) z inną pulą faz: Phase 1–4 oraz dwie rzadkie — <strong>Emerald</strong> (intensywna zieleń) i <strong>Black Pearl</strong>. Emerald jest zazwyczaj najdroższą fazą Gamma Dopplera, często warta kilkukrotność ceny zwykłej fazy 1–4.</p>
+<h2>Dlaczego różnice cenowe są tak duże?</h2>
+<p>Rzadkość poszczególnych faz nie jest równa — Ruby, Sapphire, Black Pearl i Emerald mają znacznie mniejsze prawdopodobieństwo wylosowania niż standardowe fazy 1–4, co przy stałym popycie kolekcjonerskim winduje ich ceny nawet kilkukrotnie wyżej.</p>
+<h2>Jak sprawdzić fazę przed zakupem</h2>
+<p>Fazę widać bezpośrednio w nazwie przedmiotu w ekwipunku i na Steam Market (np. "★ Karambit | Doppler (Factory New) - Sapphire"). Przy zakupie zawsze upewnij się, że nazwa oferty zawiera dokładną fazę — oferty bez podanej fazy w tytule zwykle oznaczają tańszą Phase 1–4.</p>
+<h2>Praktyczna wskazówka</h2>
+<p>Jeśli kupujesz Dopplera jako inwestycję, fazy Ruby, Sapphire i Black Pearl historycznie najlepiej trzymają wartość i rosną szybciej niż standardowe fazy — ale wymagają wyższego kapitału początkowego.</p>
+    `,
+  },
+  'jak-wycenic-skin-przed-sprzedaza': {
+    title: 'Jak wycenić skin przed sprzedażą, żeby nie stracić pieniędzy',
+    description: 'Krok po kroku jak ustalić uczciwą cenę sprzedaży na podstawie spreadu i wolumenu.',
+    category: 'Analiza', readTime: '7 min', date: '2025-09-05',
+    tags: ['wycena', 'cena', 'sprzedaż'],
+    content: `
+<h2>Dlaczego wycena ma znaczenie</h2>
+<p>Ustawienie ceny sprzedaży to balans między dwoma błędami: zbyt wysoka cena oznacza, że oferta będzie leżeć tygodniami bez kupca, a zbyt niska — że oddajesz realne pieniądze za darmo. Dobra wycena opiera się na trzech czynnikach: aktualnej cenie rynkowej, spreadzie i wolumenie.</p>
+<h2>Krok 1: Sprawdź aktualną najniższą cenę</h2>
+<p>Na Steam Market sortuj oferty danego przedmiotu (z tym samym wear i floatem w podobnym zakresie) od najniższej ceny. To Twój punkt odniesienia — ale nie ustawiaj się automatycznie 1 grosz poniżej najniższej oferty, bo to rozpoczyna spiralę podcinania cen w dół.</p>
+<h2>Krok 2: Zrozum spread</h2>
+<p>Spread to różnica między najniższą ceną sprzedaży a najwyższą ofertą kupna. Przy popularnych skinach (AK-47 Redline, AWP Asiimov) spread bywa minimalny — kilka procent. Przy rzadkich itemach może sięgać kilkunastu-kilkudziesięciu procent. Im większy spread, tym więcej miejsca na negocjację, ale też tym trudniej o szybką sprzedaż.</p>
+<h2>Krok 3: Sprawdź wolumen obrotu</h2>
+<p>Wolumen (liczba transakcji dziennie) mówi Ci jak szybko sprzedasz przedmiot. Przy wysokim wolumenie możesz ustawić cenę bliżej górnej granicy rynkowej i wciąż sprzedać w rozsądnym czasie. Przy niskim wolumenie — musisz albo uzbroić się w cierpliwość, albo zejść niżej dla szybszej sprzedaży.</p>
+<h2>Krok 4: Uwzględnij prowizję platformy</h2>
+<p>Steam Market pobiera ok. 15% prowizji od sprzedaży. Oznacza to, że sprzedając za 100 zł, realnie dostajesz ~85 zł (w postaci środków na portfel Steam, nie gotówki). Platformy zewnętrzne (Buff163, Skinport) mają niższe prowizje, ale wiążą się z innym ryzykiem i procesem. Zawsze licz swoją realną wycenę po odjęciu prowizji, nie przed.</p>
+<h2>Częsty błąd: wycena "z sentymentem"</h2>
+<p>Cena, za którą kupiłeś skin, nie ma żadnego znaczenia dla rynku. Rynek wycenia przedmiot na podstawie aktualnego popytu i podaży, a nie Twojej historii zakupu. Trzymanie się ceny zakupu zamiast aktualnej wartości rynkowej to jeden z najczęstszych powodów, dla których oferty leżą miesiącami.</p>
+    `,
+  },
+  'limitowane-operacje-cs2': {
+    title: 'Limitowane operacje CS2 – dlaczego niektóre skiny już nigdy nie wrócą',
+    description: 'Historia operacji CS2 i dlaczego skiny z zamkniętych operacji bywają najlepszą inwestycją.',
+    category: 'Edukacja', readTime: '9 min', date: '2025-10-14',
+    tags: ['operacje', 'historia', 'kolekcjonerstwo'],
+    content: `
+<h2>Czym są operacje w CS2?</h2>
+<p>Operacje (Operations) to ograniczone czasowo wydarzenia w grze, w ramach których gracze wykupują przepustkę (Operation Pass) i zdobywają unikalne skiny, naklejki i inne przedmioty poprzez wykonywanie misji. Po zakończeniu operacji przepustka przestaje być dostępna do zakupu, a część powiązanych przedmiotów znika z możliwości zdobycia na zawsze.</p>
+<h2>Dlaczego to ma znaczenie dla wartości</h2>
+<p>Kluczowa różnica względem zwykłych skrzynek: skrzynki (Cases) generalnie pozostają otwieralne bez ograniczeń czasowych (dopóki Valve ich nie usunie), natomiast skiny z operacji po jej zamknięciu mają <strong>skończoną, nierosnącą podaż</strong>. Skoro nowe egzemplarze nie mogą już powstać, a stare są stopniowo tracone (np. na kontach VAC-banowanych, usuwanych, czy zapomnianych), podaż z czasem tylko maleje.</p>
+<h2>Przykłady historycznych operacji</h2>
+<ul>
+  <li><strong>Operation Breakout (2014)</strong> — wprowadziła m.in. skórę AWP Dragon Lore, dziś jeden z najbardziej pożądanych skinów w grze</li>
+  <li><strong>Operation Bravo (2013)</strong> — pierwsza operacja z Bravo Case, dziś skiny z niej są rzadkie i drogie</li>
+  <li><strong>Operation Wildfire (2016)</strong> — Gamma Case i pierwsza pula Doppler/Gamma Doppler</li>
+  <li><strong>Operation Broken Fang (2020)</strong> — wprowadziła rękawice Broken Fang i unikalne misje z map Ancient</li>
+</ul>
+<h2>Ryzyko: nie każdy skin z operacji rośnie</h2>
+<p>Sam fakt pochodzenia z zamkniętej operacji nie gwarantuje wzrostu wartości. Liczy się też popyt — jeśli skin nigdy nie był popularny estetycznie, ograniczona podaż nie pomoże mu urosnąć tak jak popularnym designom. Historia pokazuje, że to skiny łączące rzadkość z dobrym wzornictwem najlepiej trzymają i zwiększają wartość.</p>
+<h2>Jak śledzić nadchodzące operacje</h2>
+<p>Valve nie zapowiada operacji z dużym wyprzedzeniem — informacje pojawiają się zwykle na oficjalnym blogu CS2 tuż przed premierą. Śledzenie community (Reddit r/GlobalOffensive, Twitter/X) to najszybszy sposób na wczesne informacje o nowych operacjach i ich zawartości.</p>
+    `,
+  },
+  'arbitraz-cenowy-platformy': {
+    title: 'Arbitraż cenowy między platformami – jak legalnie zarabiać na różnicach cen',
+    description: 'Jak działa arbitraż cenowy między platformami handlowymi CS2, jakie są jego ryzyka i ograniczenia.',
+    category: 'Strategia', readTime: '9 min', date: '2025-11-20',
+    tags: ['arbitraż', 'platformy', 'strategia'],
+    content: `
+<h2>Czym jest arbitraż cenowy?</h2>
+<p>Arbitraż polega na kupnie przedmiotu tam, gdzie jest tańszy, i sprzedaży tam, gdzie jest droższy — zarabiając na różnicy, bez ponoszenia ryzyka rynkowego związanego z czekaniem na wzrost ceny. W przypadku skinów CS2, różnice cenowe między Steam Market, Buff163, Skinport i innymi platformami potrafią sięgać 10–30% tego samego przedmiotu.</p>
+<h2>Dlaczego te różnice w ogóle istnieją?</h2>
+<p>Każda platforma ma inną bazę użytkowników, inną walutę rozliczeniową, inne prowizje i inną płynność. Buff163, działający głównie na chiński rynek, często ma niższe ceny niż Steam ze względu na większą podaż lokalnych sprzedawców. Te różnice nie znikają automatycznie, bo przenoszenie przedmiotów między platformami wymaga czasu, opłat i weryfikacji.</p>
+<h2>Podstawowy mechanizm arbitrażu skinów</h2>
+<ul>
+  <li>Znajdź przedmiot tańszy na platformie A niż na platformie B</li>
+  <li>Kup na platformie A</li>
+  <li>Przenieś przedmiot (trade) na swoje konto Steam, jeśli platforma na to pozwala</li>
+  <li>Wystaw na platformie B po wyższej cenie</li>
+  <li>Odejmij prowizje obu platform i koszty ewentualnego przewalutowania</li>
+</ul>
+<h2>Dlaczego to nie jest "darmowy pieniądz"</h2>
+<p>Po pierwsze — prowizje. Steam pobiera ~15% od sprzedaży, inne platformy 5–12%. Po drugie — czas: przeniesienie przedmiotu i oczekiwanie na sprzedaż na drugiej platformie zajmuje dni, w trakcie których cena może się zmienić. Po trzecie — ryzyko blokady: niektóre platformy nakładają ograniczenia (trade hold, weryfikacja konta) utrudniające szybkie przenoszenie przedmiotów.</p>
+<h2>Na co uważać</h2>
+<p>Zawsze licz różnicę cenową <strong>po</strong> odjęciu wszystkich prowizji z obu stron transakcji — różnica "na oko" 20% często po opłatach zamienia się w kilka procent realnego zysku. Sprawdzaj też reputację i legalność platformy przed przelaniem środków — nie wszystkie platformy handlowe skinami działają w pełni transparentnie.</p>
+<h2>Dla kogo ma to sens</h2>
+<p>Arbitraż cenowy sprawdza się przy większym kapitale i regularnym monitorowaniu wielu platform jednocześnie — dla początkujących z małym budżetem różnica po prowizjach rzadko uzasadnia poświęcony czas i ryzyko.</p>
+    `,
+  },
+  'agenci-cs2-kolekcjonowanie': {
+    title: 'Agenci CS2 – czym są i czy warto ich kolekcjonować',
+    description: 'Skąd pochodzą agenci CS2, jak wycenić agenta i czy to sensowny kierunek inwestycji.',
+    category: 'Edukacja', readTime: '6 min', date: '2026-01-15',
+    tags: ['agenci', 'kolekcjonerstwo', 'edukacja'],
+    content: `
+<h2>Czym są agenci?</h2>
+<p>Agenci (Agents) to modele postaci graczy w CS2 — zastępują domyślne modele terrorystów i antyterrorystów unikalnym wyglądem. W przeciwieństwie do skinów broni, agenci zmieniają wygląd Twojej postaci, nie oręża. Podobnie jak skiny, można ich kupować, sprzedawać i handlować na Steam Market.</p>
+<h2>Skąd pochodzą agenci</h2>
+<p>Agenci pojawiają się głównie w skrzynkach (obok skinów broni) oraz jako nagrody z operacji. Niektórzy agenci mają warianty z dodatkowymi wzorami ubioru (patch), które również wpływają na cenę.</p>
+<h2>Co wpływa na wartość agenta</h2>
+<ul>
+  <li><strong>Rzadkość źródła</strong> — agenci z zamkniętych skrzynek/operacji są rzadsi niż ci z aktualnie dostępnych</li>
+  <li><strong>Estetyka i rozpoznawalność</strong> — agenci powiązani z popularną kulturą lub charakterystycznym designem cieszą się większym popytem</li>
+  <li><strong>Naklejki (patch)</strong> — niektórzy agenci mają warianty z naszywkami zwiększającymi unikalność i cenę</li>
+</ul>
+<h2>Czy agenci to dobra inwestycja?</h2>
+<p>Rynek agentów jest znacznie mniejszy i mniej płynny niż rynek skinów broni — mniej kupujących, mniejszy wolumen dziennych transakcji. To oznacza wyższe ryzyko: łatwiej o szeroki spread i trudniej o szybką sprzedaż po satysfakcjonującej cenie. Agenci sprawdzają się bardziej jako dodatek do kolekcji niż jako główny filar portfela inwestycyjnego.</p>
+<h2>Praktyczna rada dla początkujących</h2>
+<p>Jeśli interesujesz się agentami, zacznij od śledzenia wolumenu sprzedaży konkretnego modela na Steam Market przed zakupem — niski wolumen (pojedyncze transakcje dziennie) oznacza, że sprzedaż w przyszłości może zająć znacznie więcej czasu niż w przypadku popularnych skinów broni.</p>
+    `,
+  },
+  'cs-money-platformy-wymiany': {
+    title: 'CS.Money i platformy wymiany skin-za-skin – jak działają i czy są bezpieczne',
+    description: 'Jak działają platformy typu skin-za-skin, jakie mają opłaty i na co uważać.',
+    category: 'Platformy', readTime: '7 min', date: '2026-02-10',
+    tags: ['cs.money', 'wymiana', 'platformy'],
+    content: `
+<h2>Czym różni się platforma wymiany od marketplace'u</h2>
+<p>Steam Market, Buff163 czy Skinport to platformy typu marketplace — sprzedajesz przedmiot za walutę (realną lub wewnętrzny kredyt), a kupujący płaci gotówką. Platformy takie jak CS.Money działają inaczej: pozwalają wymienić Twój przedmiot bezpośrednio na inny przedmiot z ich puli, bez przechodzenia przez etap sprzedaży za pieniądze.</p>
+<h2>Jak działa mechanizm wymiany</h2>
+<p>Wrzucasz swoje skiny do "koszyka" na platformie, wybierasz przedmioty które chcesz w zamian z ich oferty, a system automatycznie wylicza różnicę wartości (zwykle na Twoją niekorzyść — to właśnie stąd platforma czerpie zysk). Jeśli różnica jest akceptowalna, wymiana odbywa się natychmiast poprzez Steam Trade.</p>
+<h2>Zalety takiego podejścia</h2>
+<ul>
+  <li>Szybkość — nie czekasz na kupca jak przy zwykłej sprzedaży</li>
+  <li>Możliwość "upgrade'u" — łączenia kilku tańszych przedmiotów w jeden droższy</li>
+  <li>Brak potrzeby wypłacania i ponownego wpłacania środków</li>
+</ul>
+<h2>Ukryty koszt: spread wymiany</h2>
+<p>Platformy skin-za-skin zarabiają na różnicy między ceną, po jakiej wyceniają Twój przedmiot przy oddawaniu, a ceną, po jakiej wyceniają przedmiot który otrzymujesz. Ten spread bywa większy niż standardowa prowizja marketplace'u — czasem sięga 10-20%. Zawsze porównaj realną wartość rynkową obu przedmiotów przed zaakceptowaniem wymiany.</p>
+<h2>Na co uważać</h2>
+<p>Sprawdzaj reputację platformy przed pierwszą transakcją — rynek skinów przyciąga też platformy działające nieuczciwie lub znikające z depozytami użytkowników. Nie wysyłaj przedmiotów "na zaufanie" poza oficjalnym mechanizmem trade platformy, i zawsze sprawdzaj czy link do strony jest autentyczny (fałszywe klony popularnych platform to częsta metoda phishingu).</p>
+    `,
+  },
+  'naklejki-rzadkosc-holo-foil-gold': {
+    title: 'Holo, Foil, Gold – jak rozpoznać rzadkość naklejek CS2',
+    description: 'Różnice między wersjami Paper, Holo, Foil i Gold naklejek i ich wpływ na cenę.',
+    category: 'Edukacja', readTime: '6 min', date: '2026-03-05',
+    tags: ['naklejki', 'holo', 'rzadkość'],
+    content: `
+<h2>Cztery poziomy rzadkości naklejek turniejowych</h2>
+<p>Naklejki z kapsuł turniejowych (Major, RMR i mniejszych eventów) zwykle występują w czterech wariantach rzadkości, od najczęstszego do najrzadszego: <strong>Paper</strong>, <strong>Holo</strong>, <strong>Foil</strong> i <strong>Gold</strong>. Ta sama naklejka (np. logo drużyny lub gracza) może kosztować kilka złotych w wersji Paper i kilka tysięcy w wersji Gold.</p>
+<h2>Paper</h2>
+<p>Podstawowa, najczęstsza wersja — płaski nadruk bez efektów specjalnych. Stanowi zdecydowaną większość naklejek otwieranych z kapsuł, stąd najniższa cena.</p>
+<h2>Holo</h2>
+<p>Dodaje efekt holograficzny, zmieniający się w zależności od kąta patrzenia. Rzadsza niż Paper, cena zwykle kilkukrotnie wyższa.</p>
+<h2>Foil</h2>
+<p>Metaliczne, błyszczące wykończenie — rzadsza niż Holo. Naklejki Foil znanych drużyn/graczy z ważnych turniejów potrafią kosztować kilkaset do kilku tysięcy złotych.</p>
+<h2>Gold</h2>
+<p>Najrzadszy i najbardziej pożądany wariant — złote, wytłoczone wykończenie. Naklejki Gold to zwykle najmniej liczna pula z danej kapsuły, co przekłada się na najwyższe ceny w całej kategorii.</p>
+<h2>Dlaczego cena zależy też od drużyny/gracza</h2>
+<p>Rzadkość to nie wszystko — naklejka Gold przeciętnej drużyny może kosztować mniej niż naklejka Foil topowej, rozpoznawalnej organizacji. Popularność zespołu lub gracza w danym momencie historii CS2 ma ogromny wpływ na popyt, niezależnie od formalnej rzadkości wariantu.</p>
+<h2>Jak sprawdzić wariant przed zakupem</h2>
+<p>Wariant jest zawsze wypisany w pełnej nazwie naklejki na Steam Market (np. "Sticker | Team Name | Katowice 2024 (Gold)"). Zawsze porównuj dokładną nazwę wariantu — same "Katowice 2024" bez dopisku to zwykle najtańsza wersja Paper.</p>
+    `,
+  },
+  'jak-rozpoznac-scam-trade-offer': {
+    title: 'Jak rozpoznać scam trade offer – czerwone flagi przy wymianie skinów',
+    description: 'Konkretne sygnały ostrzegawcze przy fałszywych ofertach wymiany skinów CS2.',
+    category: 'Bezpieczeństwo', readTime: '7 min', date: '2026-03-25',
+    tags: ['scam', 'trade offer', 'bezpieczeństwo'],
+    content: `
+<h2>Dlaczego trade offery to ulubiona metoda oszustów</h2>
+<p>W przeciwieństwie do transakcji na Market, wymiana bezpośrednia (trade offer) omija wbudowane zabezpieczenia Steam — nie ma centralnego pośrednika weryfikującego uczciwość wymiany. To czyni ją głównym narzędziem scamerów polujących na traderów skinów.</p>
+<h2>Czerwona flaga #1: presja czasu</h2>
+<p>"Musisz zaakceptować w ciągu 2 minut, bo oferta wygaśnie" — klasyczna taktyka wywierania presji, żeby ofiara nie zdążyła dokładnie sprawdzić szczegółów oferty. Legalne transakcje nie wymagają błyskawicznych decyzji.</p>
+<h2>Czerwona flaga #2: nierówna wymiana "bo zaufanie"</h2>
+<p>Jeśli ktoś prosi, żebyś wysłał swój przedmiot pierwszy, obiecując odesłać coś w zamian "zaraz potem" — to praktycznie zawsze scam. Uczciwe wymiany dzieją się w jednej transakcji trade offer, gdzie obie strony widzą dokładnie co dają i co dostają, zanim ktokolwiek cokolwiek zaakceptuje.</p>
+<h2>Czerwona flaga #3: linki spoza Steam</h2>
+<p>Fałszywe strony imitujące Steam Community lub popularne platformy handlowe to jedna z najczęstszych metod przejmowania kont. Zawsze sprawdzaj dokładny adres URL — scamerzy rejestrują domeny bardzo podobne do prawdziwych (np. zamiana jednej litery), licząc że nie zauważysz różnicy.</p>
+<h2>Czerwona flaga #4: fałszywe "boty" wymiany</h2>
+<p>Wiadomości od kont podszywających się pod oficjalne boty Steam lub znanych traderów, oferujące "specjalne okazje" — żadna legalna platforma nie kontaktuje się pierwsza przez prywatne wiadomości z niesamowitymi ofertami.</p>
+<h2>Jak się chronić</h2>
+<ul>
+  <li>Zawsze dokładnie sprawdzaj listę przedmiotów w oknie trade offer — scamerzy czasem podmieniają pojedynczy przedmiot na wizualnie podobny, ale tańszy</li>
+  <li>Włącz Steam Guard Mobile Authenticator — znacząco utrudnia przejęcie konta</li>
+  <li>Nigdy nie loguj się na stronach spoza oficjalnej domeny steamcommunity.com</li>
+  <li>Sprawdzaj profil drugiej strony — data założenia konta, poziom Steam, historia — świeże konta bez historii to sygnał ostrzegawczy</li>
+</ul>
+    `,
+  },
+  'steam-sezonowe-wyprzedaze-wplyw-na-ceny': {
+    title: 'Wyprzedaże Steam a ceny skinów – jak Summer i Winter Sale wpływają na rynek',
+    description: 'Sezonowe wzorce cenowe podczas dużych wyprzedaży Steam i jak je wykorzystać.',
+    category: 'Analiza', readTime: '7 min', date: '2026-04-15',
+    tags: ['sezonowość', 'steam sale', 'ceny'],
+    content: `
+<h2>Dlaczego wyprzedaże Steam w ogóle wpływają na rynek skinów</h2>
+<p>Duże wyprzedaże Steam (Summer Sale, Winter Sale, Autumn Sale) przyciągają masowy ruch na platformę — więcej aktywnych użytkowników oznacza więcej potencjalnych kupujących i sprzedających na Community Market, co przekłada się na zwiększony wolumen transakcji skinami, nawet jeśli same skiny nie są bezpośrednio na wyprzedaży.</p>
+<h2>Typowy wzorzec: wzrost wolumenu, presja na ceny w dół</h2>
+<p>Więcej sprzedających jednocześnie próbujących spieniężyć przedmioty (żeby mieć środki na zakupy podczas wyprzedaży) zwykle oznacza chwilowy wzrost podaży ofert sprzedaży, co może krótkoterminowo obniżać ceny popularnych, płynnych skinów.</p>
+<h2>Wyjątek: skiny powiązane z limitowanymi eventami</h2>
+<p>Jeśli wyprzedaż zbiega się z premierą nowej skrzynki lub operacji, popyt na nowe przedmioty może rosnąć szybciej niż podaż, tymczasowo windując ceny nowości w górę — w przeciwieństwie do starszych, "zwykłych" skinów.</p>
+<h2>Praktyczna strategia dla kupujących</h2>
+<p>Jeśli planujesz zakup konkretnego skina, obserwowanie cen w trakcie i tuż po dużej wyprzedaży Steam może dać okazję do kupna po chwilowo niższej cenie — szczególnie przy popularnych, wysokopłynnych skinach, gdzie zwiększona podaż najbardziej wpływa na cenę.</p>
+<h2>Praktyczna strategia dla sprzedających</h2>
+<p>Jeśli nie musisz sprzedawać pilnie, warto rozważyć wstrzymanie się z ofertą do zakończenia dużej wyprzedaży — mniejsza chwilowa podaż konkurencyjnych ofert może oznaczać lepszą cenę sprzedaży poza szczytem wyprzedażowym.</p>
+<h2>Zastrzeżenie</h2>
+<p>Te wzorce są statystyczną tendencją, nie gwarancją — na cenę wpływa jednocześnie wiele czynników (turnieje, aktualizacje gry, ogólny sentyment rynku). Traktuj sezonowość jako jeden z elementów analizy, nie jedyny czynnik decyzyjny.</p>
+    `,
+  },
+  'music-kits-cs2-przewodnik': {
+    title: 'Music Kits CS2 – czym są statuetki dźwiękowe i ile są warte',
+    description: 'Jak działają Music Kits w CS2, skąd pochodzą i które są najbardziej wartościowe.',
+    category: 'Edukacja', readTime: '5 min', date: '2026-05-10',
+    tags: ['music kit', 'kolekcjonerstwo', 'edukacja'],
+    content: `
+<h2>Czym są Music Kits</h2>
+<p>Music Kits to przedmioty kolekcjonerskie zmieniające muzykę odtwarzaną w menu głównym gry oraz dźwięki killfeedu (informacji o eliminacjach) na utwory skomponowane lub wybrane przez znanych muzyków i kompozytorów. Nie wpływają na rozgrywkę — to czysto kosmetyczny, słyszalny dodatek.</p>
+<h2>Skąd pochodzą</h2>
+<p>Music Kits pojawiają się głównie w dedykowanych skrzynkach muzycznych oraz jako nagrody z niektórych operacji. Część z nich tworzona jest we współpracy z realnymi artystami i zespołami związanymi ze sceną gamingową i esportową.</p>
+<h2>StatTrak Music Kit</h2>
+<p>Podobnie jak broń, Music Kits mogą występować w wersji StatTrak — z licznikiem odtworzeń utworu podczas rozgrywki. Wersje StatTrak są rzadsze i kosztują zwykle kilkukrotność zwykłej wersji.</p>
+<h2>Co wpływa na wartość Music Kita</h2>
+<ul>
+  <li><strong>Popularność artysty/zespołu</strong> — kity powiązane z bardziej rozpoznawalnymi twórcami cieszą się większym popytem</li>
+  <li><strong>Dostępność źródła</strong> — kity z zamkniętych, starszych skrzynek są rzadsze niż te z aktualnie dostępnych</li>
+  <li><strong>Wariant StatTrak</strong> — znacząco podnosi cenę względem wersji zwykłej</li>
+</ul>
+<h2>Czy warto kolekcjonować Music Kits</h2>
+<p>To nisza w niszy — rynek Music Kits jest mniejszy i mniej płynny niż rynek skinów broni czy nawet naklejek. Sprawdza się głównie dla graczy, którzy cenią sobie unikalny, słyszalny element personalizacji rozgrywki, a nie jako główny kierunek inwestycyjny ze względu na ograniczoną płynność.</p>
+    `,
+  },
+  'vanilla-skiny-noze-dlaczego-drogie': {
+    title: 'Vanilla noże i skiny – dlaczego brak wzoru bywa droższy niż rzadki pattern',
+    description: 'Paradoks wyceny vanilla (bezwzorowych) noży i skinów w CS2.',
+    category: 'Edukacja', readTime: '6 min', date: '2026-06-01',
+    tags: ['vanilla', 'noże', 'wycena'],
+    content: `
+<h2>Czym jest "vanilla" w kontekście CS2</h2>
+<p>Vanilla to potoczne określenie przedmiotu bez żadnego wykończenia (finish) — czyli domyślny wygląd noża lub broni, bez malowania, wzoru czy koloru. Najczęściej dotyczy to noży — domyślny, "goły" Karambit czy Butterfly Knife bez żadnego skina.</p>
+<h2>Skąd biorą się vanilla noże</h2>
+<p>Wynikają głównie z tradingów w grze (obecnie zamkniętych) i starych, historycznych metod zdobywania przedmiotów sprzed wprowadzenia obecnego systemu skrzynek. Nowe vanilla noże praktycznie nie mogą już powstawać, co czyni istniejącą pulę skończoną i tylko malejącą.</p>
+<h2>Dlaczego to paradoks cenowy</h2>
+<p>Intuicyjnie prostszy, "goły" przedmiot bez efektownego wzoru powinien być tańszy niż wersja z rzadkim, kolorowym wykończeniem. W praktyce jest odwrotnie — ekstremalna rzadkość i historyczne pochodzenie vanilla noży sprawiają, że niektóre z nich kosztują więcej niż odpowiadające im wersje z popularnymi skinami, a czasem nawet więcej niż wersje z rzadkimi patternami Case Hardened czy Doppler.</p>
+<h2>Czym różni się to od zwykłego "braku skina"</h2>
+<p>Warto odróżnić prawdziwe, historyczne vanilla noże od zwykłych, współczesnych przedmiotów bez zastosowanego skina — te drugie nie mają statusu kolekcjonerskiego i nie są rzadkie, bo każdy nóż domyślnie taki jest, dopóki nie zostanie mu nadany finish.</p>
+<h2>Czy to sensowna inwestycja</h2>
+<p>Rynek prawdziwych vanilla noży jest bardzo płytki — mało transakcji, wysoka bariera wejścia cenowego, i wymaga specjalistycznej wiedzy do weryfikacji autentyczności i historii przedmiotu. To kategoria dla zaawansowanych kolekcjonerów, nie dla początkujących traderów.</p>
+    `,
+  },
 };
 
 export function getStaticPaths() {
-  const slugs = ["jak-handlowac-skinami-cs2","float-value-przewodnik","najlepsze-skiny-do-inwestowania-2025","czy-warto-otwierac-skrzynki","buff163-vs-steam-market","jak-czytac-wykres-cen-steamu","stickery-na-skinach-wartosc","bezpieczenstwo-handel-skinami","pattern-index-cs2","jak-importowac-ekwipunek-steam","skiny-stattrack-czy-warto","noze-cs2-ranking","trading-up-kontrakty","cs2-major-wplyw-na-ceny","skinport-przewodnik","souvenir-skiny-cs2","portfel-skinow-dywersyfikacja","rekawice-cs2-przewodnik","podatek-od-handlu-skinami"];
+  const slugs = ["jak-handlowac-skinami-cs2","float-value-przewodnik","najlepsze-skiny-do-inwestowania-2025","czy-warto-otwierac-skrzynki","buff163-vs-steam-market","jak-czytac-wykres-cen-steamu","stickery-na-skinach-wartosc","bezpieczenstwo-handel-skinami","pattern-index-cs2","jak-importowac-ekwipunek-steam","skiny-stattrack-czy-warto","noze-cs2-ranking","trading-up-kontrakty","cs2-major-wplyw-na-ceny","skinport-przewodnik","souvenir-skiny-cs2","portfel-skinow-dywersyfikacja","rekawice-cs2-przewodnik","podatek-od-handlu-skinami","case-hardened-blue-gem","doppler-gamma-doppler-fazy","jak-wycenic-skin-przed-sprzedaza","limitowane-operacje-cs2","arbitraz-cenowy-platformy","agenci-cs2-kolekcjonowanie","cs-money-platformy-wymiany","naklejki-rzadkosc-holo-foil-gold","jak-rozpoznac-scam-trade-offer","steam-sezonowe-wyprzedaze-wplyw-na-ceny","music-kits-cs2-przewodnik","vanilla-skiny-noze-dlaczego-drogie"];
   return slugs.map(slug => ({ params: { slug } }));
 }
 
@@ -599,21 +872,21 @@ const schema = {
       <div class="sidebar-card">
         <h3>Przydatne narzędzia</h3>
         <a href="/kalkulator" class="sidebar-link">
-          <span>🎲</span>
+          <span><Icon name="dice" size={18} /></span>
           <div>
             <strong>Kalkulator skrzynek</strong>
             <p>Sprawdź szanse drop rate</p>
           </div>
         </a>
         <a href="/skins" class="sidebar-link">
-          <span>🔫</span>
+          <span><Icon name="crosshair" size={18} /></span>
           <div>
             <strong>Baza skinów</strong>
             <p>Opisy i float range</p>
           </div>
         </a>
         <a href="/app" class="sidebar-link">
-          <span>💼</span>
+          <span><Icon name="briefcase" size={18} /></span>
           <div>
             <strong>Tracker portfela</strong>
             <p>Śledź wartość kolekcji</p>
@@ -670,6 +943,13 @@ const schema = {
 .article-content :global(p) { margin-bottom:16px; color:var(--text2); }
 .article-content :global(ul) { margin:0 0 20px 20px; color:var(--text2); }
 .article-content :global(li) { margin-bottom:8px; line-height:1.7; }
+.article-content :global(.safety-checklist) { list-style: none; margin-left: 0; }
+.article-content :global(.check-item),
+.article-content :global(.cross-item) {
+  display: flex; align-items: flex-start; gap: 10px;
+}
+.article-content :global(.check-item .icon) { color: var(--green); margin-top: 3px; }
+.article-content :global(.cross-item .icon) { color: var(--red); margin-top: 3px; }
 .article-content :global(strong) { color:#e8f4f8; font-weight:700; }
 .article-content :global(a) { color:var(--accent); text-decoration:underline; }
 .article-content :global(a:hover) { color:#00aadd; }
@@ -682,7 +962,7 @@ const schema = {
 
 .sidebar-link { display:flex; align-items:flex-start; gap:12px; padding:10px 0; border-bottom:1px solid var(--border); text-decoration:none; transition:color 0.2s; }
 .sidebar-link:last-child { border-bottom:none; }
-.sidebar-link span { font-size:20px; flex-shrink:0; }
+.sidebar-link span { display: inline-flex; color: var(--accent); flex-shrink:0; }
 .sidebar-link strong { display:block; font-size:14px; color:#e8f4f8; margin-bottom:2px; }
 .sidebar-link p { font-size:12px; color:var(--text2); margin:0; }
 .sidebar-link:hover strong { color:var(--accent); }

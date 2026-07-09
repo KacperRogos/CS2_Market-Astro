@@ -7,7 +7,7 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CS2 Market - Portfel skinów</title>
+  <title>CS2 Market – Portfel skinów</title>
   <meta name="description" content="Zarządzaj swoim portfelem skinów CS2. Import ze Steam, historia wartości, AI doradca.">
   <meta name="robots" content="noindex">
   <link rel="icon" type="image/png" href="/favicon.png">
@@ -20,6 +20,7 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 <script src="https://unpkg.com/@supabase/supabase-js@2" is:inline></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" is:inline></script>
 
+<!-- AUTH SCREEN -->
 <div id="authScreen" style="position:fixed;inset:0;background:var(--bg);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px">
   <div class="auth-box">
     <div class="auth-logo">
@@ -614,22 +615,34 @@ async function fetchPrice(marketHashName) {
   const cached = priceCache.get(marketHashName);
   if (cached && Date.now() - cached.ts < CACHE_TTL) return cached.result;
   try {
+    // Najpierw sprawdź naszą własną tabelę cache — szybkie, niezawodne, zero zależności od Steam.
+    let iconUrl = '';
+    try {
+      const { data: cachedIcon } = await _sb
+        .from('item_icons')
+        .select('icon_url')
+        .eq('market_hash_name', marketHashName)
+        .maybeSingle();
+      if (cachedIcon?.icon_url) iconUrl = cachedIcon.icon_url;
+    } catch (e) { /* brak w cache — spróbujemy Steam poniżej */ }
+
     const [priceResp, searchData] = await Promise.all([
       fetch(`${SUPABASE_FUNCTIONS_URL}/steam-price`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` },
         body: JSON.stringify({ itemName: marketHashName })
       }),
-      steamFetch(`https://steamcommunity.com/market/listings/730/${encodeURIComponent(marketHashName)}/render/?start=0&count=1&currency=6&format=json`).catch(() => null)
+      iconUrl ? Promise.resolve(null) : steamFetch(`https://steamcommunity.com/market/listings/730/${encodeURIComponent(marketHashName)}/render/?start=0&count=1&currency=6&format=json`).catch(() => null)
     ]);
     const data = await priceResp.json();
-    const assets = searchData?.assets;
-    let iconUrl = '';
-    if (assets) {
-      const appAssets = assets['730'] || assets[730];
-      if (appAssets) {
-        const ctx = appAssets['2'] || appAssets[2] || Object.values(appAssets)[0];
-        if (ctx) { const first = Object.values(ctx)[0]; iconUrl = first?.icon_url || ''; }
+    if (!iconUrl) {
+      const assets = searchData?.assets;
+      if (assets) {
+        const appAssets = assets['730'] || assets[730];
+        if (appAssets) {
+          const ctx = appAssets['2'] || appAssets[2] || Object.values(appAssets)[0];
+          if (ctx) { const first = Object.values(ctx)[0]; iconUrl = first?.icon_url || ''; }
+        }
       }
     }
     let result = null;

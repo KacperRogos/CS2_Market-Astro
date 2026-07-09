@@ -1,5 +1,6 @@
 ---
 import Layout from '../../layouts/Layout.astro';
+import Icon from '../../components/Icon.astro';
 import {
   DROP_RATES, RARITY_LABELS,
   avgCasesNeeded, avgCostNeeded,
@@ -72,16 +73,16 @@ const schema = {
     <h1>{caseData.name} — kalkulator szans</h1>
     <p>{caseData.description}</p>
     <div class="case-meta-pills">
-      <span class="pill">📅 {caseData.releaseYear}</span>
-      <span class="pill">🔑 Klucz: {caseData.keyPrice.toFixed(2)} zł</span>
-      <span class="pill">📦 Skrzynka: ~{caseData.casePrice.toFixed(2)} zł</span>
-      <span class="pill">💰 Jedno otwarcie: ~{(caseData.keyPrice + caseData.casePrice).toFixed(2)} zł</span>
+      <span class="pill"><Icon name="calendar" size={14} /> {caseData.releaseYear}</span>
+      <span class="pill"><Icon name="key" size={14} /> Klucz: {caseData.keyPrice.toFixed(2)} zł</span>
+      <span class="pill"><Icon name="box" size={14} /> Skrzynka: ~{caseData.casePrice.toFixed(2)} zł</span>
+      <span class="pill"><Icon name="coin" size={14} /> Jedno otwarcie: ~{(caseData.keyPrice + caseData.casePrice).toFixed(2)} zł</span>
     </div>
   </div>
 
   <!-- INTERACTIVE CALCULATOR -->
   <section class="interactive-calc">
-    <h2>🎲 Kalkulator szans</h2>
+    <h2><Icon name="dice" size={20} /> Kalkulator szans</h2>
     <p class="section-desc">Ile skrzynek chcesz otworzyć? Oblicz szansę na zdobycie wybranego rzadkości.</p>
 
     <div class="calc-panel">
@@ -232,11 +233,13 @@ const schema = {
 .page-header h1 { font-size:clamp(24px,4vw,40px); font-weight:900; margin-bottom:12px; }
 .page-header p { font-size:16px; color:var(--text2); max-width:700px; line-height:1.7; margin-bottom:20px; }
 .case-meta-pills { display:flex; gap:10px; flex-wrap:wrap; }
-.pill { background:var(--bg3); border:1px solid var(--border); border-radius:20px; padding:4px 14px; font-size:13px; font-family:var(--font-mono); color:var(--text2); }
+.pill { display:inline-flex; align-items:center; gap:6px; background:var(--bg3); border:1px solid var(--border); border-radius:20px; padding:4px 14px; font-size:13px; font-family:var(--font-mono); color:var(--text2); }
+.pill .icon { color: var(--accent); }
 
 /* Interactive calculator */
 .interactive-calc { margin-bottom:60px; }
-.interactive-calc h2 { font-size:22px; margin-bottom:8px; }
+.interactive-calc h2 { display:flex; align-items:center; gap:8px; font-size:22px; margin-bottom:8px; }
+.interactive-calc h2 .icon { color: var(--accent); }
 .section-desc { color:var(--text2); font-size:14px; margin-bottom:24px; }
 
 .calc-panel { background:var(--bg2); border:1px solid var(--border2); border-radius:var(--radius); padding:28px; }
