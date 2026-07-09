@@ -1,0 +1,143 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Icon from '../../components/Icon.astro';
+---
+
+<Layout title="Ikony przedmiotów — Panel admina" description="Zarządzanie cache'em obrazków dla portfela." noindex={true}>
+
+<div id="authScreen" class="auth-screen">
+  <div class="auth-box">
+    <h1>Panel admina</h1>
+    <p class="auth-sub">Zaloguj się, żeby zarządzać danymi.</p>
+    <form id="loginForm">
+      <label>
+        Email
+        <input class="admin-input" type="email" id="loginEmail" required autocomplete="username" />
+      </label>
+      <label>
+        Hasło
+        <input class="admin-input" type="password" id="loginPassword" required autocomplete="current-password" />
+      </label>
+      <button type="submit" class="btn btn-primary" id="loginBtn">Zaloguj</button>
+      <p id="loginError" class="error-text"></p>
+    </form>
+  </div>
+</div>
+
+<div id="adminContent" class="container admin-content" style="display:none">
+  <div class="dash-header">
+    <h1>Ikony przedmiotów</h1>
+    <div class="dash-header-actions">
+      <a href="/admin" class="btn btn-ghost">← Panel</a>
+      <button id="logoutBtn" class="btn btn-ghost">Wyloguj</button>
+    </div>
+  </div>
+  <p id="dashError" class="error-text"></p>
+
+  <section class="panel">
+    <h2>Jak zdobyć icon_url</h2>
+    <p class="hint-text">
+      1. Wejdź na stronę Steam Market danego przedmiotu (np. <code>https://steamcommunity.com/market/listings/730/AK-47%20%7C%20Redline%20(Field-Tested)</code>).<br />
+      2. Otwórz DevTools (F12) → zakładka <strong>Network</strong> → odśwież stronę → znajdź request do <code>.../render/...</code>.<br />
+      3. W odpowiedzi (Response) znajdź pole <code>"icon_url"</code> w obiekcie <code>assets</code> — skopiuj samą wartość (długi ciąg znaków, bez cudzysłowów).<br />
+      4. Nazwa przedmiotu (<strong>market_hash_name</strong>) musi być <strong>dokładnie</strong> taka jak w URL-u Steam (z wear w nawiasie, jeśli dotyczy).
+    </p>
+  </section>
+
+  <section class="panel">
+    <h2>Dodaj / zaktualizuj ikonę</h2>
+    <form id="iconForm" class="skin-form">
+      <label class="full">Nazwa przedmiotu (market_hash_name)
+        <input class="admin-input" type="text" id="f_name" placeholder="AK-47 | Redline (Field-Tested)" required />
+      </label>
+      <label class="full">icon_url (sam hash ze Steam, bez reszty adresu)
+        <input class="admin-input" type="text" id="f_icon" placeholder="-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTOOZ9YQ0..." required />
+      </label>
+      <button type="submit" class="btn btn-primary btn-icon"><Icon name="plus" size={16} /><span>Zapisz ikonę</span></button>
+      <p id="formSuccess" class="success-text"></p>
+    </form>
+  </section>
+
+  <section class="panel">
+    <h2>Zapisane ikony (<span id="iconCount">0</span>)</h2>
+    <div id="iconList" class="skin-list"></div>
+  </section>
+</div>
+
+<script>
+  import { supabase, guardAdminPage } from '../../lib/adminAuth';
+
+  const dashError = document.getElementById('dashError');
+  const formSuccess = document.getElementById('formSuccess');
+  const iconForm = document.getElementById('iconForm');
+  const iconList = document.getElementById('iconList');
+  const iconCount = document.getElementById('iconCount');
+
+  async function loadIcons() {
+    dashError.textContent = '';
+    const { data, error } = await supabase.from('item_icons').select('*').order('market_hash_name');
+    if (error) {
+      dashError.textContent = 'Nie udało się pobrać listy: ' + error.message;
+      return;
+    }
+    iconCount.textContent = data.length;
+    iconList.innerHTML = data.map(row => `
+      <div class="skin-row" data-name="${row.market_hash_name}">
+        <span class="skin-row-name">${row.market_hash_name}</span>
+        <span class="skin-row-meta">${row.icon_url.slice(0, 24)}...</span>
+        <button class="btn btn-ghost btn-small delete-btn" data-name="${row.market_hash_name}">Usuń</button>
+      </div>
+    `).join('') || '<p class="empty-text">Brak zapisanych ikon.</p>';
+
+    iconList.querySelectorAll('.delete-btn').forEach(btn => {
+      btn.addEventListener('click', () => deleteIcon(btn.getAttribute('data-name')));
+    });
+  }
+
+  async function deleteIcon(name) {
+    if (!confirm(`Usunąć ikonę dla "${name}"?`)) return;
+    dashError.textContent = '';
+    const { data, error } = await supabase.from('item_icons').delete().eq('market_hash_name', name).select('market_hash_name');
+    if (error) {
+      dashError.textContent = 'Nie udało się usunąć: ' + error.message;
+      return;
+    }
+    if (!data || data.length === 0) {
+      dashError.textContent = 'Usuwanie nie powiodło się po cichu — sprawdź uprawnienia admina.';
+      return;
+    }
+    await loadIcons();
+  }
+
+  iconForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    formSuccess.textContent = '';
+    dashError.textContent = '';
+
+    const row = {
+      market_hash_name: document.getElementById('f_name').value.trim(),
+      icon_url: document.getElementById('f_icon').value.trim(),
+    };
+
+    const { data, error } = await supabase
+      .from('item_icons')
+      .upsert(row, { onConflict: 'market_hash_name' })
+      .select('market_hash_name');
+
+    if (error) {
+      dashError.textContent = 'Nie udało się zapisać: ' + error.message;
+      return;
+    }
+    if (!data || data.length === 0) {
+      dashError.textContent = 'Zapis nie powiódł się po cichu — sprawdź uprawnienia admina.';
+      return;
+    }
+
+    formSuccess.textContent = `Zapisano ikonę dla: ${row.market_hash_name}`;
+    iconForm.reset();
+    await loadIcons();
+  });
+
+  guardAdminPage(loadIcons);
+</script>
+</Layout>

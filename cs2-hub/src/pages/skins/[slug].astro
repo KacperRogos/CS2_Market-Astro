@@ -1,5 +1,6 @@
 ---
 import Layout from '../../layouts/Layout.astro';
+import Icon from '../../components/Icon.astro';
 import { RARITY_MAP, WEAPON_CATEGORIES } from '../../data/skins';
 import { getAllSkins, getSkinsByWeapon } from '../../lib/skins';
 
@@ -59,8 +60,8 @@ const schema = {
       <div class="skin-meta-top">
         <span class="weapon-tag">{skin.weapon}</span>
         <span class="category-tag">{WEAPON_CATEGORIES[skin.category]}</span>
-        {skin.caseSource && <span class="source-tag">📦 {skin.caseSource}</span>}
-        {skin.collection && <span class="source-tag">🗂 {skin.collection}</span>}
+        {skin.caseSource && <span class="source-tag"><Icon name="box" size={13} /> {skin.caseSource}</span>}
+        {skin.collection && <span class="source-tag"><Icon name="archive" size={13} /> {skin.collection}</span>}
       </div>
 
       <h1>{skin.weapon} | {skin.name}</h1>
@@ -222,6 +223,7 @@ const schema = {
 }
 .skin-meta-top { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px; }
 .weapon-tag, .category-tag, .source-tag {
+  display:inline-flex; align-items:center; gap:5px;
   background:var(--bg3);
   border:1px solid var(--border);
   border-radius:4px;
@@ -325,5 +327,9 @@ const schema = {
 
 @media (max-width:900px) {
   .skin-hero { grid-template-columns:1fr; }
+}
+@media (max-width:480px) {
+  .skin-actions { flex-direction: column; }
+  .skin-actions .btn { width: 100%; text-align: center; }
 }
 </style>
