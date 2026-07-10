@@ -1,7 +1,7 @@
 export const prerender = false;
 
 import type { APIRoute } from 'astro';
-import { supabase } from '../../lib/supabase';
+import { createClient } from '@supabase/supabase-js';
 
 export const POST: APIRoute = async ({ request }) => {
   const authHeader = request.headers.get('authorization') ?? '';
@@ -10,6 +10,16 @@ export const POST: APIRoute = async ({ request }) => {
   if (!token) {
     return new Response(JSON.stringify({ error: 'Brak tokenu sesji.' }), { status: 401 });
   }
+
+  const SUPABASE_URL = import.meta.env.SUPABASE_URL;
+  const SUPABASE_ANON_KEY = import.meta.env.SUPABASE_ANON_KEY;
+
+  // Klient utworzony per-request, z tokenem usera w nagłówku Authorization —
+  // dzięki temu zapytania do bazy (w tym RLS) widzą auth.uid() tego usera,
+  // a nie działają jako anonimowe (co był poprzedni bug: 403 mimo bycia adminem).
+  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    global: { headers: { Authorization: `Bearer ${token}` } },
+  });
 
   const { data: { user }, error: userError } = await supabase.auth.getUser(token);
   if (userError || !user) {
