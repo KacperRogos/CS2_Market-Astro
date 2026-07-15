@@ -1,0 +1,292 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Icon from '../components/Icon.astro';
+import { RARITY_MAP, WEAPON_CATEGORIES } from '../data/skins';
+
+const SUPABASE_URL = 'https://sacxklpjteqsbevowrmt.supabase.co';
+const SUPABASE_ANON_KEY = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
+
+const rarityEntries = Object.entries(RARITY_MAP);
+
+const schema = {
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "name": "Porównywarka skinów CS2",
+  "description": "Porównaj skiny CS2 obok siebie — float, rzadkość, kolekcja i aktualna cena ze Steam Market.",
+  "url": "https://cs2-market.netlify.app/porownaj",
+  "inLanguage": "pl",
+};
+---
+
+<Layout
+  title="Porównywarka skinów CS2 – float, cena, rzadkość obok siebie"
+  description="Wybierz kilka skinów CS2 z bazy i porównaj je jednocześnie: float range, rzadkość, kolekcję i aktualną cenę ze Steam Market."
+  schema={schema}
+>
+
+<div class="container">
+  <nav class="breadcrumb" aria-label="Breadcrumb">
+    <a href="/">Strona główna</a><span>›</span>
+    <span>Porównywarka</span>
+  </nav>
+
+  <div class="page-header">
+    <div class="page-header-badge">
+      <span class="dot"></span>
+      Narzędzie porównawcze
+    </div>
+    <h1>Porównywarka skinów</h1>
+    <p>Wybierz do 4 skinów z bazy i zobacz je obok siebie — float, rzadkość, kolekcję i aktualną cenę ze Steam Market.</p>
+  </div>
+
+  <section class="panel">
+    <label class="search-label" for="skinSearch">Wyszukaj skina do porównania</label>
+    <div class="search-wrap">
+      <input type="text" id="skinSearch" class="admin-input" placeholder="np. AK-47 Redline, AWP Asiimov..." autocomplete="off" />
+      <div id="searchResults" class="search-results" style="display:none"></div>
+    </div>
+    <p id="compareHint" class="hint-text" style="margin-top:10px;margin-bottom:0">Dodaj przynajmniej 2 skiny, żeby zobaczyć porównanie.</p>
+  </section>
+
+  <section id="compareSection" class="panel" style="display:none">
+    <div class="compare-scroll">
+      <table class="compare-table" id="compareTable"></table>
+    </div>
+  </section>
+</div>
+
+<script define:vars={{ SUPABASE_URL, SUPABASE_ANON_KEY, rarityEntries, WEAPON_CATEGORIES }}>
+window.__SUPABASE_URL = SUPABASE_URL;
+window.__SUPABASE_ANON_KEY = SUPABASE_ANON_KEY;
+window.__RARITY_MAP = Object.fromEntries(rarityEntries);
+window.__WEAPON_CATEGORIES = WEAPON_CATEGORIES;
+</script>
+
+<script>
+  import { createClient } from '@supabase/supabase-js';
+
+  const supabase = createClient(window.__SUPABASE_URL, window.__SUPABASE_ANON_KEY);
+  const SUPABASE_FUNCTIONS_URL = `${window.__SUPABASE_URL}/functions/v1`;
+  const RARITY_MAP = window.__RARITY_MAP;
+  const WEAPON_CATEGORIES = window.__WEAPON_CATEGORIES;
+  const MAX_COMPARE = 4;
+
+  let compareList = []; // pełne obiekty skinów z bazy
+  let searchTimeout = null;
+
+  const searchInput = document.getElementById('skinSearch');
+  const searchResults = document.getElementById('searchResults');
+  const compareSection = document.getElementById('compareSection');
+  const compareTable = document.getElementById('compareTable');
+  const compareHint = document.getElementById('compareHint');
+
+  searchInput.addEventListener('input', () => {
+    clearTimeout(searchTimeout);
+    const q = searchInput.value.trim();
+    if (q.length < 2) { searchResults.style.display = 'none'; return; }
+    searchTimeout = setTimeout(() => runSearch(q), 250);
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!searchResults.contains(e.target) && e.target !== searchInput) {
+      searchResults.style.display = 'none';
+    }
+  });
+
+  async function runSearch(query) {
+    const { data, error } = await supabase
+      .from('skins')
+      .select('*')
+      .or(`name.ilike.%${query}%,weapon.ilike.%${query}%`)
+      .limit(8);
+
+    if (error || !data || data.length === 0) {
+      searchResults.innerHTML = '<div class="search-result-empty">Brak wyników.</div>';
+      searchResults.style.display = 'block';
+      return;
+    }
+
+    searchResults.innerHTML = data.map(s => `
+      <button class="search-result-item" data-id="${s.id}">
+        <span class="search-result-name">${s.weapon} | ${s.name}</span>
+        <span class="search-result-meta">${WEAPON_CATEGORIES[s.category] || s.category}</span>
+      </button>
+    `).join('');
+    searchResults.style.display = 'block';
+
+    searchResults.querySelectorAll('.search-result-item').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const skin = data.find(s => s.id === btn.dataset.id);
+        addToCompare(skin);
+        searchResults.style.display = 'none';
+        searchInput.value = '';
+      });
+    });
+  }
+
+  function addToCompare(skin) {
+    if (compareList.some(s => s.id === skin.id)) return;
+    if (compareList.length >= MAX_COMPARE) {
+      alert(`Możesz porównać maksymalnie ${MAX_COMPARE} skiny naraz. Usuń jeden, żeby dodać kolejny.`);
+      return;
+    }
+    compareList.push({ ...skin, priceState: 'idle', priceRaw: null, selectedWear: (skin.wears && skin.wears[2]) || (skin.wears && skin.wears[0]) || '' });
+    renderCompare();
+  }
+
+  function removeFromCompare(id) {
+    compareList = compareList.filter(s => s.id !== id);
+    renderCompare();
+  }
+
+  function renderCompare() {
+    if (compareList.length === 0) {
+      compareSection.style.display = 'none';
+      compareHint.style.display = 'block';
+      compareHint.textContent = 'Dodaj przynajmniej 2 skiny, żeby zobaczyć porównanie.';
+      return;
+    }
+    compareSection.style.display = 'block';
+    compareHint.style.display = compareList.length < 2 ? 'block' : 'none';
+    compareHint.textContent = 'Dodaj przynajmniej jeszcze jeden skin, żeby zobaczyć pełne porównanie.';
+
+    const rarityBadge = (s) => {
+      const r = RARITY_MAP[s.rarity];
+      if (!r) return s.rarity;
+      return `<span style="color:${r.color}">${r.label}</span>`;
+    };
+
+    const rows = [
+      { label: 'Skin', render: s => `<a href="/skins/${s.slug}" class="compare-skin-link">${s.weapon} | ${s.name}</a>` },
+      { label: 'Kategoria', render: s => WEAPON_CATEGORIES[s.category] || s.category },
+      { label: 'Rzadkość', render: s => rarityBadge(s) },
+      { label: 'Zakres float', render: s => `${s.min_float.toFixed(2)} – ${s.max_float.toFixed(2)}` },
+      { label: 'Dostępne wear', render: s => (s.wears || []).join(', ') },
+      { label: 'Rok wydania', render: s => s.release_year || '—' },
+      { label: 'Kolekcja / skrzynka', render: s => s.collection || s.case_source || '—' },
+      { label: 'Cena (Steam Market)', render: s => renderPriceCell(s) },
+      { label: '', render: s => `<button class="compare-remove-btn" data-remove="${s.id}">Usuń</button>` },
+    ];
+
+    compareTable.innerHTML = `
+      <tbody>
+        ${rows.map(row => `
+          <tr>
+            <th>${row.label}</th>
+            ${compareList.map(s => `<td>${row.render(s)}</td>`).join('')}
+          </tr>
+        `).join('')}
+      </tbody>
+    `;
+
+    compareTable.querySelectorAll('[data-remove]').forEach(btn => {
+      btn.addEventListener('click', () => removeFromCompare(btn.dataset.remove));
+    });
+    compareTable.querySelectorAll('.wear-select').forEach(sel => {
+      sel.addEventListener('change', () => {
+        const skin = compareList.find(s => s.id === sel.dataset.id);
+        if (skin) { skin.selectedWear = sel.value; skin.priceState = 'idle'; skin.priceRaw = null; renderCompare(); }
+      });
+    });
+    compareTable.querySelectorAll('.fetch-price-btn').forEach(btn => {
+      btn.addEventListener('click', () => fetchPriceFor(btn.dataset.id));
+    });
+  }
+
+  function renderPriceCell(s) {
+    const wearOptions = (s.wears || []).map(w => `<option value="${w}" ${w === s.selectedWear ? 'selected' : ''}>${w}</option>`).join('');
+    let priceLine = '';
+    if (s.priceState === 'loading') priceLine = '<span class="compare-price-loading">Sprawdzam...</span>';
+    else if (s.priceState === 'done') priceLine = `<span class="compare-price-value">${s.priceRaw || 'brak ofert'}</span>`;
+    else if (s.priceState === 'error') priceLine = '<span class="compare-price-error">Błąd sprawdzania</span>';
+    else priceLine = `<button class="btn btn-ghost btn-small fetch-price-btn" data-id="${s.id}">Sprawdź cenę</button>`;
+
+    return `
+      <div class="compare-price-cell">
+        <select class="admin-input wear-select" data-id="${s.id}" style="font-size:12px;padding:6px 8px">${wearOptions}</select>
+        ${priceLine}
+      </div>
+    `;
+  }
+
+  async function fetchPriceFor(id) {
+    const skin = compareList.find(s => s.id === id);
+    if (!skin) return;
+    skin.priceState = 'loading';
+    renderCompare();
+
+    const marketHashName = `${skin.weapon} | ${skin.name} (${skin.selectedWear})`;
+    try {
+      const resp = await fetch(`${SUPABASE_FUNCTIONS_URL}/steam-price`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'apikey': window.__SUPABASE_ANON_KEY, 'Authorization': `Bearer ${window.__SUPABASE_ANON_KEY}` },
+        body: JSON.stringify({ itemName: marketHashName }),
+      });
+      const data = await resp.json();
+      if (data.success && data.lowest_price) {
+        skin.priceRaw = data.lowest_price.includes('zł') ? data.lowest_price : data.lowest_price + ' zł';
+        skin.priceState = 'done';
+      } else {
+        skin.priceRaw = null;
+        skin.priceState = 'done';
+      }
+    } catch (e) {
+      skin.priceState = 'error';
+    }
+    renderCompare();
+  }
+</script>
+
+<style>
+.breadcrumb { display:flex; align-items:center; gap:8px; padding:20px 0 0; font-size:13px; color:var(--text2); }
+.breadcrumb a { color:var(--text2); text-decoration:none; }
+.breadcrumb a:hover { color:var(--accent); }
+
+.page-header { padding:32px 0 40px; border-bottom:1px solid var(--border); margin-bottom:36px; }
+.page-header-badge { display:inline-flex; align-items:center; gap:8px; font-family:var(--font-mono); font-size:11px; letter-spacing:2px; text-transform:uppercase; color:var(--accent); margin-bottom:16px; }
+.dot { width:8px; height:8px; background:var(--accent); border-radius:50%; animation:pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+.page-header h1 { font-size:clamp(26px,4vw,44px); font-weight:900; margin-bottom:12px; }
+.page-header p { font-size:16px; color:var(--text2); max-width:700px; line-height:1.7; }
+
+.search-label { display: block; font-size: 13px; color: var(--text2); margin-bottom: 8px; }
+.search-wrap { position: relative; }
+.search-results {
+  position: absolute; top: calc(100% + 6px); left: 0; right: 0; z-index: 50;
+  background: var(--bg2); border: 1px solid var(--border2); border-radius: 10px;
+  padding: 6px; box-shadow: 0 12px 30px rgba(0,0,0,0.5);
+  max-height: 320px; overflow-y: auto;
+}
+.search-result-item {
+  width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 10px;
+  background: transparent; border: none; text-align: left; cursor: pointer;
+  padding: 10px 12px; border-radius: 7px; color: var(--text);
+}
+.search-result-item:hover { background: var(--bg3); }
+.search-result-name { font-size: 14px; font-weight: 600; }
+.search-result-meta { font-size: 11px; color: var(--text2); font-family: var(--font-mono); white-space: nowrap; }
+.search-result-empty { padding: 12px; color: var(--text2); font-size: 13px; }
+
+.compare-scroll { overflow-x: auto; }
+.compare-table { width: 100%; border-collapse: collapse; min-width: 560px; }
+.compare-table th, .compare-table td {
+  padding: 12px 16px; text-align: left; border-bottom: 1px solid var(--border);
+  vertical-align: top; font-size: 14px;
+}
+.compare-table th {
+  color: var(--text2); font-weight: 600; font-size: 13px; white-space: nowrap;
+  width: 160px; background: var(--bg2); position: sticky; left: 0;
+}
+.compare-table td { min-width: 180px; color: var(--text); }
+.compare-skin-link { color: var(--accent); font-weight: 700; text-decoration: none; }
+.compare-skin-link:hover { text-decoration: underline; }
+.compare-remove-btn {
+  background: rgba(235,75,75,0.1); border: 1px solid rgba(235,75,75,0.3); color: var(--red);
+  border-radius: 6px; padding: 5px 12px; font-size: 12px; cursor: pointer;
+}
+.compare-price-cell { display: flex; flex-direction: column; gap: 8px; }
+.compare-price-value { color: var(--green); font-weight: 700; font-size: 15px; }
+.compare-price-loading { color: var(--text2); font-size: 13px; }
+.compare-price-error { color: var(--red); font-size: 13px; }
+</style>
+</Layout>
