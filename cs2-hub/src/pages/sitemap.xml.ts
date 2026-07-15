@@ -16,7 +16,7 @@ export const GET: APIRoute = async () => {
     { url: '/skins', priority: '0.9', changefreq: 'weekly' },
     { url: '/poradniki', priority: '0.7', changefreq: 'weekly' },
     { url: '/porownaj', priority: '0.6', changefreq: 'weekly' },
-  ];
+  ]
 
   const casePages = CASES.map(c => ({
     url: `/kalkulator/${c.slug}`,
