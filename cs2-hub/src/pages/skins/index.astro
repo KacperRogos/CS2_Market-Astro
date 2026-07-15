@@ -33,6 +33,12 @@ const schema = {
     <p>Opisy, statystyki float range, rzadkości i linki do Steam Market dla najpopularniejszych skinów. Wkrótce pełna baza wszystkich skinów CS2.</p>
   </div>
 
+  <!-- Search -->
+  <div class="skins-search-wrap">
+    <input type="text" id="skinsSearch" class="skins-search-input" placeholder="Szukaj skina, np. AK-47, Redline, AWP..." autocomplete="off" />
+    <span id="skinsSearchCount" class="skins-search-count"></span>
+  </div>
+
   <!-- Filter bar -->
   <div class="filter-bar">
     <button class="filter-btn active" data-filter="all">Wszystkie ({SKINS.length})</button>
@@ -46,7 +52,7 @@ const schema = {
   <!-- Skins grid -->
   <div class="skins-grid" id="skinsGrid">
     {SKINS.map(skin => (
-      <a href={`/skins/${skin.slug}`} class="skin-card" data-category={skin.category} data-rarity={skin.rarity}>
+      <a href={`/skins/${skin.slug}`} class="skin-card" data-category={skin.category} data-rarity={skin.rarity} data-search={`${skin.weapon} ${skin.name}`.toLowerCase()}>
         <div class="skin-card-header" style={`border-top-color: ${RARITY_MAP[skin.rarity]?.color || '#4b69ff'}`}>
           <div class="skin-weapon-tag">{skin.weapon}</div>
           <span class="skin-rarity-badge" style={`color: ${RARITY_MAP[skin.rarity]?.color || '#4b69ff'}`}>
@@ -71,6 +77,7 @@ const schema = {
       </a>
     ))}
   </div>
+  <p id="skinsEmptyState" class="skins-empty-state" style="display:none">Brak skinów pasujących do wyszukiwania.</p>
 
   <!-- SEO content -->
   <section class="seo-content">
@@ -99,17 +106,38 @@ const schema = {
 <script>
 const btns = document.querySelectorAll('.filter-btn');
 const cards = document.querySelectorAll('.skin-card') as NodeListOf<HTMLElement>;
+const searchInput = document.getElementById('skinsSearch') as HTMLInputElement;
+const searchCount = document.getElementById('skinsSearchCount') as HTMLElement;
+const emptyState = document.getElementById('skinsEmptyState') as HTMLElement;
+
+let activeCategory = 'all';
+
+function applyFilters() {
+  const query = searchInput.value.trim().toLowerCase();
+  let visibleCount = 0;
+
+  cards.forEach(card => {
+    const matchesCategory = activeCategory === 'all' || card.dataset.category === activeCategory;
+    const matchesSearch = !query || (card.dataset.search || '').includes(query);
+    const visible = matchesCategory && matchesSearch;
+    card.style.display = visible ? '' : 'none';
+    if (visible) visibleCount++;
+  });
+
+  searchCount.textContent = query ? `Znaleziono: ${visibleCount}` : '';
+  emptyState.style.display = visibleCount === 0 ? 'block' : 'none';
+}
 
 btns.forEach(btn => {
   btn.addEventListener('click', () => {
     btns.forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
-    const filter = (btn as HTMLElement).dataset.filter;
-    cards.forEach(card => {
-      card.style.display = (filter === 'all' || card.dataset.category === filter) ? '' : 'none';
-    });
+    activeCategory = (btn as HTMLElement).dataset.filter || 'all';
+    applyFilters();
   });
 });
+
+searchInput.addEventListener('input', applyFilters);
 </script>
 
 <style>
@@ -120,6 +148,16 @@ btns.forEach(btn => {
 .page-header { padding:32px 0 40px; border-bottom:1px solid var(--border); margin-bottom:36px; }
 .page-header h1 { font-size:clamp(26px,4vw,44px); font-weight:900; margin-bottom:12px; }
 .page-header p { font-size:16px; color:var(--text2); max-width:700px; line-height:1.7; }
+
+.skins-search-wrap { position: relative; margin-bottom: 20px; }
+.skins-search-input {
+  width: 100%;
+  background: var(--bg2); border: 1px solid var(--border); border-radius: 10px;
+  padding: 12px 16px; color: var(--text); font-family: var(--font); font-size: 15px;
+}
+.skins-search-input:focus { outline: none; border-color: var(--border2); }
+.skins-search-count { display: block; margin-top: 8px; font-size: 12px; color: var(--text2); font-family: var(--font-mono); }
+.skins-empty-state { text-align: center; padding: 48px 0; color: var(--text2); font-size: 15px; }
 
 .filter-bar { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:32px; }
 .filter-btn {
