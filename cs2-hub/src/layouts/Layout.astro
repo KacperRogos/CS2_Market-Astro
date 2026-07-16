@@ -63,6 +63,9 @@ const fullTitle = title.includes('CS2') ? title : `${title} | CS2 Trading Hub`;
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="preconnect" href="https://community.cloudflare.steamstatic.com" />
 
+  <!-- Fonty — link zamiast @import w CSS, żeby ładowały się równolegle, nie blokując renderowania -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" />
+
   <slot name="head" />
 </head>
 <body>
@@ -70,7 +73,7 @@ const fullTitle = title.includes('CS2') ? title : `${title} | CS2 Trading Hub`;
 <header class="site-header">
   <div class="container header-inner">
     <a href="/" class="logo">
-      <img src="/favicon.png" alt="CS2 Trading Hub" width="36" height="36" />
+      <img src="/logo.webp" alt="CS2 Trading Hub" width="36" height="36" />
       <span class="logo-text">CS2 <em>TRADING</em></span>
     </a>
 
@@ -107,7 +110,7 @@ const fullTitle = title.includes('CS2') ? title : `${title} | CS2 Trading Hub`;
   <div class="container footer-inner">
     <div class="footer-brand">
       <a href="/" class="logo">
-        <img src="/favicon.png" alt="CS2 Trading Hub" width="28" height="28" />
+        <img src="/logo.webp" alt="CS2 Trading Hub" width="28" height="28" />
         <span class="logo-text">CS2 <em>TRADING</em></span>
       </a>
       <p>Narzędzia dla traderów skinów CS2. Kalkulator skrzynek, baza skinów, tracker portfela.</p>
