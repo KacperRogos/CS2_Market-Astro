@@ -1,4 +1,6 @@
-@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap');
+/* Fonty Google ładowane teraz przez <link> w Layout.astro (head), nie przez @import —
+   @import w CSS blokuje renderowanie, bo przeglądarka musi najpierw pobrać i sparsować
+   cały ten plik, zanim w ogóle zacznie pobierać fonty. Link w <head> ładuje się równolegle. */
 
 :root {
   --bg:       #0a0e14;
