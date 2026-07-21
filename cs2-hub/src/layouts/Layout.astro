@@ -63,8 +63,14 @@ const fullTitle = title.includes('CS2') ? title : `${title} | CS2 Trading Hub`;
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="preconnect" href="https://community.cloudflare.steamstatic.com" />
 
-  <!-- Fonty — link zamiast @import w CSS, żeby ładowały się równolegle, nie blokując renderowania -->
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" />
+  <!-- Fonty — preload + zamiana na stylesheet dopiero po załadowaniu, żeby NIE blokować
+       renderowania strony (zwykły <link rel="stylesheet"> nadal by blokował, mimo że
+       ładuje się równolegle z resztą). Dla przeglądarek bez JS/onload — fallback w <noscript>. -->
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" media="print" onload="this.media='all'" />
+  <noscript>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" />
+  </noscript>
 
   <slot name="head" />
 </head>
