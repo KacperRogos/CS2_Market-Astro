@@ -11,7 +11,8 @@
     "preview": "astro preview",
     "astro": "astro",
     "seed:skins": "tsx src/scripts/seed-skins.ts",
-    "seed:cases": "tsx src/scripts/seed-cases.ts"
+    "seed:cases": "tsx src/scripts/seed-cases.ts",
+    "seed:weapons-bulk": "tsx src/scripts/seed-weapons-bulk.ts"
   },
   "dependencies": {
     "@astrojs/netlify": "^8.0.0",

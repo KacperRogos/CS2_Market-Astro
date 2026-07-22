@@ -96,6 +96,10 @@ const WEARS = ['Factory New', 'Minimal Wear', 'Field-Tested', 'Well-Worn', 'Batt
         <input class="admin-input" type="url" id="f_steamMarketUrl" required />
       </label>
 
+      <label class="full">Link do zdjęcia skina (opcjonalnie)
+        <input class="admin-input" type="url" id="f_imageUrl" placeholder="https://community.akamai.steamstatic.com/economy/image/..." />
+      </label>
+
       <label class="full">Tagi (oddzielone przecinkiem)
         <input class="admin-input" type="text" id="f_tags" placeholder="popular, investment, trading" />
       </label>
@@ -165,6 +169,7 @@ const WEARS = ['Factory New', 'Minimal Wear', 'Field-Tested', 'Well-Worn', 'Batt
       release_year: parseInt(document.getElementById('f_releaseYear').value, 10),
       steam_market_url: document.getElementById('f_steamMarketUrl').value.trim(),
       tags,
+      image_url: document.getElementById('f_imageUrl').value.trim() || null,
     };
 
     const { data, error } = await supabase

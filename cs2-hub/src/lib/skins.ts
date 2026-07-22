@@ -19,6 +19,7 @@ interface SkinRow {
   release_year: number;
   steam_market_url: string;
   tags: string[];
+  image_url: string | null;
 }
 
 function mapRow(row: SkinRow): SkinEntry {
@@ -39,6 +40,7 @@ function mapRow(row: SkinRow): SkinEntry {
     releaseYear: row.release_year,
     steamMarketUrl: row.steam_market_url,
     tags: row.tags,
+    imageUrl: row.image_url ?? undefined,
   };
 }
 
