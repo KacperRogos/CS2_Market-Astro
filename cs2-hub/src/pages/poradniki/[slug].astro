@@ -329,18 +329,18 @@ const articles: Record<string, {
   },
   'jak-importowac-ekwipunek-steam': {
     title: 'Jak zaimportować ekwipunek ze Steam do trackera portfela',
-    description: 'Krok po kroku: jak ustawić publiczny ekwipunek Steam, znaleźć Steam ID64 i zaimportować skiny do trackera CS2.',
-    category: 'Podstawy', readTime: '5 min', date: '2025-04-08',
+    description: 'Krok po kroku: jak ustawić publiczny ekwipunek Steam i zaimportować skiny do trackera CS2 — wystarczy Steam ID lub link do profilu.',
+    category: 'Podstawy', readTime: '4 min', date: '2025-04-08',
     tags: ['import', 'steam', 'portfel'],
     content: `
 <h2>Krok 1: Ustaw ekwipunek jako publiczny</h2>
 <p>Wejdź w Ustawienia Steam → Prywatność → Ekwipunek gry i ustaw na "Publiczny". Bez tego import jest niemożliwy — API Steam nie zwróci listy przedmiotów.</p>
-<h2>Krok 2: Znajdź swój Steam ID64</h2>
-<p>Wejdź na swój profil Steam i użyj steamidfinder.com — skopiuj 17-cyfrowy steamID64. Możesz też wkleić bezpośrednio URL swojego profilu Steam.</p>
-<h2>Krok 3: Importuj do trackera</h2>
-<p>W aplikacji CS2 Trading Hub kliknij "Importuj ekwipunek", wklej Steam ID64 i wybierz czy chcesz zastąpić czy dołączyć do istniejącego portfela. Aplikacja automatycznie pobierze ceny ze Steam Market.</p>
+<h2>Krok 2: Wklej Steam ID lub link do profilu i importuj</h2>
+<p>W aplikacji CS2 Trading Hub kliknij "Importuj ekwipunek" i wklej swój steamID64, link do profilu (steamcommunity.com/profiles/...) albo link z własną nazwą (steamcommunity.com/id/...) — nie trzeba szukać ID na żadnej zewnętrznej stronie. Wybierz czy chcesz zastąpić czy dołączyć do istniejącego portfela. Aplikacja automatycznie pobierze ceny ze Steam Market.</p>
 <h2>Co się importuje?</h2>
 <p>Importowane są wszystkie marketable skiny z CS2 — bronie, noże, rękawice, skrzynki, kapsuły i naklejki. Każdy item dostaje automatyczne pobieranie ceny.</p>
+<h2>Czy to bezpieczne?</h2>
+<p>Tak. Aplikacja nie ma dostępu do Twojego konta ani ekwipunku — import tylko jednorazowo odczytuje publicznie dostępną listę przedmiotów, żeby móc śledzić ich ceny. Nic w Twoim ekwipunku Steam nie może się zmienić ani zniknąć w wyniku importu.</p>
     `,
   },
   'skiny-stattrack-czy-warto': {
@@ -672,64 +672,23 @@ const articles: Record<string, {
   'cs-money-platformy-wymiany': {
     title: 'CS.Money i platformy wymiany skin-za-skin – jak działają i czy są bezpieczne',
     description: 'Jak działają platformy typu skin-za-skin, jakie mają opłaty i na co uważać.',
-    category: 'Platformy', readTime: '18 min', date: '2026-02-10',
+    category: 'Platformy', readTime: '7 min', date: '2026-02-10',
     tags: ['cs.money', 'wymiana', 'platformy'],
     content: `
 <h2>Czym różni się platforma wymiany od marketplace'u</h2>
-<p>Steam Market, Buff163 czy Skinport to platformy typu marketplace. Sprzedajesz przedmiot za walutę (realną lub wewnętrzny kredyt), a kupujący płaci gotówką. Ty otrzymujesz środki, on otrzymuje skin. Cała transakcja przechodzi przez jasno określony etap sprzedaży i zakupu, z podaną ceną w walucie.</p>
-<p>Platformy takie jak CS.Money działają zupełnie inaczej. Pozwalają wymienić Twój przedmiot bezpośrednio na inny przedmiot z ich puli, bez przechodzenia przez etap sprzedaży za pieniądze. Nie otrzymujesz gotówki ani kredytu, który mógłbyś wypłacić. Otrzymujesz konkretny, inny skin. To fundamentalnie inny model biznesowy, mimo że efekt końcowy (zmiana zawartości Twojego ekwipunku) wygląda podobnie z perspektywy użytkownika.</p>
-
-<h2>Skąd wzięły się platformy wymiany</h2>
-<p>Model wymiany skin za skin wyrósł bezpośrednio z mechaniki tradingu wbudowanej w samego Steama. Zanim powstały rozbudowane platformy zewnętrzne, gracze wymieniali się przedmiotami ręcznie, negocjując w czatach, na forach i grupach Steam. Było to czasochłonne i podatne na oszustwa, bo brakowało zewnętrznego, zaufanego pośrednika ustalającego wartość przedmiotów.</p>
-<p>Platformy takie jak CS.Money zautomatyzowały ten proces. Zamiast szukać drugiej osoby chętnej wymienić dokładnie to, co masz, na dokładnie to, czego chcesz, platforma sama trzyma ogromną pulę przedmiotów i sama proponuje Ci wymianę na podstawie algorytmu wyceny. To rozwiązało klasyczny problem "podwójnej zbieżności potrzeb" znany z ekonomii barterowej.</p>
-
-<h2>Jak działa mechanizm wymiany krok po kroku</h2>
-<p>Typowy proces wygląda następująco. Najpierw logujesz się na platformę przez Steam (OAuth, bez podawania hasła do Steam). Następnie wrzucasz swoje skiny do wirtualnego "koszyka" wymiany. Platforma automatycznie wycenia je na podstawie własnego algorytmu, zwykle opartego o aktualne ceny ze Steam Market pomniejszone o marżę platformy.</p>
-<p>W kolejnym kroku przeglądasz katalog przedmiotów dostępnych do wymiany i wybierasz to, co chcesz otrzymać. System pokazuje różnicę wartości między tym, co oddajesz, a tym, co chcesz dostać. Jeśli różnica jest w Twoją stronę (dopłacasz), musisz dopłacić realnymi środkami lub dorzucić dodatkowe przedmioty. Jeśli różnica jest na Twoją korzyść, część platform pozwala odebrać nadwyżkę, inne po prostu ją zatrzymują jako dodatkową marżę.</p>
-<p>Po zaakceptowaniu oferty przez obie strony (Ty i system platformy) wymiana odbywa się poprzez standardowy mechanizm Steam Trade Offer. Platforma wysyła Ci ofertę wymiany bezpośrednio na Twoje konto Steam, którą akceptujesz w normalnym oknie Steam, dokładnie tak jak przy wymianie ze znajomym.</p>
-
-<h2>Główne rodzaje platform wymiany</h2>
-<p>Nie wszystkie platformy działają identycznie. Warto rozróżnić kilka podtypów, bo różnią się modelem zarobku i ryzykiem.</p>
-<p><strong>Platformy typu "upgrade" lub "case battle"</strong> pozwalają wrzucić kilka tańszych przedmiotów i wylosować szansę na coś droższego, często z elementem losowości podobnym do otwierania skrzynki. To najbardziej ryzykowny wariant, bliższy hazardowi niż zwykłej wymianie.</p>
-<p><strong>Platformy typu katalogowego</strong>, jak klasyczne CS.Money, pokazują konkretną listę dostępnych przedmiotów z jasno podaną ceną wymiany, bez elementu losowości. Wymieniasz na coś konkretnego, widocznego z góry, więc ryzyko ogranicza się głównie do uczciwości wyceny, nie do losowości wyniku.</p>
-<p><strong>Platformy hybrydowe</strong> łączą funkcję marketplace'u (możesz sprzedać za kredyt wewnętrzny) z funkcją wymiany bezpośredniej, dając użytkownikowi wybór metody w zależności od tego, co mu się bardziej opłaca w danym momencie.</p>
-
+<p>Steam Market, Buff163 czy Skinport to platformy typu marketplace — sprzedajesz przedmiot za walutę (realną lub wewnętrzny kredyt), a kupujący płaci gotówką. Platformy takie jak CS.Money działają inaczej: pozwalają wymienić Twój przedmiot bezpośrednio na inny przedmiot z ich puli, bez przechodzenia przez etap sprzedaży za pieniądze.</p>
+<h2>Jak działa mechanizm wymiany</h2>
+<p>Wrzucasz swoje skiny do "koszyka" na platformie, wybierasz przedmioty które chcesz w zamian z ich oferty, a system automatycznie wylicza różnicę wartości (zwykle na Twoją niekorzyść — to właśnie stąd platforma czerpie zysk). Jeśli różnica jest akceptowalna, wymiana odbywa się natychmiast poprzez Steam Trade.</p>
 <h2>Zalety takiego podejścia</h2>
-<p>Szybkość to główna zaleta. Nie czekasz na pojawienie się kupca zainteresowanego akurat Twoim przedmiotem, jak przy zwykłej sprzedaży na Steam Market, gdzie mniej popularne skiny potrafią leżeć tygodniami. Wymiana odbywa się praktycznie natychmiast, bo platforma sama jest gotowym partnerem transakcji.</p>
-<p>Możliwość "upgrade'u", czyli łączenia kilku tańszych, mniej pożądanych przedmiotów w jeden droższy i bardziej atrakcyjny skin, to druga istotna zaleta. Wielu graczy gromadzi z czasem sporo drobnych, mało wartościowych przedmiotów (naklejki, tanie skiny broni), które osobno trudno sensownie spieniężyć ze względu na niski wolumen i wysoką względną prowizję. Wymiana pozwala je skonsolidować w jeden, bardziej płynny przedmiot.</p>
-<p>Brak potrzeby wypłacania środków na konto bankowe i ponownego wpłacania ich, by kupić kolejny skin, to trzecia zaleta praktyczna. Cała operacja odbywa się w obrębie ekwipunku, bez angażowania zewnętrznych metod płatności, co dla części użytkowników jest po prostu wygodniejsze.</p>
-
-<h2>Wady i ograniczenia, o których rzadko się mówi</h2>
-<p>Wybór dostępnych przedmiotów zależy całkowicie od aktualnej puli platformy. Jeśli akurat nie mają w ofercie tego, czego szukasz, nic nie zdziałasz, w przeciwieństwie do otwartego rynku jak Steam Market, gdzie w teorii każdy przedmiot kiedyś się pojawi u jakiegoś sprzedawcy.</p>
-<p>Brak elastyczności cenowej to kolejne ograniczenie. Na Steam Market możesz negocjować, czekać na lepszy moment, ustawić własną cenę. Na platformie wymiany akceptujesz wycenę systemu albo rezygnujesz z transakcji, bez pola do negocjacji.</p>
-<p>Trzeci problem to brak realnej gotówki na wyjściu. Jeśli Twoim celem jest w pewnym momencie spieniężyć kolekcję i wypłacić realne środki, platformy czysto wymienne Ci w tym nie pomogą, bo z definicji nie oferują wyjścia w postaci gotówki, tylko kolejne przedmioty.</p>
-
-<h2>Ukryty koszt: spread wymiany</h2>
-<p>Platformy skin za skin zarabiają na różnicy między ceną, po jakiej wyceniają Twój przedmiot przy oddawaniu, a ceną, po jakiej wyceniają przedmiot, który otrzymujesz. Ten mechanizm nazywa się spreadem i jest głównym, choć często niewidocznym na pierwszy rzut oka, źródłem zarobku platformy.</p>
-<p>Konkretny przykład liczbowy pomaga to zrozumieć. Załóżmy, że Twój skin wart jest na Steam Market 100 złotych. Platforma wymiany wyceni go przy przyjęciu na, powiedzmy, 85 złotych (15% w dół). Gdy wybierasz przedmiot do otrzymania również wart rynkowo 100 złotych, platforma pokaże jego "cenę wymiany" jako, powiedzmy, 115 złotych (15% w górę). W efekcie realnie oddajesz przedmiot warty 100 złotych, a otrzymujesz przedmiot wart rynkowo tylko około 85 złotych, tracąc łącznie około 30% wartości na samej mechanice spreadu, mimo że z perspektywy interfejsu "różnica wartości" pokazana przez platformę mogła wyglądać na zerową lub minimalną.</p>
-<p>Ten spread bywa większy niż standardowa prowizja marketplace'u (dla porównania Steam Market pobiera około 15% przy zwykłej sprzedaży). Zawsze porównuj realną wartość rynkową obu przedmiotów na niezależnym źródle (na przykład bezpośrednio na Steam Market) przed zaakceptowaniem wymiany, zamiast ufać wyłącznie liczbom pokazanym przez samą platformę.</p>
-
-<h2>Jak samodzielnie policzyć, czy wymiana się opłaca</h2>
-<p>Zanim zaakceptujesz jakąkolwiek propozycję wymiany, wykonaj prostą kontrolę. Sprawdź aktualną, najniższą cenę sprzedaży Twojego przedmiotu na Steam Market. Następnie sprawdź aktualną, najniższą cenę sprzedaży przedmiotu, który chcesz otrzymać, również na Steam Market. Podziel drugą wartość przez pierwszą.</p>
-<p>Jeśli wynik jest bliski 1 (czyli obie wartości rynkowe są zbliżone), a platforma jednocześnie pokazuje, że musisz jeszcze dopłacić, to sygnał, że tracisz na spreadzie więcej niż zwykle. Jeśli różnica przekracza mniej więcej 20 do 25%, w większości przypadków bardziej opłaca się sprzedać przedmiot na zwykłym marketplace'ie i kupić docelowy skin osobno za gotówkę, płacąc dwie standardowe prowizje, niż zaakceptować jedną wymianę z dużym spreadem.</p>
-
-<h2>Weryfikacja bezpieczeństwa platformy</h2>
-<p>Sprawdzaj reputację platformy przed pierwszą transakcją. Rynek skinów przyciąga również platformy działające nieuczciwie lub takie, które po zebraniu wystarczającej liczby depozytów użytkowników po prostu znikają, zabierając ich przedmioty. Kilka konkretnych elementów wartych sprawdzenia:</p>
 <ul>
-  <li>Jak długo platforma działa na rynku i czy ma stabilną, rozpoznawalną markę wśród traderów</li>
-  <li>Czy w wyszukiwarce i na forach społeczności CS2 pojawiają się świeże, powtarzające się skargi użytkowników na brak wypłat lub zniknięcie środków</li>
-  <li>Czy proces logowania odbywa się wyłącznie przez oficjalny mechanizm Steam OpenID, bez proszenia o login i hasło do Steam bezpośrednio na stronie platformy</li>
-  <li>Czy platforma jasno i publicznie opisuje swoją politykę prowizji oraz zasady wymiany, zamiast ukrywać je w drobnym druku</li>
+  <li>Szybkość — nie czekasz na kupca jak przy zwykłej sprzedaży</li>
+  <li>Możliwość "upgrade'u" — łączenia kilku tańszych przedmiotów w jeden droższy</li>
+  <li>Brak potrzeby wypłacania i ponownego wpłacania środków</li>
 </ul>
-<p>Nie wysyłaj przedmiotów "na zaufanie" poza oficjalnym mechanizmem wymiany platformy, nawet jeśli ktoś (na przykład rzekomy moderator na Discordzie danej platformy) obiecuje szybszą lub korzystniejszą transakcję poza standardowym systemem. Zawsze sprawdzaj też, czy adres strony, na której się logujesz, jest autentyczny. Fałszywe klony popularnych platform wymiany to jedna z częstszych metod phishingu w społeczności CS2, bo ofiara sama, dobrowolnie inicjuje proces logowania przez Steam, myśląc że robi to na prawdziwej stronie.</p>
-
-<h2>Najczęstsze błędy początkujących traderów</h2>
-<p>Pierwszym częstym błędem jest akceptowanie pierwszej zaproponowanej wymiany bez porównania jej z realną ceną rynkową obu przedmiotów. Drugim jest kumulowanie wielu drobnych, niekorzystnych wymian w przekonaniu, że "to tylko trochę traci się za każdym razem", podczas gdy suma tych strat po kilkunastu transakcjach potrafi być bardzo odczuwalna dla wartości całego portfela.</p>
-<p>Trzecim błędem jest ignorowanie opcji sprzedaży na zwykłym marketplace'ie jako alternatywy, tylko dlatego że wymiana wydaje się szybsza i wygodniejsza. Wygoda ma swoją cenę wpisaną właśnie w spread, o którym pisaliśmy wyżej, i warto świadomie zdecydować, czy w danej sytuacji czas rzeczywiście jest wart tej różnicy.</p>
-
-<h2>Podsumowanie: kiedy warto korzystać z platform wymiany</h2>
-<p>Platformy skin za skin mają sens przede wszystkim wtedy, gdy zależy Ci na szybkości i wygodzie bardziej niż na maksymalizacji wartości, gdy chcesz skonsolidować wiele drobnych, mało płynnych przedmiotów w jeden bardziej wartościowy skin, albo gdy dany przedmiot jest trudny do sprzedania na zwykłym marketplace'ie ze względu na bardzo niski wolumen obrotu.</p>
-<p>Jeśli natomiast Twoim priorytetem jest uzyskanie jak najwyższej realnej wartości za posiadane przedmioty, standardowa sprzedaż na Steam Market lub zewnętrznym marketplace'ie z niższą prowizją zwykle wygrywa ekonomicznie ze wszystkimi wariantami wymiany bezpośredniej, właśnie przez wyeliminowanie spreadu, który jest wpisany w samą konstrukcję tych platform.</p>
+<h2>Ukryty koszt: spread wymiany</h2>
+<p>Platformy skin-za-skin zarabiają na różnicy między ceną, po jakiej wyceniają Twój przedmiot przy oddawaniu, a ceną, po jakiej wyceniają przedmiot który otrzymujesz. Ten spread bywa większy niż standardowa prowizja marketplace'u — czasem sięga 10-20%. Zawsze porównaj realną wartość rynkową obu przedmiotów przed zaakceptowaniem wymiany.</p>
+<h2>Na co uważać</h2>
+<p>Sprawdzaj reputację platformy przed pierwszą transakcją — rynek skinów przyciąga też platformy działające nieuczciwie lub znikające z depozytami użytkowników. Nie wysyłaj przedmiotów "na zaufanie" poza oficjalnym mechanizmem trade platformy, i zawsze sprawdzaj czy link do strony jest autentyczny (fałszywe klony popularnych platform to częsta metoda phishingu).</p>
     `,
   },
   'naklejki-rzadkosc-holo-foil-gold': {

@@ -59,6 +59,11 @@ const schema = {
             {RARITY_MAP[skin.rarity]?.label}
           </span>
         </div>
+        {skin.imageUrl && (
+          <div class="skin-card-image">
+            <img src={skin.imageUrl} alt={`${skin.weapon} | ${skin.name}`} loading="lazy" width="256" height="192" />
+          </div>
+        )}
         <div class="skin-card-body">
           <h2 class="skin-name">{skin.weapon} | {skin.name}</h2>
           <p class="skin-desc">{skin.description.slice(0, 100)}...</p>
@@ -204,6 +209,14 @@ searchInput.addEventListener('input', applyFilters);
   justify-content:space-between;
   align-items:flex-start;
 }
+.skin-card-image {
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:6px 16px;
+  background:var(--bg3);
+}
+.skin-card-image img { width:100%; max-height:120px; object-fit:contain; }
 .skin-weapon-tag {
   font-family:var(--font-mono);
   font-size:10px;

@@ -17,6 +17,7 @@ export interface SkinEntry {
   releaseYear: number;
   steamMarketUrl: string;
   tags: string[];
+  imageUrl?: string;
 }
 
 const STANDARD_WEARS = ['Factory New', 'Minimal Wear', 'Field-Tested', 'Well-Worn', 'Battle-Scarred'];

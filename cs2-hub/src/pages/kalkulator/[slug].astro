@@ -7,17 +7,29 @@ import {
   type Case, type Rarity
 } from '../../data/cases';
 import { getAllCases } from '../../lib/cases';
+import { getAllSkins } from '../../lib/skins';
+
+function slugifyName(str: string) {
+  return str
+    .toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
+}
 
 export async function getStaticPaths() {
   const cases = await getAllCases();
+  const allSkins = await getAllSkins();
+  const skinSlugs = allSkins.map(s => s.slug);
   return cases.map(c => ({
     params: { slug: c.slug },
-    props: { caseData: c, allCases: cases },
+    props: { caseData: c, allCases: cases, skinSlugs },
   }));
 }
 
-interface Props { caseData: Case; allCases: Case[]; }
-const { caseData, allCases } = Astro.props;
+interface Props { caseData: Case; allCases: Case[]; skinSlugs: string[]; }
+const { caseData, allCases, skinSlugs } = Astro.props;
+const skinSlugSet = new Set(skinSlugs);
 
 const rarityOrder: Rarity[] = ['rare-special', 'covert', 'classified', 'restricted', 'mil-spec'];
 const skinsByRarity = rarityOrder.reduce((acc, rarity) => {
@@ -176,14 +188,14 @@ const schema = {
                     </span>
                   ))}
                 </div>
-                <a
-                  href={`https://steamcommunity.com/market/listings/730/${encodeURIComponent(`${skin.weapon} | ${skin.name}`)}`}
-                  class="skin-steam-link"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Steam Market →
-                </a>
+                {(() => {
+                  const targetSlug = slugifyName(`${skin.weapon} ${skin.name}`);
+                  return skinSlugSet.has(targetSlug) ? (
+                    <a href={`/skins/${targetSlug}`} class="skin-steam-link">
+                      Zobacz w bazie skinów →
+                    </a>
+                  ) : null;
+                })()}
               </div>
             ))}
           </div>

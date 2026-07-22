@@ -108,8 +108,11 @@ window.__WEAPON_CATEGORIES = WEAPON_CATEGORIES;
 
     searchResults.innerHTML = data.map(s => `
       <button class="search-result-item" data-id="${s.id}">
-        <span class="search-result-name">${s.weapon} | ${s.name}</span>
-        <span class="search-result-meta">${WEAPON_CATEGORIES[s.category] || s.category}</span>
+        ${s.image_url ? `<img src="${s.image_url}" alt="" class="search-result-img" loading="lazy" />` : ''}
+        <span class="search-result-text">
+          <span class="search-result-name">${s.weapon} | ${s.name}</span>
+          <span class="search-result-meta">${WEAPON_CATEGORIES[s.category] || s.category}</span>
+        </span>
       </button>
     `).join('');
     searchResults.style.display = 'block';
@@ -157,6 +160,7 @@ window.__WEAPON_CATEGORIES = WEAPON_CATEGORIES;
     };
 
     const rows = [
+      { label: '', render: s => s.image_url ? `<img src="${s.image_url}" alt="${s.weapon} | ${s.name}" class="compare-skin-img" loading="lazy" />` : '' },
       { label: 'Skin', render: s => `<a href="/skins/${s.slug}" class="compare-skin-link">${s.weapon} | ${s.name}</a>` },
       { label: 'Kategoria', render: s => WEAPON_CATEGORIES[s.category] || s.category },
       { label: 'Rzadkość', render: s => rarityBadge(s) },
@@ -258,11 +262,13 @@ window.__WEAPON_CATEGORIES = WEAPON_CATEGORIES;
   max-height: 320px; overflow-y: auto;
 }
 .search-result-item {
-  width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 10px;
+  width: 100%; display: flex; align-items: center; gap: 10px;
   background: transparent; border: none; text-align: left; cursor: pointer;
-  padding: 10px 12px; border-radius: 7px; color: var(--text);
+  padding: 8px 12px; border-radius: 7px; color: var(--text);
 }
 .search-result-item:hover { background: var(--bg3); }
+.search-result-img { width: 36px; height: 27px; object-fit: contain; flex-shrink: 0; background: var(--bg3); border-radius: 4px; }
+.search-result-text { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
 .search-result-name { font-size: 14px; font-weight: 600; }
 .search-result-meta { font-size: 11px; color: var(--text2); font-family: var(--font-mono); white-space: nowrap; }
 .search-result-empty { padding: 12px; color: var(--text2); font-size: 13px; }
@@ -278,6 +284,7 @@ window.__WEAPON_CATEGORIES = WEAPON_CATEGORIES;
   width: 160px; background: var(--bg2); position: sticky; left: 0;
 }
 .compare-table td { min-width: 180px; color: var(--text); }
+.compare-skin-img { width: 100%; max-width: 160px; height: 90px; object-fit: contain; background: var(--bg3); border-radius: 6px; }
 .compare-skin-link { color: var(--accent); font-weight: 700; text-decoration: none; }
 .compare-skin-link:hover { text-decoration: underline; }
 .compare-remove-btn {
