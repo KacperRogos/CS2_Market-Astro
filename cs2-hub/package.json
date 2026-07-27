@@ -12,7 +12,14 @@
     "astro": "astro",
     "seed:skins": "tsx src/scripts/seed-skins.ts",
     "seed:cases": "tsx src/scripts/seed-cases.ts",
-    "seed:weapons-bulk": "tsx src/scripts/seed-weapons-bulk.ts"
+    "seed:weapons-bulk": "tsx src/scripts/seed-weapons-bulk.ts",
+    "diagnose:case-links": "tsx src/scripts/diagnose-case-links.ts",
+    "sync:missing-case-skins": "tsx src/scripts/sync-missing-case-skins.ts",
+    "fix:case-contents": "tsx src/scripts/fix-case-contents.ts",
+    "seed:case-specials": "tsx src/scripts/seed-case-specials.ts",
+    "expand:case-specials": "tsx src/scripts/expand-case-specials.ts",
+    "seed:all-cases": "tsx src/scripts/seed-all-cases.ts",
+    "diagnose:rarity": "tsx src/scripts/diagnose-rarity.ts"
   },
   "dependencies": {
     "@astrojs/netlify": "^8.0.0",

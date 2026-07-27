@@ -1,4 +1,4 @@
-export type WeaponCategory = 'rifle' | 'pistol' | 'smg' | 'sniper' | 'shotgun' | 'heavy' | 'knife' | 'gloves';
+export type WeaponCategory = 'rifle' | 'pistol' | 'smg' | 'sniper' | 'shotgun' | 'heavy' | 'equipment' | 'knife' | 'gloves';
 
 export interface SkinEntry {
   id: string;
@@ -21,6 +21,19 @@ export interface SkinEntry {
 }
 
 const STANDARD_WEARS = ['Factory New', 'Minimal Wear', 'Field-Tested', 'Well-Worn', 'Battle-Scarred'];
+
+/**
+ * Ta sama logika slugowania co w seed-weapons-bulk.ts i w /admin/dodaj-skrzynke —
+ * używana wszędzie tam, gdzie trzeba dopasować "Broń + Nazwa" do wiersza w tabeli
+ * `skins` (np. link ze skrzynki do strony skina).
+ */
+export function slugify(input: string): string {
+  return input
+    .toLowerCase()
+    .normalize('NFKD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
 
 /**
  * @deprecated Dane skinów żyją teraz w Supabase (tabela `skins`).
@@ -265,6 +278,7 @@ export const WEAPON_CATEGORIES: Record<WeaponCategory, string> = {
   sniper: 'Karabiny snajperskie',
   shotgun: 'Strzelby',
   heavy: 'Ciężkie',
+  equipment: 'Sprzęt',
   knife: 'Noże',
   gloves: 'Rękawice',
 };
@@ -289,6 +303,7 @@ export const WEAPONS_BY_CATEGORY: Record<WeaponCategory, string[]> = {
   sniper: ['AWP', 'SSG 08', 'SCAR-20', 'G3SG1'],
   shotgun: ['Nova', 'XM1014', 'Sawed-Off', 'MAG-7'],
   heavy: ['Negev', 'M249'],
+  equipment: ['Zeus x27'],
   knife: [
     'Karambit', 'M9 Bayonet', 'Bayonet', 'Butterfly Knife', 'Flip Knife', 'Gut Knife',
     'Huntsman Knife', 'Falchion Knife', 'Bowie Knife', 'Shadow Daggers', 'Talon Knife',

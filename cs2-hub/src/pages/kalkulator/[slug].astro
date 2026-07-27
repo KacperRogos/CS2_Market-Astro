@@ -6,30 +6,26 @@ import {
   avgCasesNeeded, avgCostNeeded,
   type Case, type Rarity
 } from '../../data/cases';
+import { slugify } from '../../data/skins';
 import { getAllCases } from '../../lib/cases';
 import { getAllSkins } from '../../lib/skins';
 
-function slugifyName(str: string) {
-  return str
-    .toLowerCase()
-    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/(^-|-$)/g, '');
-}
-
 export async function getStaticPaths() {
-  const cases = await getAllCases();
-  const allSkins = await getAllSkins();
-  const skinSlugs = allSkins.map(s => s.slug);
+  const [cases, skins] = await Promise.all([getAllCases(), getAllSkins()]);
+  const knownSkinSlugs = skins.map(s => s.slug);
   return cases.map(c => ({
     params: { slug: c.slug },
-    props: { caseData: c, allCases: cases, skinSlugs },
+    props: { caseData: c, allCases: cases, knownSkinSlugs },
   }));
 }
 
-interface Props { caseData: Case; allCases: Case[]; skinSlugs: string[]; }
-const { caseData, allCases, skinSlugs } = Astro.props;
-const skinSlugSet = new Set(skinSlugs);
+interface Props { caseData: Case; allCases: Case[]; knownSkinSlugs: string[]; }
+const { caseData, allCases, knownSkinSlugs } = Astro.props;
+const knownSkinSlugSet = new Set(knownSkinSlugs);
+const otherCases = allCases
+  .filter(c => c.id !== caseData.id)
+  .sort(() => Math.random() - 0.5)
+  .slice(0, 4);
 
 const rarityOrder: Rarity[] = ['rare-special', 'covert', 'classified', 'restricted', 'mil-spec'];
 const skinsByRarity = rarityOrder.reduce((acc, rarity) => {
@@ -92,7 +88,6 @@ const schema = {
     </div>
   </div>
 
-  <!-- INTERACTIVE CALCULATOR -->
   <section class="interactive-calc">
     <h2><Icon name="dice" size={20} /> Kalkulator szans</h2>
     <p class="section-desc">Ile skrzynek chcesz otworzyć? Oblicz szansę na zdobycie wybranego rzadkości.</p>
@@ -122,17 +117,14 @@ const schema = {
         </div>
       </div>
 
-      <!-- Hidden data carriers for JS -->
       <span id="calc-key-price" data-price={caseData.keyPrice} style="display:none"></span>
       <span id="calc-case-price" data-price={caseData.casePrice} style="display:none"></span>
 
       <div id="calc-result" class="calc-result-box">
-        <!-- Filled by JS -->
       </div>
     </div>
   </section>
 
-  <!-- STATIC ROI TABLE -->
   <section class="roi-section">
     <h2>Statystyczny koszt każdego rzadkości</h2>
     <div class="roi-grid">
@@ -163,7 +155,6 @@ const schema = {
     </div>
   </section>
 
-  <!-- FULL CONTENTS -->
   <section class="contents-section">
     <h2>Pełna zawartość {caseData.name}</h2>
     {rarityOrder.map(rarity => {
@@ -176,35 +167,35 @@ const schema = {
             <span class="rarity-pct">{(DROP_RATES[rarity] * 100).toFixed(2)}%</span>
           </div>
           <div class="skins-grid">
-            {skins.map(skin => (
-              <div class={`skin-card rarity-border-${skin.rarity}`}>
-                <div class="skin-weapon">{skin.weapon}</div>
-                <div class="skin-name">{skin.name}</div>
-                <div class="skin-float">Float: {skin.minFloat.toFixed(2)}–{skin.maxFloat.toFixed(2)}</div>
-                <div class="skin-wears">
-                  {skin.wears.map(w => (
-                    <span class="wear-tag">
-                      {w.replace('Factory New','FN').replace('Minimal Wear','MW').replace('Field-Tested','FT').replace('Well-Worn','WW').replace('Battle-Scarred','BS')}
-                    </span>
-                  ))}
-                </div>
-                {(() => {
-                  const targetSlug = slugifyName(`${skin.weapon} ${skin.name}`);
-                  return skinSlugSet.has(targetSlug) ? (
-                    <a href={`/skins/${targetSlug}`} class="skin-steam-link">
-                      Zobacz w bazie skinów →
+            {skins.map(skin => {
+              const skinSlug = slugify(`${skin.weapon}-${skin.name}`);
+              const inDatabase = knownSkinSlugSet.has(skinSlug);
+              return (
+                <div class={`skin-card rarity-border-${skin.rarity}`}>
+                  <div class="skin-weapon">{skin.weapon}</div>
+                  <div class="skin-name">{skin.name}</div>
+                  <div class="skin-float">Float: {skin.minFloat.toFixed(2)}–{skin.maxFloat.toFixed(2)}</div>
+                  <div class="skin-wears">
+                    {skin.wears.map(w => (
+                      <span class="wear-tag">
+                        {w.replace('Factory New','FN').replace('Minimal Wear','MW').replace('Field-Tested','FT').replace('Well-Worn','WW').replace('Battle-Scarred','BS')}
+                      </span>
+                    ))}
+                  </div>
+                  {inDatabase && (
+                    <a href={`/skins/${skinSlug}`} class="skin-db-link">
+                      Zobacz w bazie →
                     </a>
-                  ) : null;
-                })()}
-              </div>
-            ))}
+                  )}
+                </div>
+              );
+            })}
           </div>
         </div>
       );
     })}
   </section>
 
-  <!-- SEO CONTENT -->
   <section class="seo-content">
     <h2>Czy warto otwierać {caseData.name}?</h2>
     <p>
@@ -221,7 +212,7 @@ const schema = {
     <div class="other-cases">
       <h3>Inne skrzynki w kalkulatorze</h3>
       <div class="other-cases-list">
-        {allCases.filter(c => c.id !== caseData.id).map(c => (
+        {otherCases.map(c => (
           <a href={`/kalkulator/${c.slug}`} class="other-case-link">{c.name} →</a>
         ))}
       </div>
@@ -290,12 +281,12 @@ const schema = {
 .roi-section { margin-bottom:60px; }
 .roi-section h2 { font-size:22px; margin-bottom:24px; }
 .roi-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(190px,1fr)); gap:16px; }
-.roi-card { background:var(--bg2); border:1px solid var(--border); border-top:3px solid; border-radius:var(--radius); padding:18px; }
-.rarity-border-mil-spec { border-top-color:#4b69ff; }
-.rarity-border-restricted { border-top-color:#8847ff; }
-.rarity-border-classified { border-top-color:#d32ce6; }
-.rarity-border-covert { border-top-color:#eb4b4b; }
-.rarity-border-rare-special { border-top-color:#e4ae39; }
+.roi-card { background:var(--bg2); border:1px solid var(--border); border-top-width:3px; border-top-style:solid; border-radius:var(--radius); padding:18px; }
+.rarity-border-mil-spec { border-top-color:#4b69ff; border-left-color:#4b69ff; }
+.rarity-border-restricted { border-top-color:#8847ff; border-left-color:#8847ff; }
+.rarity-border-classified { border-top-color:#d32ce6; border-left-color:#d32ce6; }
+.rarity-border-covert { border-top-color:#eb4b4b; border-left-color:#eb4b4b; }
+.rarity-border-rare-special { border-top-color:#e4ae39; border-left-color:#e4ae39; }
 .roi-rarity { font-size:13px; font-weight:600; margin-bottom:8px; }
 .roi-chance { font-family:var(--font-hud); font-size:26px; font-weight:700; color:#e8f4f8; margin-bottom:12px; }
 .roi-stat-row { display:flex; justify-content:space-between; align-items:center; font-size:13px; padding:4px 0; border-bottom:1px solid var(--border); }
@@ -313,15 +304,15 @@ const schema = {
 .rarity-header h3 { font-size:15px; font-weight:700; letter-spacing:1px; }
 .rarity-pct { font-family:var(--font-mono); font-size:12px; color:var(--text2); margin-left:auto; }
 .skins-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(170px,1fr)); gap:12px; }
-.skin-card { background:var(--bg2); border:1px solid var(--border); border-left:3px solid; border-radius:var(--radius); padding:14px; transition:all 0.2s; }
+.skin-card { background:var(--bg2); border:1px solid var(--border); border-left-width:3px; border-left-style:solid; border-radius:var(--radius); padding:14px; transition:all 0.2s; }
 .skin-card:hover { background:var(--bg3); }
 .skin-weapon { font-family:var(--font-mono); font-size:10px; text-transform:uppercase; letter-spacing:1px; color:var(--text2); margin-bottom:4px; }
 .skin-name { font-size:14px; font-weight:700; color:#e8f4f8; margin-bottom:6px; line-height:1.3; }
 .skin-float { font-family:var(--font-mono); font-size:11px; color:var(--text2); margin-bottom:8px; }
 .skin-wears { display:flex; flex-wrap:wrap; gap:3px; margin-bottom:10px; }
 .wear-tag { background:var(--bg3); border:1px solid var(--border); border-radius:3px; padding:1px 5px; font-family:var(--font-mono); font-size:9px; color:var(--text2); }
-.skin-steam-link { font-size:11px; color:var(--accent); text-decoration:none; font-weight:600; }
-.skin-steam-link:hover { text-decoration:underline; }
+.skin-db-link { font-size:11px; color:#e8f4f8; text-decoration:none; font-weight:700; }
+.skin-db-link:hover { text-decoration:underline; color:var(--accent); }
 
 /* SEO */
 .seo-content { border-top:1px solid var(--border); padding-top:48px; margin-bottom:60px; }
