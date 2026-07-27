@@ -1,0 +1,1186 @@
+{
+  "Revolution Case": [
+    {
+      "weapon": "AK-47",
+      "name": "Head Shot",
+      "rarity": "covert",
+      "wears": [
+        "Factory New",
+        "Minimal Wear",
+        "Field-Tested",
+        "Well-Worn",
+        "Battle-Scarred"
+      ],
+      "minFloat": 0,
+      "maxFloat": 1
+    },
+    {
+      "weapon": "AWP",
+      "name": "Duality",
+      "rarity": "classified",
+      "wears": [
+        "Factory New",
+        "Minimal Wear",
+        "Field-Tested",
+        "Well-Worn",
+        "Battle-Scarred"
+      ],
+      "minFloat": 0,
+      "maxFloat": 0.8
+    },
+    {
+      "weapon": "Glock-18",
+      "name": "Umbral Rabbit",
+      "rarity": "restricted",
+      "wears": [
+        "Factory New",
+        "Minimal Wear",
+        "Field-Tested",
+        "Well-Worn",
+        "Battle-Scarred"
+      ],
+      "minFloat": 0,
+      "maxFloat": 0.75
+    },
+    {
+      "weapon": "P2000",
+      "name": "Wicked Sick",
+      "rarity": "classified",
+      "wears": [
+        "Factory New",
+        "Minimal Wear",
+        "Field-Tested",
+        "Well-Worn",
+        "Battle-Scarred"
+      ],
+      "minFloat": 0,
+      "maxFloat": 1
+    },
+    {
+      "weapon": "M4A4",
+      "name": "Temukau",
+      "rarity": "covert",
+      "wears": [
+        "Factory New",
+        "Minimal Wear",
+        "Field-Tested",
+        "Well-Worn",
+        "Battle-Scarred"
+      ],
+      "minFloat": 0,
+      "maxFloat": 0.8
+    },
+    {
+      "weapon": "M4A1-S",
+      "name": "Emphorosaur-S",
+      "rarity": "restricted",
+      "wears": [
+        "Factory New",
+        "Minimal Wear",
+        "Field-Tested",
+        "Well-Worn",
+        "Battle-Scarred"
+      ],
+      "minFloat": 0,
+      "maxFloat": 0.8
+    },
+    {
+      "weapon": "MAC-10",
+      "name": "Sakkaku",
+      "rarity": "restricted",
+      "wears": [
+        "Field-Tested",
+        "Well-Worn",
+        "Battle-Scarred"
+      ],
+      "minFloat": 0.21,
+      "maxFloat": 0.79
+    },
+    {
+      "weapon": "MAG-7",
+      "name": "Insomnia",
+      "rarity": "mil-spec",
+      "wears": [
+        "Factory New",
+        "Minimal Wear",
+        "Field-Tested",
+        "Well-Worn",
+        "Battle-Scarred"
+      ],
+      "minFloat": 0,
+      "maxFloat": 1
+    },
+    {
+      "weapon": "MP5-SD",
+      "name": "Liquidation",
+      "rarity": "mil-spec",
+      "wears": [
+        "Factory New",
+        "Minimal Wear",
+        "Field-Tested",
+        "Well-Worn",
+        "Battle-Scarred"
+      ],
+      "minFloat": 0,
+      "maxFloat": 1
+    },
+    {
+      "weapon": "MP9",
+      "name": "Featherweight",
+      "rarity": "mil-spec",
+      "wears": [
+        "Factory New",
+        "Minimal Wear",
+        "Field-Tested",
+        "Well-Worn",
+        "Battle-Scarred"
+      ],
+      "minFloat": 0,
+      "maxFloat": 1
+    },
+    {
+      "weapon": "P250",
+      "name": "Re.built",
+      "rarity": "mil-spec",
+      "wears": [
+        "Factory New",
+        "Minimal Wear",
+        "Field-Tested",
+        "Well-Worn",
+        "Battle-Scarred"
+      ],
+      "minFloat": 0,
+      "maxFloat": 0.9
+    },
+    {
+      "weapon": "P90",
+      "name": "Neoqueen",
+      "rarity": "restricted",
+      "wears": [
+        "Factory New",
+        "Minimal Wear",
+        "Field-Tested",
+        "Well-Worn",
+        "Battle-Scarred"
+      ],
+      "minFloat": 0,
+      "maxFloat": 0.6
+    },
+    {
+      "weapon": "R8 Revolver",
+      "name": "Banana Cannon",
+      "rarity": "restricted",
+      "wears": [
+        "Factory New",
+        "Minimal Wear",
+        "Field-Tested",
+        "Well-Worn",
+        "Battle-Scarred"
+      ],
+      "minFloat": 0,
+      "maxFloat": 1
+    },
+    {
+      "weapon": "SCAR-20",
+      "name": "Fragments",
+      "rarity": "mil-spec",
+      "wears": [
+        "Factory New",
+        "Minimal Wear",
+        "Field-Tested",
+        "Well-Worn",
+        "Battle-Scarred"
+      ],
+      "minFloat": 0,
+      "maxFloat": 0.78
+    },
+    {
+      "weapon": "SG 553",
+      "name": "Cyberforce",
+      "rarity": "mil-spec",
+      "wears": [
+        "Factory New",
+        "Minimal Wear",
+        "Field-Tested",
+        "Well-Worn",
+        "Battle-Scarred"
+      ],
+      "minFloat": 0,
+      "maxFloat": 0.9
+    },
+    {
+      "weapon": "Tec-9",
+      "name": "Rebel",
+      "rarity": "mil-spec",
+      "wears": [
+        "Factory New",
+        "Minimal Wear",
+        "Field-Tested",
+        "Well-Worn",
+        "Battle-Scarred"
+      ],
+      "minFloat": 0,
+      "maxFloat": 1
+    },
+    {
+      "weapon": "UMP-45",
+      "name": "Wild Child",
+      "rarity": "classified",
+      "wears": [
+        "Factory New",
+        "Minimal Wear",
+        "Field-Tested",
+        "Well-Worn",
+        "Battle-Scarred"
+      ],
+      "minFloat": 0,
+      "maxFloat": 1
+    }
+  ],
+  "Recoil Case": [
+    {
+      "weapon": "AK-47",
+      "name": "Ice Coaled",
+      "rarity": "classified",
+      "wears": [
+        "Factory New",
+        "Minimal Wear",
+        "Field-Tested",
+        "Well-Worn",
+        "Battle-Scarred"
+      ],
+      "minFloat": 0,
+      "maxFloat": 0.77
+    },
+    {
+      "weapon": "AWP",
+      "name": "Chromatic Aberration",
+      "rarity": "covert",
+      "wears": [
+        "Factory New",
+        "Minimal Wear",
+        "Field-Tested",
+        "Well-Worn",
+        "Battle-Scarred"
+      ],
+      "minFloat": 0,
+      "maxFloat": 0.7
+    },
+    {
+      "weapon": "Dual Berettas",
+      "name": "Flora Carnivora",
+      "rarity": "restricted",
+      "wears": [
+        "Factory New",
+        "Minimal Wear",
+        "Field-Tested",
+        "Well-Worn",
+        "Battle-Scarred"
+      ],
+      "minFloat": 0,
+      "maxFloat": 1
+    },
+    {
+      "weapon": "FAMAS",
+      "name": "Meow 36",
+      "rarity": "mil-spec",
+      "wears": [
+        "Factory New",
+        "Minimal Wear",
+        "Field-Tested",
+        "Well-Worn",
+        "Battle-Scarred"
+      ],
+      "minFloat": 0,
+      "maxFloat": 1
+    },
+    {
+      "weapon": "Galil AR",
+      "name": "Destroyer",
+      "rarity": "mil-spec",
+      "wears": [
+        "Factory New",
+        "Minimal Wear",
+        "Field-Tested",
+        "Well-Worn",
+        "Battle-Scarred"
+      ],
+      "minFloat": 0,
+      "maxFloat": 0.7
+    },
+    {
+      "weapon": "Glock-18",
+      "name": "Winterized",
+      "rarity": "mil-spec",
+      "wears": [
+        "Factory New",
+        "Minimal Wear",
+        "Field-Tested",
+        "Well-Worn",
+        "Battle-Scarred"
+      ],
+      "minFloat": 0,
+      "maxFloat": 1
+    },
+    {
+      "weapon": "M249",
+      "name": "Downtown",
+      "rarity": "restricted",
+      "wears": [
+        "Factory New",
+        "Minimal Wear",
+        "Field-Tested",
+        "Well-Worn",
+        "Battle-Scarred"
+      ],
+      "minFloat": 0,
+      "maxFloat": 0.65
+    },
+    {
+      "weapon": "M4A4",
+      "name": "Poly Mag",
+      "rarity": "mil-spec",
+      "wears": [
+        "Factory New",
+        "Minimal Wear",
+        "Field-Tested",
+        "Well-Worn",
+        "Battle-Scarred"
+      ],
+      "minFloat": 0,
+      "maxFloat": 1
+    },
+    {
+      "weapon": "MAC-10",
+      "name": "Monkeyflage",
+      "rarity": "mil-spec",
+      "wears": [
+        "Factory New",
+        "Minimal Wear",
+        "Field-Tested",
+        "Well-Worn",
+        "Battle-Scarred"
+      ],
+      "minFloat": 0,
+      "maxFloat": 1
+    },
+    {
+      "weapon": "Negev",
+      "name": "Drop Me",
+      "rarity": "mil-spec",
+      "wears": [
+        "Factory New",
+        "Minimal Wear",
+        "Field-Tested",
+        "Well-Worn",
+        "Battle-Scarred"
+      ],
+      "minFloat": 0,
+      "maxFloat": 1
+    },
+    {
+      "weapon": "P250",
+      "name": "Visions",
+      "rarity": "classified",
+      "wears": [
+        "Factory New",
+        "Minimal Wear",
+        "Field-Tested",
+        "Well-Worn",
+        "Battle-Scarred"
+      ],
+      "minFloat": 0,
+      "maxFloat": 0.7
+    },
+    {
+      "weapon": "P90",
+      "name": "Vent Rush",
+      "rarity": "restricted",
+      "wears": [
+        "Factory New",
+        "Minimal Wear",
+        "Field-Tested",
+        "Well-Worn",
+        "Battle-Scarred"
+      ],
+      "minFloat": 0,
+      "maxFloat": 0.7
+    },
+    {
+      "weapon": "R8 Revolver",
+      "name": "Crazy 8",
+      "rarity": "restricted",
+      "wears": [
+        "Factory New",
+        "Minimal Wear",
+        "Field-Tested",
+        "Well-Worn",
+        "Battle-Scarred"
+      ],
+      "minFloat": 0,
+      "maxFloat": 1
+    },
+    {
+      "weapon": "Sawed-Off",
+      "name": "Kiss♥Love",
+      "rarity": "classified",
+      "wears": [
+        "Factory New",
+        "Minimal Wear",
+        "Field-Tested",
+        "Well-Worn",
+        "Battle-Scarred"
+      ],
+      "minFloat": 0,
+      "maxFloat": 1
+    },
+    {
+      "weapon": "SG 553",
+      "name": "Dragon Tech",
+      "rarity": "restricted",
+      "wears": [
+        "Factory New",
+        "Minimal Wear",
+        "Field-Tested",
+        "Well-Worn",
+        "Battle-Scarred"
+      ],
+      "minFloat": 0,
+      "maxFloat": 0.7
+    },
+    {
+      "weapon": "UMP-45",
+      "name": "Roadblock",
+      "rarity": "mil-spec",
+      "wears": [
+        "Factory New",
+        "Minimal Wear",
+        "Field-Tested",
+        "Well-Worn",
+        "Battle-Scarred"
+      ],
+      "minFloat": 0,
+      "maxFloat": 1
+    },
+    {
+      "weapon": "USP-S",
+      "name": "Printstream",
+      "rarity": "covert",
+      "wears": [
+        "Factory New",
+        "Minimal Wear",
+        "Field-Tested",
+        "Well-Worn",
+        "Battle-Scarred"
+      ],
+      "minFloat": 0,
+      "maxFloat": 0.85
+    }
+  ],
+  "Kilowatt Case": [
+    {
+      "weapon": "AK-47",
+      "name": "Inheritance",
+      "rarity": "covert",
+      "wears": [
+        "Factory New",
+        "Minimal Wear",
+        "Field-Tested",
+        "Well-Worn",
+        "Battle-Scarred"
+      ],
+      "minFloat": 0,
+      "maxFloat": 0.797346
+    },
+    {
+      "weapon": "AWP",
+      "name": "Chrome Cannon",
+      "rarity": "covert",
+      "wears": [
+        "Factory New",
+        "Minimal Wear",
+        "Field-Tested",
+        "Well-Worn",
+        "Battle-Scarred"
+      ],
+      "minFloat": 0,
+      "maxFloat": 1
+    },
+    {
+      "weapon": "Dual Berettas",
+      "name": "Hideout",
+      "rarity": "mil-spec",
+      "wears": [
+        "Factory New",
+        "Minimal Wear",
+        "Field-Tested",
+        "Well-Worn",
+        "Battle-Scarred"
+      ],
+      "minFloat": 0,
+      "maxFloat": 0.698529
+    },
+    {
+      "weapon": "Five-SeveN",
+      "name": "Hybrid",
+      "rarity": "restricted",
+      "wears": [
+        "Factory New",
+        "Minimal Wear",
+        "Field-Tested",
+        "Well-Worn",
+        "Battle-Scarred"
+      ],
+      "minFloat": 0,
+      "maxFloat": 1
+    },
+    {
+      "weapon": "Glock-18",
+      "name": "Block-18",
+      "rarity": "restricted",
+      "wears": [
+        "Factory New",
+        "Minimal Wear",
+        "Field-Tested",
+        "Well-Worn",
+        "Battle-Scarred"
+      ],
+      "minFloat": 0,
+      "maxFloat": 0.671875
+    },
+    {
+      "weapon": "M4A4",
+      "name": "Etch Lord",
+      "rarity": "restricted",
+      "wears": [
+        "Factory New",
+        "Minimal Wear",
+        "Field-Tested",
+        "Well-Worn",
+        "Battle-Scarred"
+      ],
+      "minFloat": 0,
+      "maxFloat": 1
+    },
+    {
+      "weapon": "M4A1-S",
+      "name": "Black Lotus",
+      "rarity": "classified",
+      "wears": [
+        "Factory New",
+        "Minimal Wear",
+        "Field-Tested",
+        "Well-Worn",
+        "Battle-Scarred"
+      ],
+      "minFloat": 0,
+      "maxFloat": 0.7
+    },
+    {
+      "weapon": "MAC-10",
+      "name": "Light Box",
+      "rarity": "mil-spec",
+      "wears": [
+        "Factory New",
+        "Minimal Wear",
+        "Field-Tested",
+        "Well-Worn",
+        "Battle-Scarred"
+      ],
+      "minFloat": 0,
+      "maxFloat": 1
+    },
+    {
+      "weapon": "MP7",
+      "name": "Just Smile",
+      "rarity": "restricted",
+      "wears": [
+        "Factory New",
+        "Minimal Wear",
+        "Field-Tested",
+        "Well-Worn",
+        "Battle-Scarred"
+      ],
+      "minFloat": 0,
+      "maxFloat": 1
+    },
+    {
+      "weapon": "Nova",
+      "name": "Dark Sigil",
+      "rarity": "mil-spec",
+      "wears": [
+        "Factory New",
+        "Minimal Wear",
+        "Field-Tested",
+        "Well-Worn",
+        "Battle-Scarred"
+      ],
+      "minFloat": 0,
+      "maxFloat": 0.698529
+    },
+    {
+      "weapon": "Sawed-Off",
+      "name": "Analog Input",
+      "rarity": "restricted",
+      "wears": [
+        "Factory New",
+        "Minimal Wear",
+        "Field-Tested",
+        "Well-Worn",
+        "Battle-Scarred"
+      ],
+      "minFloat": 0,
+      "maxFloat": 0.61886
+    },
+    {
+      "weapon": "SSG 08",
+      "name": "Dezastre",
+      "rarity": "mil-spec",
+      "wears": [
+        "Factory New",
+        "Minimal Wear",
+        "Field-Tested",
+        "Well-Worn",
+        "Battle-Scarred"
+      ],
+      "minFloat": 0,
+      "maxFloat": 1
+    },
+    {
+      "weapon": "Tec-9",
+      "name": "Slag",
+      "rarity": "mil-spec",
+      "wears": [
+        "Factory New",
+        "Minimal Wear",
+        "Field-Tested",
+        "Well-Worn",
+        "Battle-Scarred"
+      ],
+      "minFloat": 0,
+      "maxFloat": 0.9
+    },
+    {
+      "weapon": "UMP-45",
+      "name": "Motorized",
+      "rarity": "mil-spec",
+      "wears": [
+        "Factory New",
+        "Minimal Wear",
+        "Field-Tested",
+        "Well-Worn",
+        "Battle-Scarred"
+      ],
+      "minFloat": 0,
+      "maxFloat": 0.801418
+    },
+    {
+      "weapon": "USP-S",
+      "name": "Jawbreaker",
+      "rarity": "classified",
+      "wears": [
+        "Factory New",
+        "Minimal Wear",
+        "Field-Tested",
+        "Well-Worn",
+        "Battle-Scarred"
+      ],
+      "minFloat": 0,
+      "maxFloat": 1
+    },
+    {
+      "weapon": "XM1014",
+      "name": "Irezumi",
+      "rarity": "mil-spec",
+      "wears": [
+        "Factory New",
+        "Minimal Wear",
+        "Field-Tested",
+        "Well-Worn",
+        "Battle-Scarred"
+      ],
+      "minFloat": 0,
+      "maxFloat": 0.799353
+    }
+  ],
+  "Fracture Case": [
+    {
+      "weapon": "AK-47",
+      "name": "Legion of Anubis",
+      "rarity": "covert",
+      "wears": [
+        "Factory New",
+        "Minimal Wear",
+        "Field-Tested",
+        "Well-Worn",
+        "Battle-Scarred"
+      ],
+      "minFloat": 0,
+      "maxFloat": 0.7
+    },
+    {
+      "weapon": "PP-Bizon",
+      "name": "Runic",
+      "rarity": "mil-spec",
+      "wears": [
+        "Factory New",
+        "Minimal Wear",
+        "Field-Tested",
+        "Well-Worn",
+        "Battle-Scarred"
+      ],
+      "minFloat": 0,
+      "maxFloat": 1
+    },
+    {
+      "weapon": "Desert Eagle",
+      "name": "Printstream",
+      "rarity": "covert",
+      "wears": [
+        "Factory New",
+        "Minimal Wear",
+        "Field-Tested",
+        "Well-Worn",
+        "Battle-Scarred"
+      ],
+      "minFloat": 0,
+      "maxFloat": 0.8
+    },
+    {
+      "weapon": "Galil AR",
+      "name": "Connexion",
+      "rarity": "restricted",
+      "wears": [
+        "Factory New",
+        "Minimal Wear",
+        "Field-Tested",
+        "Well-Worn",
+        "Battle-Scarred"
+      ],
+      "minFloat": 0,
+      "maxFloat": 0.8
+    },
+    {
+      "weapon": "Glock-18",
+      "name": "Vogue",
+      "rarity": "classified",
+      "wears": [
+        "Factory New",
+        "Minimal Wear",
+        "Field-Tested",
+        "Well-Worn",
+        "Battle-Scarred"
+      ],
+      "minFloat": 0,
+      "maxFloat": 0.75
+    },
+    {
+      "weapon": "P2000",
+      "name": "Gnarled",
+      "rarity": "mil-spec",
+      "wears": [
+        "Factory New",
+        "Minimal Wear",
+        "Field-Tested",
+        "Well-Worn",
+        "Battle-Scarred"
+      ],
+      "minFloat": 0,
+      "maxFloat": 1
+    },
+    {
+      "weapon": "M4A4",
+      "name": "Tooth Fairy",
+      "rarity": "classified",
+      "wears": [
+        "Factory New",
+        "Minimal Wear",
+        "Field-Tested",
+        "Well-Worn",
+        "Battle-Scarred"
+      ],
+      "minFloat": 0,
+      "maxFloat": 0.73
+    },
+    {
+      "weapon": "MAC-10",
+      "name": "Allure",
+      "rarity": "restricted",
+      "wears": [
+        "Factory New",
+        "Minimal Wear",
+        "Field-Tested",
+        "Well-Worn",
+        "Battle-Scarred"
+      ],
+      "minFloat": 0,
+      "maxFloat": 1
+    },
+    {
+      "weapon": "MAG-7",
+      "name": "Monster Call",
+      "rarity": "restricted",
+      "wears": [
+        "Factory New",
+        "Minimal Wear",
+        "Field-Tested",
+        "Well-Worn",
+        "Battle-Scarred"
+      ],
+      "minFloat": 0,
+      "maxFloat": 1
+    },
+    {
+      "weapon": "MP5-SD",
+      "name": "Kitbash",
+      "rarity": "restricted",
+      "wears": [
+        "Factory New",
+        "Minimal Wear",
+        "Field-Tested",
+        "Well-Worn",
+        "Battle-Scarred"
+      ],
+      "minFloat": 0,
+      "maxFloat": 0.8
+    },
+    {
+      "weapon": "Negev",
+      "name": "Ultralight",
+      "rarity": "mil-spec",
+      "wears": [
+        "Factory New",
+        "Minimal Wear",
+        "Field-Tested",
+        "Well-Worn",
+        "Battle-Scarred"
+      ],
+      "minFloat": 0,
+      "maxFloat": 0.79
+    },
+    {
+      "weapon": "P250",
+      "name": "Cassette",
+      "rarity": "mil-spec",
+      "wears": [
+        "Factory New",
+        "Minimal Wear",
+        "Field-Tested",
+        "Well-Worn",
+        "Battle-Scarred"
+      ],
+      "minFloat": 0,
+      "maxFloat": 0.6
+    },
+    {
+      "weapon": "P90",
+      "name": "Freight",
+      "rarity": "mil-spec",
+      "wears": [
+        "Factory New",
+        "Minimal Wear",
+        "Field-Tested",
+        "Well-Worn",
+        "Battle-Scarred"
+      ],
+      "minFloat": 0,
+      "maxFloat": 1
+    },
+    {
+      "weapon": "SG 553",
+      "name": "Ol' Rusty",
+      "rarity": "mil-spec",
+      "wears": [
+        "Factory New",
+        "Minimal Wear",
+        "Field-Tested",
+        "Well-Worn",
+        "Battle-Scarred"
+      ],
+      "minFloat": 0,
+      "maxFloat": 0.7
+    },
+    {
+      "weapon": "SSG 08",
+      "name": "Mainframe 001",
+      "rarity": "mil-spec",
+      "wears": [
+        "Factory New",
+        "Minimal Wear",
+        "Field-Tested",
+        "Well-Worn",
+        "Battle-Scarred"
+      ],
+      "minFloat": 0,
+      "maxFloat": 1
+    },
+    {
+      "weapon": "Tec-9",
+      "name": "Brother",
+      "rarity": "restricted",
+      "wears": [
+        "Factory New",
+        "Minimal Wear",
+        "Field-Tested",
+        "Well-Worn",
+        "Battle-Scarred"
+      ],
+      "minFloat": 0,
+      "maxFloat": 1
+    },
+    {
+      "weapon": "XM1014",
+      "name": "Entombed",
+      "rarity": "classified",
+      "wears": [
+        "Factory New",
+        "Minimal Wear",
+        "Field-Tested",
+        "Well-Worn",
+        "Battle-Scarred"
+      ],
+      "minFloat": 0,
+      "maxFloat": 0.5
+    }
+  ],
+  "Dreams & Nightmares Case": [
+    {
+      "weapon": "AK-47",
+      "name": "Nightwish",
+      "rarity": "covert",
+      "wears": [
+        "Factory New",
+        "Minimal Wear",
+        "Field-Tested",
+        "Well-Worn",
+        "Battle-Scarred"
+      ],
+      "minFloat": 0,
+      "maxFloat": 1
+    },
+    {
+      "weapon": "PP-Bizon",
+      "name": "Space Cat",
+      "rarity": "restricted",
+      "wears": [
+        "Factory New",
+        "Minimal Wear",
+        "Field-Tested",
+        "Well-Worn",
+        "Battle-Scarred"
+      ],
+      "minFloat": 0,
+      "maxFloat": 0.67
+    },
+    {
+      "weapon": "Dual Berettas",
+      "name": "Melondrama",
+      "rarity": "classified",
+      "wears": [
+        "Factory New",
+        "Minimal Wear",
+        "Field-Tested",
+        "Well-Worn",
+        "Battle-Scarred"
+      ],
+      "minFloat": 0,
+      "maxFloat": 1
+    },
+    {
+      "weapon": "FAMAS",
+      "name": "Rapid Eye Movement",
+      "rarity": "classified",
+      "wears": [
+        "Factory New",
+        "Minimal Wear",
+        "Field-Tested",
+        "Well-Worn",
+        "Battle-Scarred"
+      ],
+      "minFloat": 0,
+      "maxFloat": 1
+    },
+    {
+      "weapon": "Five-SeveN",
+      "name": "Scrawl",
+      "rarity": "mil-spec",
+      "wears": [
+        "Factory New",
+        "Minimal Wear",
+        "Field-Tested",
+        "Well-Worn",
+        "Battle-Scarred"
+      ],
+      "minFloat": 0,
+      "maxFloat": 1
+    },
+    {
+      "weapon": "G3SG1",
+      "name": "Dream Glade",
+      "rarity": "restricted",
+      "wears": [
+        "Factory New",
+        "Minimal Wear",
+        "Field-Tested",
+        "Well-Worn",
+        "Battle-Scarred"
+      ],
+      "minFloat": 0,
+      "maxFloat": 1
+    },
+    {
+      "weapon": "P2000",
+      "name": "Lifted Spirits",
+      "rarity": "mil-spec",
+      "wears": [
+        "Factory New",
+        "Minimal Wear",
+        "Field-Tested",
+        "Well-Worn",
+        "Battle-Scarred"
+      ],
+      "minFloat": 0,
+      "maxFloat": 1
+    },
+    {
+      "weapon": "M4A1-S",
+      "name": "Night Terror",
+      "rarity": "restricted",
+      "wears": [
+        "Factory New",
+        "Minimal Wear",
+        "Field-Tested",
+        "Well-Worn",
+        "Battle-Scarred"
+      ],
+      "minFloat": 0,
+      "maxFloat": 0.7
+    },
+    {
+      "weapon": "MAC-10",
+      "name": "Ensnared",
+      "rarity": "mil-spec",
+      "wears": [
+        "Factory New",
+        "Minimal Wear",
+        "Field-Tested",
+        "Well-Worn",
+        "Battle-Scarred"
+      ],
+      "minFloat": 0,
+      "maxFloat": 0.9
+    },
+    {
+      "weapon": "MAG-7",
+      "name": "Foresight",
+      "rarity": "mil-spec",
+      "wears": [
+        "Factory New",
+        "Minimal Wear",
+        "Field-Tested",
+        "Well-Worn",
+        "Battle-Scarred"
+      ],
+      "minFloat": 0,
+      "maxFloat": 0.7
+    },
+    {
+      "weapon": "MP5-SD",
+      "name": "Necro Jr.",
+      "rarity": "mil-spec",
+      "wears": [
+        "Factory New",
+        "Minimal Wear",
+        "Field-Tested",
+        "Well-Worn",
+        "Battle-Scarred"
+      ],
+      "minFloat": 0,
+      "maxFloat": 1
+    },
+    {
+      "weapon": "MP7",
+      "name": "Abyssal Apparition",
+      "rarity": "classified",
+      "wears": [
+        "Factory New",
+        "Minimal Wear",
+        "Field-Tested",
+        "Well-Worn",
+        "Battle-Scarred"
+      ],
+      "minFloat": 0,
+      "maxFloat": 1
+    },
+    {
+      "weapon": "MP9",
+      "name": "Starlight Protector",
+      "rarity": "covert",
+      "wears": [
+        "Factory New",
+        "Minimal Wear",
+        "Field-Tested",
+        "Well-Worn",
+        "Battle-Scarred"
+      ],
+      "minFloat": 0,
+      "maxFloat": 0.8
+    },
+    {
+      "weapon": "Sawed-Off",
+      "name": "Spirit Board",
+      "rarity": "mil-spec",
+      "wears": [
+        "Factory New",
+        "Minimal Wear",
+        "Field-Tested",
+        "Well-Worn",
+        "Battle-Scarred"
+      ],
+      "minFloat": 0,
+      "maxFloat": 1
+    },
+    {
+      "weapon": "SCAR-20",
+      "name": "Poultrygeist",
+      "rarity": "mil-spec",
+      "wears": [
+        "Factory New",
+        "Minimal Wear",
+        "Field-Tested",
+        "Well-Worn",
+        "Battle-Scarred"
+      ],
+      "minFloat": 0,
+      "maxFloat": 0.57
+    },
+    {
+      "weapon": "USP-S",
+      "name": "Ticket to Hell",
+      "rarity": "restricted",
+      "wears": [
+        "Factory New",
+        "Minimal Wear",
+        "Field-Tested",
+        "Well-Worn",
+        "Battle-Scarred"
+      ],
+      "minFloat": 0,
+      "maxFloat": 0.76
+    },
+    {
+      "weapon": "XM1014",
+      "name": "Zombie Offensive",
+      "rarity": "restricted",
+      "wears": [
+        "Factory New",
+        "Minimal Wear",
+        "Field-Tested",
+        "Well-Worn",
+        "Battle-Scarred"
+      ],
+      "minFloat": 0,
+      "maxFloat": 0.5
+    }
+  ]
+}

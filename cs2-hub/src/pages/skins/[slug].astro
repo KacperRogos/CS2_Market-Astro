@@ -14,7 +14,10 @@ export async function getStaticPaths() {
 
 const { skin } = Astro.props;
 const rarityInfo = RARITY_MAP[skin.rarity];
-const relatedSkins = (await getSkinsByWeapon(skin.weapon)).filter(s => s.slug !== skin.slug);
+const relatedSkins = (await getSkinsByWeapon(skin.weapon))
+  .filter(s => s.slug !== skin.slug)
+  .sort(() => Math.random() - 0.5)
+  .slice(0, 5);
 
 // Float bar segments
 const wearBoundaries = [
@@ -110,7 +113,6 @@ const schema = {
           <span class="stat-val">{skin.releaseYear}</span>
         </div>
 
-        <!-- Float bar visualization -->
         <div class="float-section">
           <div class="float-label">Dostępny zakres float</div>
           <div class="float-bar-container">
@@ -128,7 +130,6 @@ const schema = {
                   </div>
                 );
               })}
-              <!-- Range indicator -->
               <div
                 class="float-range-indicator"
                 style={`left: ${skin.minFloat * 100}%; width: ${(skin.maxFloat - skin.minFloat) * 100}%`}
@@ -146,7 +147,6 @@ const schema = {
           </div>
         </div>
 
-        <!-- Available wears -->
         <div class="wears-list">
           <div class="float-label">Dostępne jakości</div>
           <div class="wears-chips">
@@ -161,7 +161,6 @@ const schema = {
     </div>
   </div>
 
-  <!-- Tags -->
   {skin.tags.length > 0 && (
     <div class="tags-section">
       {skin.tags.map(tag => (
@@ -170,7 +169,6 @@ const schema = {
     </div>
   )}
 
-  <!-- Related skins same weapon -->
   {relatedSkins.length > 0 && (
     <section class="related-section">
       <h2>Inne skiny do {skin.weapon}</h2>
@@ -188,7 +186,6 @@ const schema = {
     </section>
   )}
 
-  <!-- SEO block -->
   <section class="seo-content">
     <h2>Wszystko o {skin.weapon} | {skin.name}</h2>
     <p>

@@ -1,10 +1,16 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import { WEAPON_CATEGORIES, RARITY_MAP, type WeaponCategory } from '../../data/skins';
-import { getAllSkins } from '../../lib/skins';
+import { getSkinsPage, getSkinCounts } from '../../lib/skins';
 
-const SKINS = await getAllSkins();
-const categories = [...new Set(SKINS.map(s => s.category))] as WeaponCategory[];
+const PAGE_SIZE = 30;
+
+const [firstPage, counts] = await Promise.all([
+  getSkinsPage({}, 0, PAGE_SIZE - 1),
+  getSkinCounts(),
+]);
+
+const categories = Object.keys(counts.byCategory) as WeaponCategory[];
 
 const schema = {
   "@context": "https://schema.org",
@@ -30,7 +36,7 @@ const schema = {
 
   <div class="page-header">
     <h1>Baza skinów CS2</h1>
-    <p>Opisy, statystyki float range, rzadkości i linki do Steam Market dla najpopularniejszych skinów. Wkrótce pełna baza wszystkich skinów CS2.</p>
+    <p>Opisy, statystyki float range, rzadkości i linki do Steam Market. {counts.total} skinów w bazie.</p>
   </div>
 
   <!-- Search -->
@@ -41,18 +47,18 @@ const schema = {
 
   <!-- Filter bar -->
   <div class="filter-bar">
-    <button class="filter-btn active" data-filter="all">Wszystkie ({SKINS.length})</button>
+    <button class="filter-btn active" data-filter="all">Wszystkie ({counts.total})</button>
     {categories.map(cat => (
       <button class="filter-btn" data-filter={cat}>
-        {WEAPON_CATEGORIES[cat]} ({SKINS.filter(s => s.category === cat).length})
+        {WEAPON_CATEGORIES[cat]} ({counts.byCategory[cat]})
       </button>
     ))}
   </div>
 
-  <!-- Skins grid -->
+  <!-- Skins grid: pierwsza strona renderowana od razu (SSG), reszta doładowywana przy scrollu -->
   <div class="skins-grid" id="skinsGrid">
-    {SKINS.map(skin => (
-      <a href={`/skins/${skin.slug}`} class="skin-card" data-category={skin.category} data-rarity={skin.rarity} data-search={`${skin.weapon} ${skin.name}`.toLowerCase()}>
+    {firstPage.map(skin => (
+      <a href={`/skins/${skin.slug}`} class="skin-card">
         <div class="skin-card-header" style={`border-top-color: ${RARITY_MAP[skin.rarity]?.color || '#4b69ff'}`}>
           <div class="skin-weapon-tag">{skin.weapon}</div>
           <span class="skin-rarity-badge" style={`color: ${RARITY_MAP[skin.rarity]?.color || '#4b69ff'}`}>
@@ -82,6 +88,9 @@ const schema = {
       </a>
     ))}
   </div>
+
+  <div id="skinsSentinel" class="skins-sentinel" aria-hidden="true"></div>
+  <p id="skinsLoadingState" class="skins-loading-state" style="display:none">Wczytuję kolejne skiny…</p>
   <p id="skinsEmptyState" class="skins-empty-state" style="display:none">Brak skinów pasujących do wyszukiwania.</p>
 
   <!-- SEO content -->
@@ -109,43 +118,134 @@ const schema = {
 </Layout>
 
 <script>
+import { supabaseBrowser } from '../../lib/supabaseBrowser';
+import { RARITY_MAP } from '../../data/skins';
+
+const PAGE_SIZE = 30; // musi być zgodne z PAGE_SIZE w frontmatterze (pierwsza strona renderowana server-side)
+
+const grid = document.getElementById('skinsGrid') as HTMLElement;
+const sentinel = document.getElementById('skinsSentinel') as HTMLElement;
+const loadingState = document.getElementById('skinsLoadingState') as HTMLElement;
+const emptyState = document.getElementById('skinsEmptyState') as HTMLElement;
 const btns = document.querySelectorAll('.filter-btn');
-const cards = document.querySelectorAll('.skin-card') as NodeListOf<HTMLElement>;
 const searchInput = document.getElementById('skinsSearch') as HTMLInputElement;
 const searchCount = document.getElementById('skinsSearchCount') as HTMLElement;
-const emptyState = document.getElementById('skinsEmptyState') as HTMLElement;
 
-let activeCategory = 'all';
+let activeCategory: string = 'all';
+let activeSearch = '';
+let offset = PAGE_SIZE; // pierwsza strona już wyrenderowana server-side
+let loading = false;
+let hasMore = true;
+let requestId = 0; // żeby ignorować odpowiedzi ze "starych" zapytań po zmianie filtra
 
-function applyFilters() {
-  const query = searchInput.value.trim().toLowerCase();
-  let visibleCount = 0;
-
-  cards.forEach(card => {
-    const matchesCategory = activeCategory === 'all' || card.dataset.category === activeCategory;
-    const matchesSearch = !query || (card.dataset.search || '').includes(query);
-    const visible = matchesCategory && matchesSearch;
-    card.style.display = visible ? '' : 'none';
-    if (visible) visibleCount++;
-  });
-
-  searchCount.textContent = query ? `Znaleziono: ${visibleCount}` : '';
-  emptyState.style.display = visibleCount === 0 ? 'block' : 'none';
+function escapeHtml(s: string) {
+  return s.replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c] as string));
 }
+
+function renderCard(skin: any): string {
+  const color = RARITY_MAP[skin.rarity]?.color || '#4b69ff';
+  const label = RARITY_MAP[skin.rarity]?.label || skin.rarity;
+  const img = skin.image_url
+    ? `<div class="skin-card-image"><img src="${skin.image_url}" alt="${escapeHtml(skin.weapon)} | ${escapeHtml(skin.name)}" loading="lazy" width="256" height="192" /></div>`
+    : '';
+  const wears = (skin.wears || []).map((w: string) => `<span class="wear-dot" title="${escapeHtml(w)}"></span>`).join('');
+  return `
+    <a href="/skins/${skin.slug}" class="skin-card">
+      <div class="skin-card-header" style="border-top-color: ${color}">
+        <div class="skin-weapon-tag">${escapeHtml(skin.weapon)}</div>
+        <span class="skin-rarity-badge" style="color: ${color}">${escapeHtml(label)}</span>
+      </div>
+      ${img}
+      <div class="skin-card-body">
+        <h2 class="skin-name">${escapeHtml(skin.weapon)} | ${escapeHtml(skin.name)}</h2>
+        <p class="skin-desc">${escapeHtml((skin.description || '').slice(0, 100))}...</p>
+      </div>
+      <div class="skin-card-footer">
+        <div class="skin-float-range">
+          <span class="skin-meta-label">Float</span>
+          <span class="skin-meta-val">${Number(skin.min_float).toFixed(2)} – ${Number(skin.max_float).toFixed(2)}</span>
+        </div>
+        <div class="skin-wears-mini">${wears}</div>
+      </div>
+    </a>
+  `;
+}
+
+async function loadMore() {
+  if (loading || !hasMore) return;
+  loading = true;
+  loadingState.style.display = 'block';
+  const myRequestId = requestId;
+
+  let query = supabaseBrowser
+    .from('skins')
+    .select('*')
+    .order('weapon', { ascending: true })
+    .order('name', { ascending: true })
+    .range(offset, offset + PAGE_SIZE - 1);
+
+  if (activeCategory !== 'all') query = query.eq('category', activeCategory);
+  if (activeSearch) query = query.or(`weapon.ilike.%${activeSearch}%,name.ilike.%${activeSearch}%`);
+
+  const { data, error } = await query;
+
+  if (myRequestId !== requestId) return; // filtr/search zmienił się w międzyczasie — ignoruj
+
+  loading = false;
+  loadingState.style.display = 'none';
+
+  if (error) {
+    console.error('Błąd wczytywania skinów:', error);
+    hasMore = false;
+    return;
+  }
+
+  const rows = data || [];
+  grid.insertAdjacentHTML('beforeend', rows.map(renderCard).join(''));
+  offset += rows.length;
+  hasMore = rows.length === PAGE_SIZE;
+
+  const totalShown = grid.querySelectorAll('.skin-card').length;
+  if (activeSearch || activeCategory !== 'all') {
+    searchCount.textContent = `Wczytano: ${totalShown}`;
+  }
+  emptyState.style.display = totalShown === 0 && !hasMore ? 'block' : 'none';
+}
+
+function resetAndReload() {
+  requestId++;
+  grid.innerHTML = '';
+  offset = 0;
+  hasMore = true;
+  emptyState.style.display = 'none';
+  loadMore();
+}
+
+const observer = new IntersectionObserver(entries => {
+  if (entries[0].isIntersecting) loadMore();
+}, { rootMargin: '600px' });
+observer.observe(sentinel);
 
 btns.forEach(btn => {
   btn.addEventListener('click', () => {
     btns.forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     activeCategory = (btn as HTMLElement).dataset.filter || 'all';
-    applyFilters();
+    resetAndReload();
   });
 });
 
-searchInput.addEventListener('input', applyFilters);
+let searchDebounce: ReturnType<typeof setTimeout>;
+searchInput.addEventListener('input', () => {
+  clearTimeout(searchDebounce);
+  searchDebounce = setTimeout(() => {
+    activeSearch = searchInput.value.trim();
+    resetAndReload();
+  }, 300);
+});
 </script>
 
-<style>
+<style is:global>
 .breadcrumb { display:flex; align-items:center; gap:8px; padding:20px 0 0; font-size:13px; color:var(--text2); }
 .breadcrumb a { color:var(--text2); text-decoration:none; }
 .breadcrumb a:hover { color:var(--accent); }
@@ -163,6 +263,8 @@ searchInput.addEventListener('input', applyFilters);
 .skins-search-input:focus { outline: none; border-color: var(--border2); }
 .skins-search-count { display: block; margin-top: 8px; font-size: 12px; color: var(--text2); font-family: var(--font-mono); }
 .skins-empty-state { text-align: center; padding: 48px 0; color: var(--text2); font-size: 15px; }
+.skins-loading-state { text-align: center; padding: 20px 0; color: var(--text2); font-size: 13px; font-family: var(--font-mono); }
+.skins-sentinel { height: 1px; }
 
 .filter-bar { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:32px; }
 .filter-btn {
@@ -188,7 +290,7 @@ searchInput.addEventListener('input', applyFilters);
   display:grid;
   grid-template-columns:repeat(auto-fill, minmax(240px,1fr));
   gap:16px;
-  margin-bottom:60px;
+  margin-bottom:24px;
 }
 .skin-card {
   display:flex;

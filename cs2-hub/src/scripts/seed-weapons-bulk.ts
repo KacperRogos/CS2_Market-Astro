@@ -41,7 +41,7 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 const SOURCE_URL = 'https://raw.githubusercontent.com/ByMykel/CSGO-API/main/public/api/en/skins.json';
 
 // --- tylko kategorie broni (bez knife/gloves) ---
-const WEAPON_CATEGORIES: WeaponCategory[] = ['rifle', 'pistol', 'smg', 'sniper', 'shotgun', 'heavy'];
+const WEAPON_CATEGORIES: WeaponCategory[] = ['rifle', 'pistol', 'smg', 'sniper', 'shotgun', 'heavy', 'equipment'];
 const WEAPON_TO_CATEGORY = new Map<string, WeaponCategory>();
 for (const cat of WEAPON_CATEGORIES) {
   for (const weapon of WEAPONS_BY_CATEGORY[cat]) WEAPON_TO_CATEGORY.set(weapon, cat);

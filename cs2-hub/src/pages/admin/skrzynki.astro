@@ -29,11 +29,13 @@ import Icon from '../../components/Icon.astro';
     <h1>Istniejące skrzynki (<span id="caseCount">0</span>)</h1>
     <div class="dash-header-actions">
       <a href="/admin/dodaj-skrzynke" class="btn btn-primary btn-icon"><Icon name="plus" size={16} /><span>Dodaj skrzynkę</span></a>
+      <button id="refreshPricesBtn" class="btn btn-ghost">Odśwież ceny skrzynek</button>
       <a href="/admin" class="btn btn-ghost">← Panel</a>
       <button id="logoutBtn" class="btn btn-ghost">Wyloguj</button>
     </div>
   </div>
   <p id="dashError" class="error-text"></p>
+  <p id="refreshStatus" class="refresh-status" style="display:none"></p>
 
   <section class="panel">
     <div id="caseList" class="skin-list"></div>
@@ -46,6 +48,10 @@ import Icon from '../../components/Icon.astro';
   const dashError = document.getElementById('dashError');
   const caseList = document.getElementById('caseList');
   const caseCount = document.getElementById('caseCount');
+  const refreshBtn = document.getElementById('refreshPricesBtn');
+  const refreshStatus = document.getElementById('refreshStatus');
+
+  let loadedCases = [];
 
   async function loadCases() {
     dashError.textContent = '';
@@ -54,11 +60,12 @@ import Icon from '../../components/Icon.astro';
       dashError.textContent = 'Nie udało się pobrać skrzynek: ' + error.message;
       return;
     }
+    loadedCases = data;
     caseCount.textContent = data.length;
     caseList.innerHTML = data.map(c => `
       <div class="skin-row" data-id="${c.id}">
         <span class="skin-row-name">${c.name}</span>
-        <span class="skin-row-meta">${c.release_year} · ${Array.isArray(c.skins) ? c.skins.length : 0} skinów</span>
+        <span class="skin-row-meta">${c.release_year} · ${Array.isArray(c.skins) ? c.skins.length : 0} skinów · ${(c.case_price ?? 0).toFixed(2)} zł</span>
         <button class="btn btn-ghost btn-small delete-btn" data-id="${c.id}">Usuń</button>
       </div>
     `).join('') || '<p class="empty-text">Brak skrzynek w bazie.</p>';
@@ -67,6 +74,64 @@ import Icon from '../../components/Icon.astro';
       btn.addEventListener('click', () => deleteCase(btn.getAttribute('data-id')));
     });
   }
+
+  function parsePrice(raw) {
+    if (!raw) return null;
+    const cleaned = raw.replace(/[^0-9,.-]/g, '').replace(',', '.');
+    const value = parseFloat(cleaned);
+    return Number.isFinite(value) ? value : null;
+  }
+
+  const PUBLIC_SUPABASE_URL = import.meta.env.PUBLIC_SUPABASE_URL;
+  const PUBLIC_SUPABASE_ANON_KEY = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
+
+  async function fetchCasePrice(caseName) {
+    const resp = await fetch(`${PUBLIC_SUPABASE_URL}/functions/v1/steam-price`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': PUBLIC_SUPABASE_ANON_KEY,
+        'Authorization': `Bearer ${PUBLIC_SUPABASE_ANON_KEY}`,
+      },
+      body: JSON.stringify({ itemName: caseName }),
+    });
+    const data = await resp.json();
+    if (data.success && data.lowest_price) return parsePrice(data.lowest_price);
+    return null;
+  }
+
+  async function refreshPrices() {
+    if (!loadedCases.length) return;
+    refreshBtn.disabled = true;
+    refreshStatus.style.display = 'block';
+
+    let updated = 0;
+    let failed = 0;
+
+    for (let i = 0; i < loadedCases.length; i++) {
+      const c = loadedCases[i];
+      refreshStatus.textContent = `Pobieram ceny ${i + 1}/${loadedCases.length}: ${c.name}`;
+      try {
+        const price = await fetchCasePrice(c.name);
+        if (price !== null) {
+          const { error } = await supabase.from('cases').update({ case_price: price }).eq('id', c.id);
+          if (!error) updated++;
+          else failed++;
+        } else {
+          failed++;
+        }
+      } catch {
+        failed++;
+      }
+      await new Promise(r => setTimeout(r, 1500));
+    }
+
+    refreshStatus.textContent = `Gotowe. Zaktualizowano ${updated}/${loadedCases.length} cen skrzynek. Cena klucza jest stała (10,49 zł, oficjalna cena Valve 2,49 USD) i nie jest pobierana automatycznie, ponieważ nowe klucze nie są sprzedawane na Steam Market.`;
+    refreshBtn.disabled = false;
+    await loadCases();
+  }
+
+  refreshBtn.addEventListener('click', refreshPrices);
 
   async function deleteCase(id) {
     if (!confirm('Na pewno usunąć tę skrzynkę?')) return;

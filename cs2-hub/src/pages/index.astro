@@ -39,20 +39,6 @@ const schema = {
       <a href="/kalkulator" class="btn btn-primary">Kalkulator skrzynek</a>
       <a href="/app" class="btn btn-ghost">Mój portfel →</a>
     </div>
-    <div class="hero-stats">
-      <div class="stat">
-        <span class="stat-value">0,26%</span>
-        <span class="stat-label">szansa na nóż ze skrzynki</span>
-      </div>
-      <div class="stat">
-        <span class="stat-value">{CASES.length}</span>
-        <span class="stat-label">skrzynek w kalkulatorze</span>
-      </div>
-      <div class="stat">
-        <span class="stat-value">~385×</span>
-        <span class="stat-label">skrzynek na nóż statystycznie</span>
-      </div>
-    </div>
   </div>
 </section>
 
@@ -93,7 +79,7 @@ const schema = {
     <h2 class="section-title">Kalkulator skrzynek CS2</h2>
     <p class="section-sub">Wybierz skrzynkę żeby sprawdzić szanse na każdy skin i koszt statystycznego zdobycia noża.</p>
     <div class="cases-grid">
-      {CASES.map(c => (
+      {CASES.slice(0, 4).map(c => (
         <a href={`/kalkulator/${c.slug}`} class="case-card">
           <div class="case-name">{c.name}</div>
           <div class="case-meta">
@@ -114,6 +100,11 @@ const schema = {
         </a>
       ))}
     </div>
+    {CASES.length > 4 && (
+      <div class="cases-preview-more">
+        <a href="/kalkulator" class="btn btn-ghost">Pokaż więcej skrzynek ({CASES.length - 4}) →</a>
+      </div>
+    )}
   </div>
 </section>
 
@@ -145,9 +136,6 @@ const schema = {
 .accent { color: var(--accent); }
 .hero-sub { font-size: 18px; color: var(--text2); max-width: 600px; margin-bottom: 32px; line-height: 1.7; }
 .hero-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 48px; }
-.hero-stats { display: flex; gap: 40px; padding-top: 32px; border-top: 1px solid var(--border); }
-.stat-value { display: block; font-family: var(--font-hud); font-size: 28px; font-weight: 700; color: var(--accent); }
-.stat-label { font-size: 13px; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; }
 .section-title { font-size: 28px; font-weight: 700; margin-bottom: 12px; letter-spacing: 1px; }
 .section-sub { color: var(--text2); font-size: 16px; margin-bottom: 32px; max-width: 600px; }
 .features { padding: 72px 0; }
@@ -165,6 +153,7 @@ const schema = {
 .feature-link { display: inline-block; margin-top: 16px; font-size: 13px; font-weight: 600; color: var(--accent); letter-spacing: 0.5px; }
 .cases-preview { padding: 0 0 72px; }
 .cases-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(220px,1fr)); gap: 16px; }
+.cases-preview-more { display: flex; justify-content: center; margin-top: 28px; }
 .case-card { display: block; background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; text-decoration: none; transition: all 0.2s; }
 .case-card:hover { border-color: var(--border2); background: var(--bg3); text-decoration: none; }
 .case-name { font-family: var(--font-hud); font-size: 14px; font-weight: 700; color: #e8f4f8; margin-bottom: 8px; letter-spacing: 0.5px; }
@@ -182,7 +171,6 @@ const schema = {
 .info-card strong { color: var(--accent); }
 @media (max-width: 600px) {
   .hero { padding: 48px 0 40px; }
-  .hero-stats { flex-direction: column; gap: 16px; }
   .hero-actions { flex-direction: column; }
   .hero-actions .btn { width: 100%; text-align: center; }
   .features { padding: 48px 0; }
