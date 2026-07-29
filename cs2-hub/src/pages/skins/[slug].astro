@@ -35,13 +35,7 @@ const schema = {
   "description": skin.description,
   "url": `https://cs2-market.netlify.app/skins/${skin.slug}`,
   "inLanguage": "pl",
-  "category": WEAPON_CATEGORIES[skin.category],
-  "offers": {
-    "@type": "Offer",
-    "url": skin.steamMarketUrl,
-    "availability": "https://schema.org/InStock",
-    "seller": { "@type": "Organization", "name": "Steam Community Market" }
-  }
+  "category": WEAPON_CATEGORIES[skin.category]
 };
 ---
 

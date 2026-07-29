@@ -5,6 +5,12 @@
 [build.environment]
   NODE_VERSION = "22"
 
+[[plugins]]
+  package = "@netlify/plugin-lighthouse"
+
+  [plugins.inputs]
+    output_path = "reports/lighthouse.html"
+
 [[redirects]]
   from = "/app/*"
   to = "/app/:splat"
