@@ -1062,23 +1062,22 @@ const schema = {
 .article-tags { display:flex; gap:8px; flex-wrap:wrap; }
 .article-tag { font-family:var(--font-mono); font-size:10px; color:var(--text2); background:var(--bg3); border:1px solid var(--border); border-radius:4px; padding:2px 8px; }
 
-/* Article content */
 .article-content { color:var(--text); line-height:1.85; font-size:16px; }
-.article-content :global(h2) { font-size:22px; font-weight:700; color:#e8f4f8; margin:36px 0 14px; padding-top:4px; }
-.article-content :global(h3) { font-size:18px; font-weight:700; color:#e8f4f8; margin:24px 0 10px; }
-.article-content :global(p) { margin-bottom:16px; color:var(--text2); }
-.article-content :global(ul) { margin:0 0 20px 20px; color:var(--text2); }
-.article-content :global(li) { margin-bottom:8px; line-height:1.7; }
-.article-content :global(.safety-checklist) { list-style: none; margin-left: 0; }
-.article-content :global(.check-item),
-.article-content :global(.cross-item) {
+.article-content h2 { font-size:22px; font-weight:700; color:#e8f4f8; margin:36px 0 14px; padding-top:4px; }
+.article-content h3 { font-size:18px; font-weight:700; color:#e8f4f8; margin:24px 0 10px; }
+.article-content p { margin-bottom:16px; color:var(--text2); }
+.article-content ul { margin:0 0 20px 20px; color:var(--text2); }
+.article-content li { margin-bottom:8px; line-height:1.7; }
+.article-content .safety-checklist { list-style: none; margin-left: 0; }
+.article-content .check-item,
+.article-content .cross-item {
   display: flex; align-items: flex-start; gap: 10px;
 }
-.article-content :global(.check-item .icon) { color: var(--green); margin-top: 3px; }
-.article-content :global(.cross-item .icon) { color: var(--red); margin-top: 3px; }
-.article-content :global(strong) { color:#e8f4f8; font-weight:700; }
-.article-content :global(a) { color:var(--accent); text-decoration:underline; }
-.article-content :global(a:hover) { color:#00aadd; }
+.article-content .check-item .icon { color: var(--green); margin-top: 3px; }
+.article-content .cross-item .icon { color: var(--red); margin-top: 3px; }
+.article-content strong { color:#e8f4f8; font-weight:700; }
+.article-content a { color:var(--accent); text-decoration:underline; }
+.article-content a:hover { color:#00aadd; }
 
 .article-footer-nav { display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-top:48px; padding-top:32px; border-top:1px solid var(--border); }
 

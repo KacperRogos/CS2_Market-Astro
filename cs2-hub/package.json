@@ -32,6 +32,7 @@
     "typescript": "5.8"
   },
   "devDependencies": {
-    "tsx": "^4.19.2"
+    "tsx": "^4.19.2",
+    "@netlify/plugin-lighthouse": "^6.0.4"
   }
 }
