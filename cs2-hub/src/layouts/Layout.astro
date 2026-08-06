@@ -36,6 +36,7 @@ const fullTitle = title.includes('CS2') ? title : `${title} | CS2 Trading Hub`;
   <meta name="author" content="CS2 Trading Hub" />
   <link rel="canonical" href={canonical} />
 
+  <!-- Open Graph -->
   <meta property="og:type" content="website" />
   <meta property="og:url" content={canonical} />
   <meta property="og:title" content={fullTitle} />
@@ -44,22 +45,27 @@ const fullTitle = title.includes('CS2') ? title : `${title} | CS2 Trading Hub`;
   <meta property="og:locale" content="pl_PL" />
   <meta property="og:site_name" content="CS2 Trading Hub" />
 
+  <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content={fullTitle} />
   <meta name="twitter:description" content={description} />
   <meta name="twitter:image" content={`https://cs2-market.netlify.app${ogImage}`} />
 
+  <!-- Schema.org -->
   {schema && (
     <script type="application/ld+json" set:html={JSON.stringify(schema)} />
   )}
 
+  <!-- Favicon -->
   <link rel="icon" type="image/png" href="/favicon.png" />
   <link rel="apple-touch-icon" href="/favicon.png" />
 
+  <!-- Preconnect -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="preconnect" href="https://community.cloudflare.steamstatic.com" />
 
+  <!-- Fonty — link zamiast @import w CSS, żeby ładowały się równolegle, nie blokując renderowania -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" />
 
   <slot name="head" />
@@ -88,6 +94,7 @@ const fullTitle = title.includes('CS2') ? title : `${title} | CS2 Trading Hub`;
     </div>
   </div>
 
+  <!-- Mobile nav -->
   <div class="mobile-nav" id="mobileNav">
     <a href="/kalkulator">Kalkulator skrzynek</a>
     <a href="/skins">Baza skinów</a>
@@ -109,10 +116,6 @@ const fullTitle = title.includes('CS2') ? title : `${title} | CS2 Trading Hub`;
         <span class="logo-text">CS2 <em>TRADING</em></span>
       </a>
       <p>Narzędzia dla traderów skinów CS2. Kalkulator skrzynek, baza skinów, tracker portfela.</p>
-      <div class="footer-legal">
-        <p>CS2 Trading Hub nie jest powiązany z Valve Corporation. Counter-Strike jest znakiem towarowym Valve Corporation.</p>
-        <p style="margin-top:4px">Ceny skinów pobierane ze Steam Community Market. Prawdopodobieństwa drop rate zgodne z oficjalnym ujawnieniem Valve.</p>
-      </div>
     </div>
 
     <div class="footer-links">
@@ -120,113 +123,31 @@ const fullTitle = title.includes('CS2') ? title : `${title} | CS2 Trading Hub`;
         <h4>Narzędzia</h4>
         <a href="/kalkulator">Kalkulator skrzynek</a>
         <a href="/skins">Baza skinów</a>
-        <a href="/porownaj">Porównywarka cen</a>
-        <a href="/poradniki">Poradniki</a>
         <a href="/app">Mój portfel</a>
       </div>
+      <div>
+        <h4>Skrzynki</h4>
+        <a href="/kalkulator/revolution-case">Revolution Case</a>
+        <a href="/kalkulator/recoil-case">Recoil Case</a>
+        <a href="/kalkulator/kilowatt-case">Kilowatt Case</a>
+        <a href="/kalkulator/fracture-case">Fracture Case</a>
+        <a href="/kalkulator/dreams-and-nightmares-case">Dreams &amp; Nightmares</a>
+      </div>
+      <div>
+        <h4>Informacje</h4>
+        <a href="/poradniki">Poradniki</a>
+        <a href="/porownaj">Porównywarka cen</a>
+      </div>
     </div>
+  </div>
 
-    <div class="footer-contact-col">
-      <div class="footer-author">
-        <img src="/logo.webp" alt="logo" width="24" height="24" class="footer-author-logo" />
-        <div>
-          <div class="footer-made">Stronę stworzył</div>
-          <a href="https://rogoskacper.netlify.app/" target="_blank" rel="noopener" class="footer-name">Kacper Rogoś</a>
-        </div>
-      </div>
-
-      <div class="footer-contact-wrap">
-        <button class="footer-contact-btn" id="footerContactBtn">Kontakt</button>
-        <div class="footer-form-box" id="footerContactBox" style="display:none">
-          <div class="footer-form-header">
-            <span>Wyślij wiadomość</span>
-            <button class="footer-form-close" id="footerContactClose">✕</button>
-          </div>
-          <form id="footerContactForm" action="https://formspree.io/f/xeepznno" method="POST">
-            <div class="footer-field" id="footerContactNameWrap">
-              <label>Imię</label>
-              <input type="text" name="name" id="footerContactName" placeholder="Twoje imię" autocomplete="off">
-            </div>
-            <div class="footer-field" id="footerContactEmailWrap">
-              <label>Email</label>
-              <input type="email" name="email" id="footerContactEmail" placeholder="twoj@email.com" autocomplete="off">
-            </div>
-            <div class="footer-field">
-              <label>Wiadomość</label>
-              <textarea name="message" id="footerContactMessage" placeholder="Napisz coś..." rows="4"></textarea>
-            </div>
-            <label class="footer-anon-label">
-              <input type="checkbox" id="footerContactAnon">
-              <span class="footer-anon-check"></span>
-              Wiadomość anonimowa
-            </label>
-            <button type="submit" class="footer-submit-btn">Wyślij wiadomość</button>
-            <div id="footerContactStatus" style="display:none"></div>
-          </form>
-        </div>
-      </div>
+  <div class="footer-bottom">
+    <div class="container">
+      <p>CS2 Trading Hub nie jest powiązany z Valve Corporation. Counter-Strike jest znakiem towarowym Valve Corporation.</p>
+      <p style="margin-top:4px">Ceny skinów pobierane ze Steam Community Market. Prawdopodobieństwa drop rate zgodne z oficjalnym ujawnieniem Valve.</p>
     </div>
   </div>
 </footer>
-
-<script is:inline>
-  function footerToggleContactForm() {
-    const box = document.getElementById('footerContactBox');
-    if (box) box.style.display = box.style.display === 'none' ? 'block' : 'none';
-  }
-
-  document.getElementById('footerContactBtn')?.addEventListener('click', footerToggleContactForm);
-  document.getElementById('footerContactClose')?.addEventListener('click', footerToggleContactForm);
-
-  document.getElementById('footerContactAnon')?.addEventListener('change', function () {
-    const nameWrap = document.getElementById('footerContactNameWrap');
-    const emailWrap = document.getElementById('footerContactEmailWrap');
-    const emailInput = document.getElementById('footerContactEmail');
-    if (nameWrap) nameWrap.style.display = this.checked ? 'none' : '';
-    if (emailWrap) emailWrap.style.display = this.checked ? 'none' : '';
-    if (emailInput) emailInput.value = this.checked ? 'anonim@cs2market.pl' : '';
-  });
-
-  document.getElementById('footerContactForm')?.addEventListener('submit', async function (e) {
-    e.preventDefault();
-    const form = e.target;
-    const status = document.getElementById('footerContactStatus');
-    status.style.display = 'block';
-    status.className = '';
-    status.textContent = 'Wysyłanie...';
-    status.style.color = 'var(--accent)';
-    try {
-      const res = await fetch(form.action, {
-        method: 'POST',
-        body: new FormData(form),
-        headers: { 'Accept': 'application/json' }
-      });
-      if (res.ok) {
-        status.textContent = 'Wiadomość wysłana! Dziękuję.';
-        status.className = 'ok';
-        status.style.color = '';
-        form.reset();
-        setTimeout(footerToggleContactForm, 2500);
-      } else {
-        status.textContent = 'Błąd wysyłania. Spróbuj ponownie.';
-        status.className = 'err';
-        status.style.color = '';
-      }
-    } catch (err) {
-      status.textContent = 'Błąd połączenia.';
-      status.className = 'err';
-      status.style.color = '';
-    }
-  });
-</script>
-
-<div class="cookie-banner" id="cookieBanner" style="display:none">
-  <p>Używamy Google Analytics do analizy ruchu na stronie. Nie zbieramy danych bez Twojej zgody.</p>
-  <div class="cookie-actions">
-    <button id="cookieReject" class="btn btn-ghost btn-small">Odrzuć</button>
-    <button id="cookieAccept" class="btn btn-primary btn-small">Akceptuję</button>
-  </div>
-</div>
 
 <script>
   const toggle = document.getElementById('navToggle');
@@ -234,46 +155,6 @@ const fullTitle = title.includes('CS2') ? title : `${title} | CS2 Trading Hub`;
   toggle?.addEventListener('click', () => {
     nav?.classList.toggle('open');
     toggle.classList.toggle('active');
-  });
-</script>
-
-<script>
-  const GA_MEASUREMENT_ID = 'G-HZV1B490DH';
-  const CONSENT_KEY = 'cs2hub_ga_consent';
-
-  function loadGoogleAnalytics() {
-    const script = document.createElement('script');
-    script.async = true;
-    script.src = `https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`;
-    document.head.appendChild(script);
-
-    window.dataLayer = window.dataLayer || [];
-    function gtag() { window.dataLayer.push(arguments); }
-    window.gtag = gtag;
-    gtag('js', new Date());
-    gtag('config', GA_MEASUREMENT_ID);
-  }
-
-  const banner = document.getElementById('cookieBanner');
-  const acceptBtn = document.getElementById('cookieAccept');
-  const rejectBtn = document.getElementById('cookieReject');
-  const savedConsent = localStorage.getItem(CONSENT_KEY);
-
-  if (savedConsent === 'accepted') {
-    loadGoogleAnalytics();
-  } else if (savedConsent !== 'rejected') {
-    if (banner) banner.style.display = 'flex';
-  }
-
-  acceptBtn?.addEventListener('click', () => {
-    localStorage.setItem(CONSENT_KEY, 'accepted');
-    if (banner) banner.style.display = 'none';
-    loadGoogleAnalytics();
-  });
-
-  rejectBtn?.addEventListener('click', () => {
-    localStorage.setItem(CONSENT_KEY, 'rejected');
-    if (banner) banner.style.display = 'none';
   });
 </script>
 
@@ -370,10 +251,11 @@ const fullTitle = title.includes('CS2') ? title : `${title} | CS2 Trading Hub`;
 }
 .mobile-nav.open { display: flex; }
 
+/* Footer */
 .site-footer { border-top: 1px solid var(--border); margin-top: 80px; }
 .footer-inner {
   display: grid;
-  grid-template-columns: 1.6fr 1fr 1fr;
+  grid-template-columns: 1fr 2fr;
   gap: 48px;
   padding: 48px 0;
 }
@@ -381,22 +263,13 @@ const fullTitle = title.includes('CS2') ? title : `${title} | CS2 Trading Hub`;
   margin-top: 12px;
   font-size: 14px;
   color: var(--text2);
-  max-width: 340px;
+  max-width: 300px;
   line-height: 1.6;
-}
-.footer-legal {
-  margin-top: 20px;
-  padding-top: 20px;
-  border-top: 1px solid var(--border);
-  opacity: 0.7;
-  max-width: 420px;
-  font-size: 12px;
 }
 .footer-links {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: repeat(3, 1fr);
   gap: 24px;
-  max-width: 220px;
 }
 .footer-links h4 {
   font-family: var(--font-mono);
@@ -415,252 +288,18 @@ const fullTitle = title.includes('CS2') ? title : `${title} | CS2 Trading Hub`;
   transition: color 0.2s;
 }
 .footer-links a:hover { color: var(--accent); }
-
-.footer-contact-col {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 20px;
-}
-
-.footer-author {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.footer-author-logo { opacity: 0.7; object-fit: contain; }
-
-.footer-made {
-  font-size: 11px;
-  color: var(--text2);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  font-family: var(--font-mono);
-}
-
-.footer-name {
-  font-family: var(--font-hud);
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--accent);
-  text-decoration: none;
-  transition: color 0.2s, text-shadow 0.2s;
-}
-
-.footer-name:hover {
-  color: #fff;
-  text-shadow: 0 0 12px rgba(0,212,255,0.7);
-}
-
-.footer-contact-wrap { position: relative; }
-
-.footer-contact-btn {
-  font-family: var(--font);
-  font-size: 14px;
-  font-weight: 700;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  padding: 9px 20px;
-  background: transparent;
-  border: 1px solid var(--border2);
-  border-radius: 8px;
-  color: var(--text2);
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.footer-contact-btn:hover {
-  border-color: var(--accent);
-  color: var(--accent);
-  box-shadow: 0 0 12px rgba(0,212,255,0.15);
-}
-
-.footer-form-box {
-  position: absolute;
-  bottom: calc(100% + 12px);
-  right: 0;
-  width: 320px;
-  background: var(--bg2);
-  border: 1px solid var(--border2);
-  border-radius: 14px;
-  padding: 20px;
-  box-shadow: 0 -8px 40px rgba(0,0,0,0.5), 0 0 0 1px rgba(0,212,255,0.08);
-  z-index: 200;
-  animation: footerFormFadeIn 0.2s ease;
-}
-
-@keyframes footerFormFadeIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-.footer-form-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 16px;
-  font-family: var(--font-hud);
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--accent);
-}
-
-.footer-form-close {
-  background: none;
-  border: none;
-  color: var(--text2);
-  font-size: 16px;
-  cursor: pointer;
-  padding: 2px 6px;
-  border-radius: 4px;
-  transition: color 0.2s;
-}
-
-.footer-form-close:hover { color: #fff; }
-
-.footer-field {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  margin-bottom: 12px;
-}
-
-.footer-field label {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--text2);
-}
-
-.footer-field input,
-.footer-field textarea {
-  background: var(--bg3);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 9px 12px;
-  font-family: var(--font);
-  font-size: 14px;
-  color: var(--text);
-  outline: none;
-  transition: border-color 0.2s;
-  resize: none;
-  width: 100%;
-}
-
-.footer-field input:focus,
-.footer-field textarea:focus {
-  border-color: var(--accent);
-}
-
-.footer-anon-label {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  cursor: pointer;
-  margin-bottom: 14px;
-  font-family: var(--font);
-  font-size: 13px;
-  color: var(--text2);
-  user-select: none;
-}
-
-.footer-anon-label input[type="checkbox"] { display: none; }
-
-.footer-anon-check {
-  width: 18px;
-  height: 18px;
-  border: 1px solid var(--border2);
-  border-radius: 4px;
-  background: var(--bg3);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  transition: all 0.15s;
-}
-
-.footer-anon-label input:checked + .footer-anon-check {
-  background: var(--accent);
-  border-color: var(--accent);
-}
-
-.footer-anon-label input:checked + .footer-anon-check::after {
-  content: '✓';
+.footer-bottom {
+  border-top: 1px solid var(--border);
+  padding: 16px 0;
   font-size: 12px;
-  color: #000;
-  font-weight: 700;
+  color: var(--text2);
+  opacity: 0.7;
 }
-
-.footer-submit-btn {
-  width: 100%;
-  padding: 11px;
-  background: linear-gradient(135deg, var(--accent), #0066ff);
-  border: none;
-  border-radius: 8px;
-  color: #000;
-  font-family: var(--font-hud);
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 1px;
-  cursor: pointer;
-  transition: opacity 0.2s, transform 0.1s;
-}
-
-.footer-submit-btn:hover { opacity: 0.9; }
-.footer-submit-btn:active { transform: scale(0.98); }
-.footer-submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-
-#footerContactStatus {
-  margin-top: 10px;
-  padding: 8px 12px;
-  border-radius: 7px;
-  font-family: var(--font);
-  font-size: 13px;
-  text-align: center;
-}
-
-#footerContactStatus.ok  { background: rgba(57,255,20,0.1); color: #39ff14; border: 1px solid rgba(57,255,20,0.3); }
-#footerContactStatus.err { background: rgba(255,68,68,0.1); color: #ff6b6b; border: 1px solid rgba(255,68,68,0.3); }
 
 @media (max-width: 768px) {
   .main-nav { display: none; }
   .nav-toggle { display: flex; }
-  .footer-inner { grid-template-columns: 1fr; gap: 32px; }
-  .footer-form-box { right: auto; left: 0; width: 290px; }
-}
-
-.cookie-banner {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 200;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  flex-wrap: wrap;
-  padding: 16px 24px;
-  background: rgba(10,14,20,0.97);
-  backdrop-filter: blur(12px);
-  border-top: 1px solid var(--border);
-}
-.cookie-banner p {
-  margin: 0;
-  font-size: 13px;
-  color: var(--text2);
-  max-width: 560px;
-}
-.cookie-actions {
-  display: flex;
-  gap: 8px;
-  flex-shrink: 0;
-}
-@media (max-width: 500px) {
-  .cookie-banner { flex-direction: column; align-items: flex-start; }
-  .cookie-actions { width: 100%; }
-  .cookie-actions .btn { flex: 1; text-align: center; }
+  .footer-inner { grid-template-columns: 1fr; gap: 24px; }
+  .footer-links { grid-template-columns: repeat(2, 1fr); }
 }
 </style>
