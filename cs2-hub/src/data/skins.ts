@@ -35,6 +35,10 @@ export function slugify(input: string): string {
     .replace(/^-+|-+$/g, '');
 }
 
+export function optimizedImage(url: string, width: number): string {
+  return `/.netlify/images?url=${encodeURIComponent(url)}&w=${width}`;
+}
+
 /**
  * @deprecated Dane skinów żyją teraz w Supabase (tabela `skins`).
  * Ta tablica została użyta wyłącznie do jednorazowego seedu (seed-skins.ts)
