@@ -1,7 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import Icon from '../components/Icon.astro';
-import { RARITY_MAP, WEAPON_CATEGORIES } from '../data/skins';
+import { RARITY_MAP, WEAPON_CATEGORIES, optimizedImage } from '../data/skins';
 
 const SUPABASE_URL = 'https://sacxklpjteqsbevowrmt.supabase.co';
 const SUPABASE_ANON_KEY = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
@@ -108,7 +108,7 @@ window.__WEAPON_CATEGORIES = WEAPON_CATEGORIES;
 
     searchResults.innerHTML = data.map(s => `
       <button class="search-result-item" data-id="${s.id}">
-        ${s.image_url ? `<img src="${s.image_url}" alt="" class="search-result-img" loading="lazy" />` : ''}
+        ${s.image_url ? `<img src="${optimizedImage(s.image_url, 64)}" alt="" class="search-result-img" loading="lazy" />` : ''}
         <span class="search-result-text">
           <span class="search-result-name">${s.weapon} | ${s.name}</span>
           <span class="search-result-meta">${WEAPON_CATEGORIES[s.category] || s.category}</span>
@@ -160,7 +160,7 @@ window.__WEAPON_CATEGORIES = WEAPON_CATEGORIES;
     };
 
     const rows = [
-      { label: '', render: s => s.image_url ? `<img src="${s.image_url}" alt="${s.weapon} | ${s.name}" class="compare-skin-img" loading="lazy" />` : '' },
+      { label: '', render: s => s.image_url ? `<img src="${optimizedImage(s.image_url, 200)}" alt="${s.weapon} | ${s.name}" class="compare-skin-img" loading="lazy" />` : '' },
       { label: 'Skin', render: s => `<a href="/skins/${s.slug}" class="compare-skin-link">${s.weapon} | ${s.name}</a>` },
       { label: 'Kategoria', render: s => WEAPON_CATEGORIES[s.category] || s.category },
       { label: 'Rzadkość', render: s => rarityBadge(s) },

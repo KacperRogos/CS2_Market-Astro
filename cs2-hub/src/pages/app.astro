@@ -707,7 +707,7 @@ function showSuggestions(results) {
     const img = iconUrl ? `https://community.cloudflare.steamstatic.com/economy/image/${iconUrl}/62fx46f` : '';
     if (iconUrl) suggestionIconCache.set(r.name, iconUrl);
     return `<div class="suggestion-item" onclick="selectSuggestion('${escapeHtml(r.name)}')">
-      ${img ? `<img class="suggestion-img" src="${img}" onerror="this.style.display='none'">` : ''}
+      ${img ? `<img class="suggestion-img" src="${img}" loading="lazy" onerror="this.style.display='none'">` : ''}
       <div class="suggestion-info"><div class="suggestion-name">${escapeHtml(r.name)}</div><div class="suggestion-price">${r.sell_price_text || ''}</div></div>
     </div>`;
   }).join('');
@@ -831,7 +831,7 @@ function buildCardHtml(item, idx) {
   return `<div class="item-card" id="card-${item.id}" style="animation-delay:${delay}ms">
     <div class="item-refresh-overlay" style="display:none"><span class="item-refresh-spinner">⟳</span><span class="item-refresh-label">Odświeżanie</span></div>
     <div class="item-img-banner">
-      ${imgSrc ? `<img src="${imgSrc}" onerror="this.style.display='none'" alt="${escapeHtml(item.name)}">` : '<div class="img-placeholder-big"></div>'}
+      ${imgSrc ? `<img src="${imgSrc}" loading="lazy" onerror="this.style.display='none'" alt="${escapeHtml(item.name)}">` : '<div class="img-placeholder-big"></div>'}
       ${changeBadge ? `<div class="change-badge-wrap">${changeBadge}</div>` : ''}
     </div>
     <div class="item-body">
@@ -1383,7 +1383,7 @@ function buildPubCard(item) {
   const skinName=item.name.includes('|')?item.name.split('|')[1].replace(/\(.*\)/,'').trim():'';
   const wear=getWearTag(item.name);
   return `<div class="item-card" style="animation:none">
-    <div class="item-img-banner">${imgSrc?`<img src="${imgSrc}" onerror="this.style.display='none'" alt="${escapeHtml(item.name)}">`:'<div class="img-placeholder-big"></div>'}</div>
+    <div class="item-img-banner">${imgSrc?`<img src="${imgSrc}" loading="lazy" onerror="this.style.display='none'" alt="${escapeHtml(item.name)}">`:'<div class="img-placeholder-big"></div>'}</div>
     <div class="item-body"><div class="item-weapon">${escapeHtml(weaponName)}</div><div class="item-skin">${escapeHtml(skinName)}</div><div style="display:flex;align-items:center;gap:8px;margin-top:6px">${wear?`<div class="item-wear">${wear}</div>`:''}${item.qty>1?`<div style="font-size:12px;color:var(--text2);font-family:'Share Tech Mono',monospace">x${item.qty}</div>`:''}</div></div>
     <div class="item-price-row"><div class="item-price-single">${item.price?`${item.price.toFixed(2).replace('.',',')} zł / szt.`:'<span style="color:#ff6b6b;font-size:12px">brak ceny</span>'}</div><div class="item-price-total">${item.price?(item.price*(item.qty||1)).toFixed(2).replace('.',',')+' zł':''}</div></div>
   </div>`;
