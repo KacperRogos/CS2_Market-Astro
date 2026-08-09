@@ -129,7 +129,7 @@ async function main() {
   const weaponCases = crates.filter(c => c.type === 'Case');
   console.log(`Znaleziono ${weaponCases.length} prawdziwych skrzynek broni.`);
 
-  const { data: existingCases } = await withRetry('pobieranie cases', () => supabase.from('cases').select('id, slug, name'));
+  const { data: existingCases } = await withRetry('pobieranie cases', () => supabase.from('cases').select('id, slug, name, case_price, key_price'));
   const existingByName = new Map((existingCases ?? []).map((c: any) => [c.name, c]));
 
   console.log('Pobieram istniejące skiny (żeby uniknąć kolizji slug/id)...');
@@ -233,8 +233,8 @@ async function main() {
       id, slug,
       name: crate.name,
       release_year: releaseYear,
-      key_price: 10.49,
-      case_price: estimatePrice(releaseYear),
+      key_price: existing?.key_price ?? 9.50,
+      case_price: existing?.case_price ?? estimatePrice(releaseYear),
       description: `${crate.name} to skrzynka CS2 wydana w ${releaseYear} roku. Zawiera ${regularCount} skinów broni w standardowych rzadkościach (Mil-Spec, Restricted, Classified, Covert) oraz ${rareCount} noży/rękawic jako Rare Special Item (0,26% szansy).`,
       skins: caseSkins,
     });

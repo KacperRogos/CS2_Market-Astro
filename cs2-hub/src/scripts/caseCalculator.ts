@@ -26,7 +26,7 @@ export function initCaseCalculator() {
     'rare-special': 'Nóż / Rękawice (złote)',
   };
 
-  const keyPrice = parseFloat(document.getElementById('calc-key-price')?.getAttribute('data-price') || '10.49');
+  const keyPrice = parseFloat(document.getElementById('calc-key-price')?.getAttribute('data-price') || '9.50');
   const casePrice = parseFloat(document.getElementById('calc-case-price')?.getAttribute('data-price') || '0.09');
   const costPerOpen = keyPrice + casePrice;
 

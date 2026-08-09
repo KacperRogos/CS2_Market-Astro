@@ -79,7 +79,7 @@ const schema = {
     <h2 class="section-title">Kalkulator skrzynek CS2</h2>
     <p class="section-sub">Wybierz skrzynkę żeby sprawdzić szanse na każdy skin i koszt statystycznego zdobycia noża.</p>
     <div class="cases-grid">
-      {CASES.slice(0, 4).map(c => (
+      {CASES.slice(0, 8).map(c => (
         <a href={`/kalkulator/${c.slug}`} class="case-card">
           <div class="case-name">{c.name}</div>
           <div class="case-meta">
@@ -100,9 +100,9 @@ const schema = {
         </a>
       ))}
     </div>
-    {CASES.length > 4 && (
+    {CASES.length > 8 && (
       <div class="cases-preview-more">
-        <a href="/kalkulator" class="btn btn-ghost">Pokaż więcej skrzynek ({CASES.length - 4}) →</a>
+        <a href="/kalkulator" class="btn btn-ghost">Pokaż więcej skrzynek ({CASES.length - 8}) →</a>
       </div>
     )}
   </div>
@@ -113,7 +113,7 @@ const schema = {
     <div class="info-grid">
       <div class="info-card">
         <h3>Jak działają skrzynki CS2?</h3>
-        <p>Każda skrzynka CS2 wymaga klucza (ok. 10,49 zł). Po otwarciu losowany jest skin według oficjalnych prawdopodobieństw ujawnionych przez Valve. Szansa na nóż lub rękawice wynosi <strong>0,26%</strong> — statystycznie jeden na ~385 otwarć.</p>
+        <p>Każda skrzynka CS2 wymaga klucza (ok. 9,50 zł). Po otwarciu losowany jest skin według oficjalnych prawdopodobieństw ujawnionych przez Valve. Szansa na nóż lub rękawice wynosi <strong>0,26%</strong> — statystycznie jeden na ~385 otwarć.</p>
         <a href="/kalkulator" class="btn btn-ghost" style="margin-top:16px">Oblicz koszty →</a>
       </div>
       <div class="info-card">

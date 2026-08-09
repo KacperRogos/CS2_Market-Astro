@@ -25,7 +25,7 @@ const knownSkinSlugSet = new Set(knownSkinSlugs);
 const otherCases = allCases
   .filter(c => c.id !== caseData.id)
   .sort(() => Math.random() - 0.5)
-  .slice(0, 4);
+  .slice(0, 6);
 
 const rarityOrder: Rarity[] = ['rare-special', 'covert', 'classified', 'restricted', 'mil-spec'];
 const skinsByRarity = rarityOrder.reduce((acc, rarity) => {

@@ -97,6 +97,7 @@ import Icon from '../../components/Icon.astro';
     });
     const data = await resp.json();
     if (data.success && data.lowest_price) return parsePrice(data.lowest_price);
+    console.warn(`Brak ceny dla "${caseName}":`, data);
     return null;
   }
 
@@ -115,18 +116,19 @@ import Icon from '../../components/Icon.astro';
         const price = await fetchCasePrice(c.name);
         if (price !== null) {
           const { error } = await supabase.from('cases').update({ case_price: price }).eq('id', c.id);
-          if (!error) updated++;
-          else failed++;
+          if (!error) { updated++; }
+          else { failed++; console.error(`Błąd zapisu ceny dla "${c.name}":`, error); }
         } else {
           failed++;
         }
-      } catch {
+      } catch (err) {
         failed++;
+        console.error(`Błąd pobierania ceny dla "${c.name}":`, err);
       }
       await new Promise(r => setTimeout(r, 1500));
     }
 
-    refreshStatus.textContent = `Gotowe. Zaktualizowano ${updated}/${loadedCases.length} cen skrzynek. Cena klucza jest stała (10,49 zł, oficjalna cena Valve 2,49 USD) i nie jest pobierana automatycznie, ponieważ nowe klucze nie są sprzedawane na Steam Market.`;
+    refreshStatus.textContent = `Gotowe. Zaktualizowano ${updated}/${loadedCases.length} cen skrzynek. Cena klucza jest stała (9,50 zł) i nie jest pobierana automatycznie, ponieważ nowe klucze nie są sprzedawane na Steam Market.`;
     refreshBtn.disabled = false;
     await loadCases();
   }

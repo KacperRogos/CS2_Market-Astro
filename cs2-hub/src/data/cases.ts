@@ -61,7 +61,7 @@ export const SEED_CASES: Case[] = [
     name: 'Revolution Case',
     slug: 'revolution-case',
     releaseYear: 2023,
-    keyPrice: 10.49,
+    keyPrice: 9.50,
     casePrice: 0.10,
     description: 'Skrzynka Revolution Case zawiera 17 skinów w tym ikoniczne wzory jak AK-47 Calm Waters i M4A4 Temukau. Wydana w lutym 2023.',
     skins: [
@@ -90,7 +90,7 @@ export const SEED_CASES: Case[] = [
     name: 'Recoil Case',
     slug: 'recoil-case',
     releaseYear: 2022,
-    keyPrice: 10.49,
+    keyPrice: 9.50,
     casePrice: 0.08,
     description: 'Recoil Case z lipca 2022 słynie z AK-47 Ice Coaled i M4A1-S Emphorosaur-S. Jedna z popularniejszych skrzynek ostatnich lat.',
     skins: [
@@ -118,7 +118,7 @@ export const SEED_CASES: Case[] = [
     name: 'Kilowatt Case',
     slug: 'kilowatt-case',
     releaseYear: 2024,
-    keyPrice: 10.49,
+    keyPrice: 9.50,
     casePrice: 0.08,
     description: 'Kilowatt Case z 2024 roku to jedna z najnowszych skrzynek CS2. Zawiera AK-47 Inheritance i M4A1-S Black Lotus — bardzo poszukiwane skiny.',
     skins: [
@@ -146,7 +146,7 @@ export const SEED_CASES: Case[] = [
     name: 'Fracture Case',
     slug: 'fracture-case',
     releaseYear: 2020,
-    keyPrice: 10.49,
+    keyPrice: 9.50,
     casePrice: 0.07,
     description: 'Fracture Case z 2020 roku zawiera kultowe skiny jak Desert Eagle Printstream i MP5-SD Liquidation. Jedna z bardziej opłacalnych skrzynek do otwarcia.',
     skins: [
@@ -174,7 +174,7 @@ export const SEED_CASES: Case[] = [
     name: 'Dreams & Nightmares Case',
     slug: 'dreams-and-nightmares-case',
     releaseYear: 2022,
-    keyPrice: 10.49,
+    keyPrice: 9.50,
     casePrice: 0.09,
     description: 'Dreams & Nightmares Case z 2022 roku to wyjątkowa skrzynka — wszystkie skiny zaprojektowali gracze w ramach konkursu społeczności. Zawiera AWP Goo i AK-47 Magula.',
     skins: [

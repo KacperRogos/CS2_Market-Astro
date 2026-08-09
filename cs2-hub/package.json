@@ -19,7 +19,8 @@
     "seed:case-specials": "tsx src/scripts/seed-case-specials.ts",
     "expand:case-specials": "tsx src/scripts/expand-case-specials.ts",
     "seed:all-cases": "tsx src/scripts/seed-all-cases.ts",
-    "diagnose:rarity": "tsx src/scripts/diagnose-rarity.ts"
+    "diagnose:rarity": "tsx src/scripts/diagnose-rarity.ts",
+    "fix:key-price": "tsx src/scripts/fix-key-price.ts"
   },
   "dependencies": {
     "@astrojs/netlify": "^8.0.0",

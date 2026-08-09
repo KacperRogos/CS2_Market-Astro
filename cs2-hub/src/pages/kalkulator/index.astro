@@ -22,7 +22,7 @@ const schema = {
       "name": "Ile kosztuje statystyczne zdobycie noża ze skrzynki?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Przy cenie klucza ok. 10,49 zł i cenie skrzynki ok. 0,10 zł, statystyczny koszt zdobycia noża wynosi ok. 4.000 zł (385 otwarć × ~10,59 zł)."
+        "text": "Przy cenie klucza ok. 9,50 zł i cenie skrzynki ok. 0,10 zł, statystyczny koszt zdobycia noża wynosi ok. 4.000 zł (385 otwarć × ~10,59 zł)."
       }
     },
     {
@@ -66,7 +66,7 @@ const schema = {
           <div class="rate-pct">{(rate * 100).toFixed(2)}%</div>
           <div class="rate-avg">1 na ~{avgCasesNeeded(rarity)} otwarć</div>
           <div class="rate-cost">
-            ~{avgCostNeeded(rarity, 0.09, 10.49).toLocaleString('pl-PL', {maximumFractionDigits: 0})} zł statystycznie
+            ~{avgCostNeeded(rarity, 0.09, 9.50).toLocaleString('pl-PL', {maximumFractionDigits: 0})} zł statystycznie
           </div>
         </div>
       ))}
