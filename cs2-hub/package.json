@@ -20,7 +20,9 @@
     "expand:case-specials": "tsx src/scripts/expand-case-specials.ts",
     "seed:all-cases": "tsx src/scripts/seed-all-cases.ts",
     "diagnose:rarity": "tsx src/scripts/diagnose-rarity.ts",
-    "fix:key-price": "tsx src/scripts/fix-key-price.ts"
+    "fix:key-price": "tsx src/scripts/fix-key-price.ts",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@astrojs/netlify": "^8.0.0",
@@ -34,6 +36,7 @@
   },
   "devDependencies": {
     "tsx": "^4.19.2",
-    "@netlify/plugin-lighthouse": "^6.0.4"
+    "@netlify/plugin-lighthouse": "^6.0.4",
+    "vitest": "^3.2.4"
   }
 }

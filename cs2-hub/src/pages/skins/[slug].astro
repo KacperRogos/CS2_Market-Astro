@@ -1,7 +1,7 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import Icon from '../../components/Icon.astro';
-import { RARITY_MAP, WEAPON_CATEGORIES } from '../../data/skins';
+import { RARITY_MAP, WEAPON_CATEGORIES, optimizedImage } from '../../data/skins';
 import { getAllSkins, getSkinsByWeapon } from '../../lib/skins';
 
 export async function getStaticPaths() {
@@ -57,7 +57,7 @@ const schema = {
     <div class="skin-hero-info">
       {skin.imageUrl && (
         <div class="skin-image-frame" style={`border-color: ${rarityInfo?.color}55`}>
-          <img src={skin.imageUrl} alt={`${skin.weapon} | ${skin.name}`} loading="eager" width="512" height="384" />
+          <img src={optimizedImage(skin.imageUrl, 512)} alt={`${skin.weapon} | ${skin.name}`} loading="eager" width="512" height="384" />
         </div>
       )}
       <div class="skin-meta-top">

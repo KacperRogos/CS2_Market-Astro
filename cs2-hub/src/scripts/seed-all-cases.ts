@@ -21,6 +21,7 @@
 
 import { createClient } from '@supabase/supabase-js';
 import { WEAPONS_BY_CATEGORY, type WeaponCategory } from '../data/skins';
+import { buildSteamMarketUrl } from '../data/format';
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -176,7 +177,7 @@ async function main() {
       caseSkins.push({
         weapon, name, rarity: rarityKey, wears,
         minFloat: full.min_float, maxFloat: full.max_float,
-        steamUrl: `https://steamcommunity.com/market/listings/730/${encodeURIComponent(`${weapon} | ${name} (${defaultWear})`)}`,
+        steamUrl: buildSteamMarketUrl(weapon, name, defaultWear, false),
       });
 
       // do tabeli skins (jeśli to broń o znanej kategorii)
@@ -212,7 +213,7 @@ async function main() {
       caseSkins.push({
         weapon, name, rarity: 'rare-special', wears,
         minFloat: full.min_float, maxFloat: full.max_float,
-        steamUrl: `https://steamcommunity.com/market/listings/730/${encodeURIComponent(`★ ${weapon} | ${name} (${defaultWear})`)}`,
+        steamUrl: buildSteamMarketUrl(weapon, name, defaultWear, true),
       });
 
       const slug = slugify(`${weapon}-${name}`);
@@ -297,7 +298,7 @@ function buildSkinRow(
     collection: null,
     case_source: caseName,
     release_year: releaseYear,
-    steam_market_url: `https://steamcommunity.com/market/listings/730/${encodeURIComponent(`${displayName} (${defaultWear})`)}`,
+    steam_market_url: buildSteamMarketUrl(weapon, name, defaultWear, isSpecial),
     tags: [rarity, category],
     image_url: image ?? null,
   };

@@ -601,6 +601,7 @@ let items = JSON.parse(localStorage.getItem('cs2_items') || '[]');
 let suggestTimeout = null;
 const priceCache = new Map();
 const CACHE_TTL = 5 * 60 * 1000;
+const FAILED_CACHE_TTL = 8 * 1000;
 const STEAM_USD_PLN = 3.6979;
 
 function showError(msg) {
@@ -623,30 +624,28 @@ async function steamFetch(steamUrl) {
   return resp.json();
 }
 
-async function fetchPrice(marketHashName) {
+async function fetchPrice(marketHashName, knownIconUrl) {
   const cached = priceCache.get(marketHashName);
-  if (cached && Date.now() - cached.ts < CACHE_TTL) return cached.result;
+  if (cached) {
+    const ttl = cached.result && cached.result.price !== null ? CACHE_TTL : FAILED_CACHE_TTL;
+    if (Date.now() - cached.ts < ttl) return cached.result;
+  }
   try {
-    // Najpierw sprawdź naszą własną tabelę cache — szybkie, niezawodne, zero zależności od Steam.
-    let iconUrl = '';
-    try {
-      const { data: cachedIcon } = await _sb
-        .from('item_icons')
-        .select('icon_url')
-        .eq('market_hash_name', marketHashName)
-        .maybeSingle();
-      if (cachedIcon?.icon_url) iconUrl = cachedIcon.icon_url;
-    } catch (e) { /* brak w cache — spróbujemy Steam poniżej */ }
+    let iconUrl = knownIconUrl || '';
+    if (!iconUrl) {
+      try {
+        const { data: cachedIcon } = await _sb
+          .from('item_icons')
+          .select('icon_url')
+          .eq('market_hash_name', marketHashName)
+          .maybeSingle();
+        if (cachedIcon?.icon_url) iconUrl = cachedIcon.icon_url;
+      } catch (e) { /* brak w cache — spróbujemy Steam poniżej */ }
+    }
 
-    const [priceResp, searchData] = await Promise.all([
-      fetch(`${SUPABASE_FUNCTIONS_URL}/steam-price`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` },
-        body: JSON.stringify({ itemName: marketHashName })
-      }),
-      iconUrl ? Promise.resolve(null) : steamFetch(`https://steamcommunity.com/market/listings/730/${encodeURIComponent(marketHashName)}/render/?start=0&count=1&currency=6&format=json`).catch(() => null)
-    ]);
-    const data = await priceResp.json();
+    const priceResult = await fetchPriceWithRetry(marketHashName);
+    const searchData = iconUrl ? null : await steamFetch(`https://steamcommunity.com/market/listings/730/${encodeURIComponent(marketHashName)}/render/?start=0&count=1&currency=6&format=json`).catch(() => null);
+    const data = priceResult;
     if (!iconUrl) {
       const assets = searchData?.assets;
       if (assets) {
@@ -667,6 +666,21 @@ async function fetchPrice(marketHashName) {
     priceCache.set(marketHashName, { result, ts: Date.now() });
     return result;
   } catch(e) { return null; }
+}
+
+async function fetchPriceWithRetry(marketHashName, attempt = 1) {
+  const resp = await fetch(`${SUPABASE_FUNCTIONS_URL}/steam-price`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` },
+    body: JSON.stringify({ itemName: marketHashName })
+  });
+  const data = await resp.json();
+  const looksRateLimited = data.success === false && typeof data.error === 'string' && /DOCTYPE|Unexpected token/i.test(data.error);
+  if (looksRateLimited && attempt < 3) {
+    await new Promise(r => setTimeout(r, 1500 * attempt));
+    return fetchPriceWithRetry(marketHashName, attempt + 1);
+  }
+  return data;
 }
 
 const WEAR_TRANSLATIONS = { 'prosto z fabryki':'Factory New','fn':'Factory New','lekkie zuzycie':'Minimal Wear','lekkie zużycie':'Minimal Wear','mw':'Minimal Wear','po testach bojowych':'Field-Tested','po testach':'Field-Tested','ft':'Field-Tested','mocne zuzycie':'Well-Worn','mocne zużycie':'Well-Worn','ww':'Well-Worn','po ciezkich walkach':'Battle-Scarred','po ciężkich walkach':'Battle-Scarred','bs':'Battle-Scarred' };
@@ -707,7 +721,7 @@ function showSuggestions(results) {
     const img = iconUrl ? `https://community.cloudflare.steamstatic.com/economy/image/${iconUrl}/62fx46f` : '';
     if (iconUrl) suggestionIconCache.set(r.name, iconUrl);
     return `<div class="suggestion-item" onclick="selectSuggestion('${escapeHtml(r.name)}')">
-      ${img ? `<img class="suggestion-img" src="${img}" loading="lazy" onerror="this.style.display='none'">` : ''}
+      ${img ? `<img class="suggestion-img" src="${img}" onerror="this.style.display='none'">` : ''}
       <div class="suggestion-info"><div class="suggestion-name">${escapeHtml(r.name)}</div><div class="suggestion-price">${r.sell_price_text || ''}</div></div>
     </div>`;
   }).join('');
@@ -775,7 +789,7 @@ async function refreshAllItems() {
   const btn = document.getElementById('refreshAllBtn'), stopBtn = document.getElementById('stopRefreshBtn');
   if (btn) { btn.disabled = true; btn.classList.add('spinning'); }
   if (stopBtn) stopBtn.style.display = 'block';
-  const BATCH = 5; let done = 0;
+  const BATCH = 3; let done = 0;
   const updateBtn = () => { if (btn) btn.innerHTML = `<span id="refreshAllIcon" style="display:inline-block;animation:spin 0.8s linear infinite">⟳</span> ${done}/${items.length}`; };
   for (let i = 0; i < items.length; i += BATCH) {
     if (refreshStopped || myGen !== refreshGeneration) break;
@@ -783,13 +797,13 @@ async function refreshAllItems() {
     batch.forEach(item => { item.loading = true; }); renderItems();
     await Promise.all(batch.map(async (item) => {
       if (refreshStopped || myGen !== refreshGeneration) { item.loading = false; return; }
-      const result = await fetchPrice(item.name);
+      const result = await fetchPrice(item.name, item.iconUrl);
       if (refreshStopped || myGen !== refreshGeneration) { item.loading = false; return; }
       item.loading = false; updateItemPrice(item, result); if (result && result.iconUrl) item.iconUrl = result.iconUrl; done++; updateBtn();
     }));
     if (refreshStopped || myGen !== refreshGeneration) break;
     saveItems(); renderItems();
-    if (i + BATCH < items.length && !refreshStopped) await new Promise(r => setTimeout(r, 200));
+    if (i + BATCH < items.length && !refreshStopped) await new Promise(r => setTimeout(r, 700));
   }
   if (myGen !== refreshGeneration) return;
   if (btn) { btn.disabled = false; btn.classList.remove('spinning'); btn.innerHTML = refreshStopped ? `<span id="refreshAllIcon">⟳</span> Odśwież` : `<span id="refreshAllIcon">⟳</span> Odświeżono!`; if (!refreshStopped) setTimeout(() => { btn.innerHTML = `<span id="refreshAllIcon">⟳</span> Odśwież`; }, 2000); }
@@ -801,7 +815,7 @@ async function refreshAllItems() {
 async function refreshItem(id) {
   const item = items.find(i => i.id === id); if (!item) return;
   item.loading = true; renderItems();
-  const result = await fetchPrice(item.name);
+  const result = await fetchPrice(item.name, item.iconUrl);
   item.loading = false; updateItemPrice(item, result);
   if (result) { if (result.volume) item.volume = result.volume; if (result.iconUrl) item.iconUrl = result.iconUrl; }
   saveItems(); renderItems();
@@ -831,7 +845,7 @@ function buildCardHtml(item, idx) {
   return `<div class="item-card" id="card-${item.id}" style="animation-delay:${delay}ms">
     <div class="item-refresh-overlay" style="display:none"><span class="item-refresh-spinner">⟳</span><span class="item-refresh-label">Odświeżanie</span></div>
     <div class="item-img-banner">
-      ${imgSrc ? `<img src="${imgSrc}" loading="lazy" onerror="this.style.display='none'" alt="${escapeHtml(item.name)}">` : '<div class="img-placeholder-big"></div>'}
+      ${imgSrc ? `<img src="${imgSrc}" onerror="this.style.display='none'" alt="${escapeHtml(item.name)}">` : '<div class="img-placeholder-big"></div>'}
       ${changeBadge ? `<div class="change-badge-wrap">${changeBadge}</div>` : ''}
     </div>
     <div class="item-body">
@@ -1293,17 +1307,17 @@ async function autoFetchAllPrices() {
   const unpricedItems = items.filter(i=>i.price===null);
   if (btn) { btn.disabled=true; btn.classList.add('spinning'); btn.innerHTML=`<span style="display:inline-block;animation:spin 0.8s linear infinite">⟳</span> 0/${unpricedItems.length}`; }
   if (stopBtn) stopBtn.style.display='block';
-  const BATCH=5; let done=0;
+  const BATCH=3; let done=0;
   for (let i=0;i<unpricedItems.length;i+=BATCH) {
     if (refreshStopped) break;
     const batch=unpricedItems.slice(i,i+BATCH); batch.forEach(item=>{item.loading=true;}); renderItems();
     await Promise.all(batch.map(async item=>{
-      const result=await fetchPrice(item.name); item.loading=false; updateItemPrice(item,result);
+      const result=await fetchPrice(item.name, item.iconUrl); item.loading=false; updateItemPrice(item,result);
       if(result&&result.iconUrl)item.iconUrl=result.iconUrl; done++;
       if(btn)btn.innerHTML=`<span style="display:inline-block;animation:spin 0.8s linear infinite">⟳</span> ${done}/${unpricedItems.length}`;
     }));
     saveItems(); renderItems();
-    if(i+BATCH<unpricedItems.length&&!refreshStopped) await new Promise(r=>setTimeout(r,500));
+    if(i+BATCH<unpricedItems.length&&!refreshStopped) await new Promise(r=>setTimeout(r,900));
   }
   if(btn){btn.disabled=false;btn.classList.remove('spinning');btn.innerHTML='<span>⟳</span> Gotowe!';}
   if(stopBtn)stopBtn.style.display='none';
@@ -1383,7 +1397,7 @@ function buildPubCard(item) {
   const skinName=item.name.includes('|')?item.name.split('|')[1].replace(/\(.*\)/,'').trim():'';
   const wear=getWearTag(item.name);
   return `<div class="item-card" style="animation:none">
-    <div class="item-img-banner">${imgSrc?`<img src="${imgSrc}" loading="lazy" onerror="this.style.display='none'" alt="${escapeHtml(item.name)}">`:'<div class="img-placeholder-big"></div>'}</div>
+    <div class="item-img-banner">${imgSrc?`<img src="${imgSrc}" onerror="this.style.display='none'" alt="${escapeHtml(item.name)}">`:'<div class="img-placeholder-big"></div>'}</div>
     <div class="item-body"><div class="item-weapon">${escapeHtml(weaponName)}</div><div class="item-skin">${escapeHtml(skinName)}</div><div style="display:flex;align-items:center;gap:8px;margin-top:6px">${wear?`<div class="item-wear">${wear}</div>`:''}${item.qty>1?`<div style="font-size:12px;color:var(--text2);font-family:'Share Tech Mono',monospace">x${item.qty}</div>`:''}</div></div>
     <div class="item-price-row"><div class="item-price-single">${item.price?`${item.price.toFixed(2).replace('.',',')} zł / szt.`:'<span style="color:#ff6b6b;font-size:12px">brak ceny</span>'}</div><div class="item-price-total">${item.price?(item.price*(item.qty||1)).toFixed(2).replace('.',',')+' zł':''}</div></div>
   </div>`;
@@ -1410,7 +1424,7 @@ async function checkPublicPortfolio() {
 
 setInterval(async()=>{
   if(document.getElementById('stopRefreshBtn')?.style.display!=='none')return;
-  for(const item of items){if(!item.loading){const result=await fetchPrice(item.name);if(result){updateItemPrice(item,result);if(result.iconUrl)item.iconUrl=result.iconUrl;}await new Promise(r=>setTimeout(r,1000));}}
+  for(const item of items){if(!item.loading){const result=await fetchPrice(item.name, item.iconUrl);if(result){updateItemPrice(item,result);if(result.iconUrl)item.iconUrl=result.iconUrl;}await new Promise(r=>setTimeout(r,1000));}}
   saveItems();renderItems();
 },5*60*1000);
 </script>

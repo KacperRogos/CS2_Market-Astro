@@ -44,6 +44,7 @@ import Icon from '../../components/Icon.astro';
 
 <script>
   import { supabase, guardAdminPage } from '../../lib/adminAuth';
+  import { parsePrice } from '../../data/format';
 
   const dashError = document.getElementById('dashError');
   const caseList = document.getElementById('caseList');
@@ -73,13 +74,6 @@ import Icon from '../../components/Icon.astro';
     caseList.querySelectorAll('.delete-btn').forEach(btn => {
       btn.addEventListener('click', () => deleteCase(btn.getAttribute('data-id')));
     });
-  }
-
-  function parsePrice(raw) {
-    if (!raw) return null;
-    const cleaned = raw.replace(/[^0-9,.-]/g, '').replace(',', '.');
-    const value = parseFloat(cleaned);
-    return Number.isFinite(value) ? value : null;
   }
 
   const PUBLIC_SUPABASE_URL = import.meta.env.PUBLIC_SUPABASE_URL;
