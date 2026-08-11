@@ -20,7 +20,6 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 <script src="https://unpkg.com/@supabase/supabase-js@2" is:inline></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" is:inline></script>
 
-<!-- AUTH SCREEN -->
 <div id="authScreen" style="position:fixed;inset:0;background:var(--bg);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px">
   <div class="auth-box">
     <div class="auth-logo">
@@ -79,10 +78,8 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
   </div>
 </div>
 
-<!-- HEADER -->
 <header class="app-header-wrap">
   <div class="container" style="display:flex;align-items:center;gap:16px;height:72px">
-    <!-- LEWA: logo + nav -->
     <div style="display:flex;align-items:center;gap:0;flex-shrink:0">
       <a href="/" class="logo" style="margin-right:16px;text-decoration:none;display:flex;align-items:center;gap:10px">
         <img src="/logo.webp" alt="CS2 Market Logo" style="height:38px;width:38px;object-fit:contain;filter:drop-shadow(0 0 8px rgba(0,212,255,0.5))">
@@ -93,7 +90,6 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
         <a href="/kalkulator" class="site-nav-link">Kalkulator</a>
       </nav>
     </div>
-    <!-- ŚRODEK: importuj + wartość portfela -->
     <div style="display:flex;align-items:center;gap:12px;flex:1;justify-content:flex-end">
       <button class="btn-import-header" onclick="toggleImportModal()">Importuj ekwipunek</button>
       <div class="total-value">
@@ -112,7 +108,6 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
   </div>
 </header>
 
-<!-- IMPORT MODAL -->
 <div id="importModal" class="import-modal" style="display:none" onclick="if(event.target===this)toggleImportModal()">
   <div class="import-modal-box">
     <div class="import-modal-header">
@@ -151,7 +146,6 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
   </div>
 </div>
 
-<!-- MAIN APP -->
 <div class="container" style="padding-top:32px">
   <div class="notice" id="errorNotice"></div>
   <div id="fileProtocolWarning" class="notice" style="display:none"></div>
@@ -164,7 +158,6 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
     <button class="tab" onclick="switchTab('ai')" id="tab-ai">AI Doradca</button>
   </div>
 
-  <!-- Wersja mobilna zakładek — rozwijane menu zamiast przewijanego paska -->
   <div class="tabs-mobile" id="tabsMobile">
     <button class="tabs-mobile-toggle" onclick="toggleTabsMenu()" id="tabsMobileToggle">
       <span id="tabsMobileLabel">Mój portfel</span>
@@ -179,7 +172,6 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
     </div>
   </div>
 
-  <!-- AI -->
   <div id="panel-ai" style="display:none">
     <div class="ai-panel">
       <div class="ai-header">
@@ -209,8 +201,6 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
       </div>
     </div>
   </div>
-
-  <!-- ADD -->
   <div id="panel-add">
     <div class="add-toggle-bar">
       <button class="btn-add-toggle" id="addToggleBtn" onclick="toggleAddForm()">+ Dodaj skin</button>
@@ -236,8 +226,6 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
       </div>
     </div>
   </div>
-
-  <!-- SEARCH -->
   <div class="add-section" id="panel-search" style="display:none">
     <div class="add-form" style="margin-bottom:16px">
       <div class="input-group" style="flex:1">
@@ -1903,7 +1891,6 @@ async function handleContact(e) {
  opacity: 0.85;
  }
 
- /* flash ceny po odświeżeniu */
  @keyframes priceFlash {
  0%   { color: var(--accent3); text-shadow: 0 0 0 transparent; }
  30%  { color: #fff; text-shadow: 0 0 14px rgba(57,255,20,0.9); }
