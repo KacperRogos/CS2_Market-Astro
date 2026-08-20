@@ -561,9 +561,18 @@ async function loginAsGuest() {
   setTimeout(() => refreshAllItems(), 300);
 }
 
-async function saveToSupabase() {
+async function saveToSupabase(retriesLeft = 2) {
   if (!currentUser) return;
-  try { await _sb.from('portfolios').upsert({ user_id: currentUser.id, items, updated_at: new Date().toISOString() }, { onConflict: 'user_id' }); } catch(e) {}
+  try {
+    const { error } = await _sb.from('portfolios').upsert({ user_id: currentUser.id, items, updated_at: new Date().toISOString() }, { onConflict: 'user_id' });
+    if (error) throw error;
+  } catch(e) {
+    if (retriesLeft > 0) {
+      await new Promise(r => setTimeout(r, 1500));
+      return saveToSupabase(retriesLeft - 1);
+    }
+    showError('Nie udało się zapisać portfela w chmurze. Zmiany są na razie tylko lokalnie w tej przeglądarce — sprawdź połączenie i spróbuj ponownie.');
+  }
 }
 
 (async () => {
@@ -584,7 +593,6 @@ _sb.auth.onAuthStateChange(async (event, session) => {
 // ─── CORE ─────────────────────────────────────────────────────
 let currentSort = 'default';
 let currentCategory = 'all';
-const STEAM_API_KEY = 'BD66D8B47D16AFE61244897621C4CE52';
 let items = JSON.parse(localStorage.getItem('cs2_items') || '[]');
 let suggestTimeout = null;
 const priceCache = new Map();
@@ -602,11 +610,11 @@ function escapeHtml(str) {
   return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
 
-async function steamFetch(steamUrl) {
+async function steamFetch(steamUrl, appendServerKey = false) {
   const resp = await fetch(`${SUPABASE_FUNCTIONS_URL}/steam-price`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` },
-    body: JSON.stringify({ steamUrl })
+    body: JSON.stringify(appendServerKey ? { steamUrl, appendServerKey: true } : { steamUrl })
   });
   if (!resp.ok) throw new Error(`Edge Function error: ${resp.status}`);
   return resp.json();
@@ -657,14 +665,31 @@ async function fetchPrice(marketHashName, knownIconUrl) {
 }
 
 async function fetchPriceWithRetry(marketHashName, attempt = 1) {
-  const resp = await fetch(`${SUPABASE_FUNCTIONS_URL}/steam-price`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` },
-    body: JSON.stringify({ itemName: marketHashName })
-  });
-  const data = await resp.json();
-  const looksRateLimited = data.success === false && typeof data.error === 'string' && /DOCTYPE|Unexpected token/i.test(data.error);
-  if (looksRateLimited && attempt < 3) {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 10000);
+  let resp;
+  try {
+    resp = await fetch(`${SUPABASE_FUNCTIONS_URL}/steam-price`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` },
+      body: JSON.stringify({ itemName: marketHashName }),
+      signal: controller.signal
+    });
+  } catch (e) {
+    clearTimeout(timeoutId);
+    if (attempt < 4) { await new Promise(r => setTimeout(r, 1500 * attempt)); return fetchPriceWithRetry(marketHashName, attempt + 1); }
+    return { success: false, error: e.name === 'AbortError' ? 'timeout' : e.message };
+  }
+  clearTimeout(timeoutId);
+
+  let data;
+  try { data = await resp.json(); }
+  catch (e) { data = { success: false, error: 'invalid-json' }; }
+
+  const errorCode = data && data.success === false ? data.error : null;
+  const isRateLimited = errorCode === 'rate_limited' || /^steam_5\d\d$/.test(errorCode || '');
+  const looksRateLimitedLegacy = data.success === false && typeof data.error === 'string' && /DOCTYPE|Unexpected token/i.test(data.error);
+  if ((isRateLimited || looksRateLimitedLegacy) && attempt < 4) {
     await new Promise(r => setTimeout(r, 1500 * attempt));
     return fetchPriceWithRetry(marketHashName, attempt + 1);
   }
@@ -1252,7 +1277,10 @@ async function extractSteamId(input) {
   if (/^\d{17}$/.test(trimmed)) return trimmed;
   const profileMatch = trimmed.match(/profiles\/(\d{17})/); if (profileMatch) return profileMatch[1];
   const vanityMatch = trimmed.match(/id\/([^\/]+)/);
-  if (vanityMatch) { const data = await steamFetch(`https://api.steampowered.com/ISteamUser/ResolveVanityURL/v1/?key=${STEAM_API_KEY}&vanityurl=${vanityMatch[1]}`); if (data.response.success===1) return data.response.steamid; }
+  if (vanityMatch) {
+    const data = await steamFetch(`https://api.steampowered.com/ISteamUser/ResolveVanityURL/v1/?vanityurl=${encodeURIComponent(vanityMatch[1])}`, true);
+    if (data?.response?.success === 1) return data.response.steamid;
+  }
   return null;
 }
 
