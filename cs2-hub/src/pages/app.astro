@@ -685,12 +685,12 @@ async function fetchPrice(marketHashName, knownIconUrl) {
     if (data.success && data.lowest_price) {
       const raw = data.lowest_price;
       const num = parseFloat(raw.replace(/[^\d,]/g, '').replace(',', '.'));
-      if (!isNaN(num) && num > 0) result = { price: num, raw: raw.includes('zł') ? raw : raw + ' zł', volume: data.volume || 0, iconUrl };
+      if (!isNaN(num) && num > 0) result = { price: num, raw: raw.includes('zł') ? raw : raw + ' zł', volume: data.volume || 0, iconUrl, errorCode: null };
     }
-    if (!result && iconUrl) result = { price: null, raw: null, volume: 0, iconUrl };
+    if (!result) result = { price: null, raw: null, volume: 0, iconUrl, errorCode: data.error || 'unknown' };
     priceCache.set(marketHashName, { result, ts: Date.now() });
     return result;
-  } catch(e) { return null; }
+  } catch(e) { return { price: null, raw: null, volume: 0, iconUrl: knownIconUrl || '', errorCode: 'client_error' }; }
 }
 
 async function fetchPriceWithRetry(marketHashName, attempt = 1) {
@@ -716,8 +716,8 @@ async function fetchPriceWithRetry(marketHashName, attempt = 1) {
   catch (e) { data = { success: false, error: 'invalid-json' }; }
 
   const shouldRetry = data && data.success === false;
-  if (shouldRetry && attempt < 4) {
-    await new Promise(r => setTimeout(r, 1200 * attempt + Math.random() * 400));
+  if (shouldRetry && attempt < 6) {
+    await new Promise(r => setTimeout(r, 2000 * attempt + Math.random() * 600));
     return fetchPriceWithRetry(marketHashName, attempt + 1);
   }
   return data;
@@ -793,12 +793,13 @@ async function addItem() {
   if (cachedIcon) { item.iconUrl = cachedIcon; renderItems(); }
   const result = await fetchPrice(name);
   item.loading = false;
-  if (result) { if (result.price !== null) { item.price = result.price; item.priceRaw = result.raw; item.volume = result.volume; } if (result.iconUrl) item.iconUrl = result.iconUrl; }
+  if (result) { if (result.price !== null) { item.price = result.price; item.priceRaw = result.raw; item.volume = result.volume; item.priceError = null; } else { item.priceError = result.errorCode || null; } if (result.iconUrl) item.iconUrl = result.iconUrl; }
   saveItems(); renderItems(); addItemInProgress = false;
 }
 
 function updateItemPrice(item, result) {
-  if (!result || !result.price) return;
+  if (!result || !result.price) { item.priceError = (result && result.errorCode) || item.priceError || null; return; }
+  item.priceError = null;
   const today = new Date().toDateString();
   const yesterday = new Date(Date.now() - 86400000).toDateString();
   if (!item.snapshotPrice || !item.snapshotDate) { item.snapshotPrice = result.price; item.snapshotDate = today; }
@@ -902,7 +903,7 @@ function buildCardHtml(item, idx) {
       </div>
     </div>
     <div class="item-price-row">
-      <div class="item-price-single">${item.price !== null && item.price > 0 ? `${item.priceRaw || (item.price.toFixed(2).replace('.',',') + ' zł')} / szt.` : '<span style="color:#ff6b6b;font-size:12px">Nie znaleziono</span>'}</div>
+      <div class="item-price-single">${item.price !== null && item.price > 0 ? `${item.priceRaw || (item.price.toFixed(2).replace('.',',') + ' zł')} / szt.` : (item.priceError === 'rate_limited' ? '<span style="color:#ffb84d;font-size:12px">Steam ogranicza — spróbuj za chwilę</span>' : '<span style="color:#ff6b6b;font-size:12px">Nie znaleziono</span>')}</div>
       <div class="item-price-total">${item.price !== null && item.price > 0 ? (item.price * item.qty).toFixed(2).replace('.', ',') + ' zł' : ''}</div>
     </div>
     ${pct !== null && item.snapshotPrice ? `<div class="price-history-row"><span class="price-history-label">Wczoraj:</span><span class="price-history-val">${item.snapshotPrice.toFixed(2).replace('.', ',')} zł</span></div>` : ''}
@@ -933,7 +934,7 @@ function renderItems() {
       else if (!imgEl.src.includes(item.iconUrl.slice(0, 20))) imgEl.src = imgSrc;
     }
     const singleEl = card.querySelector('.item-price-single');
-    if (singleEl) singleEl.innerHTML = item.loading ? '<span class="item-price-loading">ładowanie...</span>' : item.price !== null && item.price > 0 ? `${item.priceRaw || (item.price.toFixed(2).replace('.',',') + ' zł')} / szt.` : '<span style="color:#ff6b6b;font-size:12px">Nie znaleziono</span>';
+    if (singleEl) singleEl.innerHTML = item.loading ? '<span class="item-price-loading">ładowanie...</span>' : item.price !== null && item.price > 0 ? `${item.priceRaw || (item.price.toFixed(2).replace('.',',') + ' zł')} / szt.` : (item.priceError === 'rate_limited' ? '<span style="color:#ffb84d;font-size:12px">Steam ogranicza — spróbuj za chwilę</span>' : '<span style="color:#ff6b6b;font-size:12px">Nie znaleziono</span>');
     const totalEl = card.querySelector('.item-price-total');
     if (totalEl && !item.loading) totalEl.textContent = item.price !== null && item.price > 0 ? (item.price * item.qty).toFixed(2).replace('.', ',') + ' zł' : '';
   });
