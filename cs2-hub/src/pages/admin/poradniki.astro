@@ -1,0 +1,152 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Icon from '../../components/Icon.astro';
+---
+
+<Layout title="Poradniki | Panel admina" description="Lista poradników w bazie." noindex={true}>
+
+<div id="authScreen" class="auth-screen">
+  <div class="auth-box">
+    <h1>Panel admina</h1>
+    <p class="auth-sub">Zaloguj się, żeby zarządzać danymi.</p>
+    <form id="loginForm">
+      <label>
+        Email
+        <input class="admin-input" type="email" id="loginEmail" required autocomplete="username" />
+      </label>
+      <label>
+        Hasło
+        <input class="admin-input" type="password" id="loginPassword" required autocomplete="current-password" />
+      </label>
+      <button type="submit" class="btn btn-primary" id="loginBtn">Zaloguj</button>
+      <p id="loginError" class="error-text"></p>
+    </form>
+  </div>
+</div>
+
+<div id="adminContent" class="container admin-content" style="display:none">
+  <div class="dash-header">
+    <h1>Poradniki (<span id="guideCount">0</span>)</h1>
+    <div class="dash-header-actions">
+      <a href="/admin/poradnik-edytor" class="btn btn-primary btn-icon"><Icon name="plus" size={16} /><span>Dodaj poradnik</span></a>
+      <a href="/admin" class="btn btn-ghost">← Panel</a>
+      <button id="logoutBtn" class="btn btn-ghost">Wyloguj</button>
+    </div>
+  </div>
+  <p id="dashError" class="error-text"></p>
+  <p id="dashSuccess" class="success-text"></p>
+
+  <section class="panel">
+    <input class="admin-input guide-search" type="search" id="guideSearch" placeholder="Szukaj po tytule, kategorii lub adresie" />
+    <div id="guideList" class="skin-list"></div>
+  </section>
+
+  <p class="hint-text">
+    Zmiany pojawią się na żywej stronie po kliknięciu <a href="/admin">Rebuduj stronę</a> w panelu głównym.
+  </p>
+</div>
+
+<script>
+  import { supabase, guardAdminPage } from '../../lib/adminAuth';
+
+  const dashError = document.getElementById('dashError');
+  const dashSuccess = document.getElementById('dashSuccess');
+  const guideList = document.getElementById('guideList');
+  const guideCount = document.getElementById('guideCount');
+  const guideSearch = document.getElementById('guideSearch');
+
+  let loadedGuides = [];
+
+  function escapeHtml(value) {
+    return String(value)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function formatDate(value) {
+    return new Date(value).toLocaleDateString('pl-PL', { day: 'numeric', month: 'long', year: 'numeric' });
+  }
+
+  function renderList() {
+    const query = guideSearch.value.trim().toLowerCase();
+    const filtered = loadedGuides.filter(g =>
+      !query ||
+      g.title.toLowerCase().includes(query) ||
+      g.category.toLowerCase().includes(query) ||
+      g.slug.toLowerCase().includes(query)
+    );
+
+    guideCount.textContent = loadedGuides.length;
+
+    if (filtered.length === 0) {
+      guideList.innerHTML = `<p class="empty-text">${loadedGuides.length === 0 ? 'Brak poradników w bazie.' : 'Brak wyników dla tego wyszukiwania.'}</p>`;
+      return;
+    }
+
+    guideList.innerHTML = filtered.map(g => `
+      <div class="skin-row" data-id="${escapeHtml(g.id)}">
+        <span class="skin-row-name">${escapeHtml(g.title)}${g.published ? '' : ' <span class="draft-badge">Szkic</span>'}</span>
+        <span class="skin-row-meta">${escapeHtml(g.category)} · ${escapeHtml(g.read_time)} · ${formatDate(g.published_at)}</span>
+        <a class="btn btn-ghost btn-small" href="/admin/poradnik-edytor?id=${encodeURIComponent(g.id)}">Edytuj</a>
+        <button class="btn btn-ghost btn-small delete-btn" data-id="${escapeHtml(g.id)}">Usuń</button>
+      </div>
+    `).join('');
+
+    guideList.querySelectorAll('.delete-btn').forEach(btn => {
+      btn.addEventListener('click', () => deleteGuide(btn.getAttribute('data-id')));
+    });
+  }
+
+  async function loadGuides() {
+    dashError.textContent = '';
+    const { data, error } = await supabase
+      .from('guides')
+      .select('id,slug,title,category,read_time,published_at,published')
+      .order('published_at', { ascending: false })
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      dashError.textContent = 'Nie udało się pobrać poradników: ' + error.message;
+      return;
+    }
+    loadedGuides = data || [];
+    renderList();
+  }
+
+  async function deleteGuide(id) {
+    const guide = loadedGuides.find(g => g.id === id);
+    if (!confirm(`Na pewno usunąć poradnik "${guide ? guide.title : ''}"? Tej operacji nie można cofnąć.`)) return;
+    dashError.textContent = '';
+    dashSuccess.textContent = '';
+
+    const { data, error } = await supabase.from('guides').delete().eq('id', id).select('id');
+
+    if (error) {
+      dashError.textContent = 'Nie udało się usunąć: ' + error.message;
+      return;
+    }
+    if (!data || data.length === 0) {
+      dashError.textContent =
+        'Usuwanie nie powiodło się po cichu (0 wierszy). Sprawdź czy Twoje konto jest w tabeli "admins" w Supabase.';
+      return;
+    }
+    dashSuccess.textContent = 'Poradnik usunięty. Zmiana pojawi się na stronie po rebuildzie.';
+    await loadGuides();
+  }
+
+  guideSearch.addEventListener('input', renderList);
+
+  guardAdminPage(loadGuides);
+</script>
+</Layout>
+
+<style is:global>
+.guide-search { margin-bottom: 14px; }
+.draft-badge {
+  display: inline-block; margin-left: 8px; padding: 2px 8px; border-radius: 4px;
+  font-family: var(--font-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 1px;
+  color: var(--gold); background: rgba(228, 174, 57, 0.12); border: 1px solid rgba(228, 174, 57, 0.25);
+}
+</style>

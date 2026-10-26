@@ -53,6 +53,11 @@ import Icon from '../../components/Icon.astro';
       <h3>Istniejące skrzynki</h3>
       <p>Przeglądaj i usuwaj skrzynki z bazy.</p>
     </a>
+    <a href="/admin/poradniki" class="admin-card">
+      <span class="admin-card-icon"><Icon name="book" size={22} /></span>
+      <h3>Poradniki</h3>
+      <p>Dodawaj, edytuj i usuwaj poradniki wyświetlane na stronie.</p>
+    </a>
     <a href="/admin/ikonki" class="admin-card">
       <span class="admin-card-icon"><Icon name="crosshair" size={22} /></span>
       <h3>Ikony przedmiotów</h3>
@@ -63,7 +68,7 @@ import Icon from '../../components/Icon.astro';
   <section class="panel rebuild-panel">
     <h2>Publikacja zmian</h2>
     <p class="hint-text">
-      Strona jest generowana statycznie (SSG) — dodanie/usunięcie skina lub skrzynki
+      Strona jest generowana statycznie (SSG) — dodanie, edycja lub usunięcie skina, skrzynki albo poradnika
       w panelu <strong>nie pojawi się od razu</strong> na żywej stronie. Kliknij poniżej,
       żeby uruchomić nowy build na Netlify z aktualnymi danymi z bazy (trwa zwykle 1-3 minuty).
     </p>

@@ -12,6 +12,7 @@
     "astro": "astro",
     "seed:skins": "tsx src/scripts/seed-skins.ts",
     "seed:cases": "tsx src/scripts/seed-cases.ts",
+    "seed:guides": "tsx src/scripts/seed-guides.ts",
     "seed:weapons-bulk": "tsx src/scripts/seed-weapons-bulk.ts",
     "diagnose:case-links": "tsx src/scripts/diagnose-case-links.ts",
     "sync:missing-case-skins": "tsx src/scripts/sync-missing-case-skins.ts",

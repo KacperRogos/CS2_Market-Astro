@@ -1,0 +1,302 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { DEFAULT_GUIDE_CATEGORIES } from '../../data/guides';
+---
+
+<Layout title="Edytor poradnika | Panel admina" description="Dodawanie i edycja poradnika." noindex={true}>
+
+<div id="authScreen" class="auth-screen">
+  <div class="auth-box">
+    <h1>Panel admina</h1>
+    <p class="auth-sub">Zaloguj się, żeby zarządzać danymi.</p>
+    <form id="loginForm">
+      <label>
+        Email
+        <input class="admin-input" type="email" id="loginEmail" required autocomplete="username" />
+      </label>
+      <label>
+        Hasło
+        <input class="admin-input" type="password" id="loginPassword" required autocomplete="current-password" />
+      </label>
+      <button type="submit" class="btn btn-primary" id="loginBtn">Zaloguj</button>
+      <p id="loginError" class="error-text"></p>
+    </form>
+  </div>
+</div>
+
+<div id="adminContent" class="container admin-content" style="display:none">
+  <div class="dash-header">
+    <h1 id="pageHeading">Dodaj poradnik</h1>
+    <div class="dash-header-actions">
+      <a href="/admin/poradniki" class="btn btn-ghost">← Lista poradników</a>
+      <button id="logoutBtn" class="btn btn-ghost">Wyloguj</button>
+    </div>
+  </div>
+  <p id="dashError" class="error-text"></p>
+
+  <section class="panel">
+    <form id="guideForm" class="skin-form">
+      <label class="full">Tytuł
+        <input class="admin-input" type="text" id="f_title" required maxlength="200" />
+      </label>
+
+      <label class="full">Adres (slug)
+        <input class="admin-input" type="text" id="f_slug" required pattern="[a-z0-9]+(-[a-z0-9]+)*" maxlength="160" />
+      </label>
+      <p class="hint-text" id="slugHint">Adres powstaje automatycznie z tytułu. Zmiana adresu istniejącego poradnika zepsuje dotychczasowe linki do niego.</p>
+
+      <div class="form-row">
+        <label>Kategoria
+          <input class="admin-input" type="text" id="f_category" list="categoryList" required maxlength="40" />
+          <datalist id="categoryList">
+            {DEFAULT_GUIDE_CATEGORIES.map(c => <option value={c}></option>)}
+          </datalist>
+        </label>
+        <label>Data publikacji
+          <input class="admin-input" type="date" id="f_date" required />
+        </label>
+        <label>Czas czytania (minuty)
+          <input class="admin-input" type="number" id="f_readMinutes" min="1" max="120" required />
+        </label>
+      </div>
+
+      <label class="full">Tagi (oddzielone przecinkiem)
+        <input class="admin-input" type="text" id="f_tags" placeholder="trading, podstawy, steam market" />
+      </label>
+
+      <label class="full">Zajawka na liście poradników
+        <textarea class="admin-input" id="f_excerpt" rows="3" required></textarea>
+      </label>
+
+      <label class="full">Opis (wstęp artykułu i opis dla wyszukiwarek)
+        <textarea class="admin-input" id="f_description" rows="3"></textarea>
+      </label>
+      <p class="hint-text">Jeśli zostawisz opis pusty, zostanie użyta zajawka.</p>
+
+      <div class="editor-block">
+        <div class="editor-head">
+          <span class="editor-label">Treść (HTML)</span>
+          <div class="editor-toolbar" id="editorToolbar">
+            <button type="button" class="btn btn-ghost btn-small" data-action="h2">Nagłówek</button>
+            <button type="button" class="btn btn-ghost btn-small" data-action="h3">Podnagłówek</button>
+            <button type="button" class="btn btn-ghost btn-small" data-action="p">Akapit</button>
+            <button type="button" class="btn btn-ghost btn-small" data-action="strong">Pogrubienie</button>
+            <button type="button" class="btn btn-ghost btn-small" data-action="em">Kursywa</button>
+            <button type="button" class="btn btn-ghost btn-small" data-action="ul">Lista</button>
+            <button type="button" class="btn btn-ghost btn-small" data-action="link">Link</button>
+            <button type="button" class="btn btn-ghost btn-small" id="previewToggle">Podgląd</button>
+          </div>
+        </div>
+        <textarea class="admin-input editor-textarea" id="f_content" rows="24" required></textarea>
+        <div class="editor-preview article-preview" id="contentPreview" style="display:none"></div>
+        <button type="button" class="btn btn-ghost btn-small" id="estimateBtn">Oblicz czas czytania z treści</button>
+      </div>
+
+      <label class="wear-check">
+        <input type="checkbox" id="f_published" checked />
+        Opublikowany (odznacz, żeby zapisać jako szkic niewidoczny na stronie)
+      </label>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary" id="submitBtn">Zapisz poradnik</button>
+        <a href="/admin/poradniki" class="btn btn-ghost">Anuluj</a>
+      </div>
+      <p id="formSuccess" class="success-text"></p>
+    </form>
+  </section>
+</div>
+
+<script>
+  import { supabase, guardAdminPage } from '../../lib/adminAuth';
+  import { guideSlugify, estimateReadMinutes } from '../../data/guides';
+
+  const dashError = document.getElementById('dashError');
+  const formSuccess = document.getElementById('formSuccess');
+  const form = document.getElementById('guideForm');
+  const pageHeading = document.getElementById('pageHeading');
+  const submitBtn = document.getElementById('submitBtn');
+  const titleInput = document.getElementById('f_title');
+  const slugInput = document.getElementById('f_slug');
+  const contentInput = document.getElementById('f_content');
+  const previewBox = document.getElementById('contentPreview');
+  const previewToggle = document.getElementById('previewToggle');
+  const readInput = document.getElementById('f_readMinutes');
+
+  let currentId = new URLSearchParams(window.location.search).get('id');
+  let slugTouched = false;
+
+  function todayIso() {
+    const d = new Date();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${d.getFullYear()}-${month}-${day}`;
+  }
+
+  titleInput.addEventListener('input', () => {
+    if (!slugTouched && !currentId) slugInput.value = guideSlugify(titleInput.value);
+  });
+  slugInput.addEventListener('input', () => { slugTouched = true; });
+
+  function wrapSelection(before, after) {
+    const start = contentInput.selectionStart;
+    const end = contentInput.selectionEnd;
+    const selected = contentInput.value.slice(start, end);
+    contentInput.setRangeText(before + selected + after, start, end, 'end');
+    if (!selected) {
+      const caret = start + before.length;
+      contentInput.setSelectionRange(caret, caret);
+    }
+    contentInput.focus();
+  }
+
+  function wrapList() {
+    const start = contentInput.selectionStart;
+    const end = contentInput.selectionEnd;
+    const selected = contentInput.value.slice(start, end);
+    const lines = selected.split('\n').map(l => l.trim()).filter(Boolean);
+    const items = (lines.length ? lines : ['']).map(l => `  <li>${l}</li>`).join('\n');
+    contentInput.setRangeText(`<ul>\n${items}\n</ul>`, start, end, 'end');
+    contentInput.focus();
+  }
+
+  function insertLink() {
+    const url = prompt('Adres linku (np. /poradniki/float-value-przewodnik lub https://...)');
+    if (!url) return;
+    wrapSelection(`<a href="${url.replace(/"/g, '&quot;')}">`, '</a>');
+  }
+
+  document.getElementById('editorToolbar').addEventListener('click', (e) => {
+    const btn = e.target.closest('button[data-action]');
+    if (!btn) return;
+    const action = btn.getAttribute('data-action');
+    if (action === 'h2') wrapSelection('<h2>', '</h2>');
+    else if (action === 'h3') wrapSelection('<h3>', '</h3>');
+    else if (action === 'p') wrapSelection('<p>', '</p>');
+    else if (action === 'strong') wrapSelection('<strong>', '</strong>');
+    else if (action === 'em') wrapSelection('<em>', '</em>');
+    else if (action === 'ul') wrapList();
+    else if (action === 'link') insertLink();
+  });
+
+  previewToggle.addEventListener('click', () => {
+    const showing = previewBox.style.display !== 'none';
+    if (showing) {
+      previewBox.style.display = 'none';
+      contentInput.style.display = '';
+      previewToggle.textContent = 'Podgląd';
+    } else {
+      previewBox.innerHTML = contentInput.value;
+      previewBox.style.display = 'block';
+      contentInput.style.display = 'none';
+      previewToggle.textContent = 'Edycja';
+    }
+  });
+
+  document.getElementById('estimateBtn').addEventListener('click', () => {
+    readInput.value = estimateReadMinutes(contentInput.value);
+  });
+
+  async function loadGuide() {
+    if (!currentId) {
+      document.getElementById('f_date').value = todayIso();
+      return;
+    }
+    pageHeading.textContent = 'Edytuj poradnik';
+    const { data, error } = await supabase.from('guides').select('*').eq('id', currentId).maybeSingle();
+    if (error) {
+      dashError.textContent = 'Nie udało się wczytać poradnika: ' + error.message;
+      return;
+    }
+    if (!data) {
+      dashError.textContent = 'Nie znaleziono poradnika o podanym identyfikatorze.';
+      form.style.display = 'none';
+      return;
+    }
+    titleInput.value = data.title;
+    slugInput.value = data.slug;
+    document.getElementById('f_category').value = data.category;
+    document.getElementById('f_date').value = data.published_at;
+    readInput.value = parseInt(data.read_time, 10) || 5;
+    document.getElementById('f_tags').value = (data.tags || []).join(', ');
+    document.getElementById('f_excerpt').value = data.excerpt;
+    document.getElementById('f_description').value = data.description;
+    contentInput.value = data.content;
+    document.getElementById('f_published').checked = data.published;
+  }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    dashError.textContent = '';
+    formSuccess.textContent = '';
+
+    const excerpt = document.getElementById('f_excerpt').value.trim();
+    const description = document.getElementById('f_description').value.trim() || excerpt;
+    const tags = document.getElementById('f_tags').value.split(',').map(t => t.trim()).filter(Boolean);
+
+    const row = {
+      slug: slugInput.value.trim(),
+      title: titleInput.value.trim(),
+      excerpt,
+      description,
+      category: document.getElementById('f_category').value.trim(),
+      read_time: `${parseInt(readInput.value, 10)} min`,
+      published_at: document.getElementById('f_date').value,
+      tags,
+      content: contentInput.value.trim(),
+      published: document.getElementById('f_published').checked,
+    };
+
+    submitBtn.disabled = true;
+    let result;
+    if (currentId) {
+      result = await supabase.from('guides').update(row).eq('id', currentId).select('id');
+    } else {
+      result = await supabase.from('guides').insert(row).select('id');
+    }
+    submitBtn.disabled = false;
+
+    const { data, error } = result;
+    if (error) {
+      dashError.textContent = error.code === '23505'
+        ? 'Poradnik o takim adresie (slug) już istnieje. Zmień adres i zapisz ponownie.'
+        : 'Nie udało się zapisać poradnika: ' + error.message;
+      return;
+    }
+    if (!data || data.length === 0) {
+      dashError.textContent =
+        'Zapis nie powiódł się po cichu (0 wierszy). Najprawdopodobniej Twoje konto nie jest w tabeli "admins" w Supabase.';
+      return;
+    }
+
+    if (!currentId) {
+      currentId = data[0].id;
+      pageHeading.textContent = 'Edytuj poradnik';
+      window.history.replaceState(null, '', `/admin/poradnik-edytor?id=${encodeURIComponent(currentId)}`);
+    }
+    formSuccess.textContent = 'Zapisano. Zmiana pojawi się na stronie po kliknięciu Rebuduj stronę w panelu głównym.';
+  });
+
+  guardAdminPage(loadGuide);
+</script>
+</Layout>
+
+<style is:global>
+.form-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.editor-block { display: flex; flex-direction: column; gap: 10px; }
+.editor-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.editor-label { font-size: 13px; color: var(--text2); }
+.editor-toolbar { display: flex; gap: 6px; flex-wrap: wrap; }
+.editor-textarea { font-family: var(--font-mono); font-size: 13px; line-height: 1.6; min-height: 360px; resize: vertical; }
+.editor-block > .btn { align-self: flex-start; }
+.article-preview {
+  background: var(--bg3); border: 1px solid var(--border); border-radius: 6px;
+  padding: 20px 24px; min-height: 360px; color: var(--text); line-height: 1.8; font-size: 15px;
+}
+.article-preview h2 { font-size: 22px; margin: 24px 0 12px; color: #e8f4f8; }
+.article-preview h3 { font-size: 18px; margin: 20px 0 10px; color: #e8f4f8; }
+.article-preview p { margin-bottom: 14px; color: var(--text2); }
+.article-preview ul, .article-preview ol { margin: 0 0 14px 22px; color: var(--text2); }
+.article-preview li { margin-bottom: 6px; }
+.article-preview strong { color: #e8f4f8; }
+.article-preview a { color: var(--accent); }
+</style>
