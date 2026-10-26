@@ -7,7 +7,7 @@
  *   2. Ustaw SUPABASE_SERVICE_ROLE_KEY (Supabase Dashboard > Project Settings > API > service_role)
  *      NIE ten sam co SUPABASE_ANON_KEY z .env — service_role omija RLS i pozwala zapisywać.
  *      W PowerShell:
- *        $env:SUPABASE_URL="https://sacxklpjteqsbevowrmt.supabase.co"
+ *        $env:SUPABASE_URL="https://twoj-projekt.supabase.co"
  *        $env:SUPABASE_SERVICE_ROLE_KEY="wklej_tutaj"
  *   3. Uruchom z katalogu cs2-hub:
  *        npm run seed:skins

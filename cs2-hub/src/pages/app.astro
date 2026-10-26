@@ -1,6 +1,8 @@
 ---
-const SUPABASE_URL = 'https://sacxklpjteqsbevowrmt.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNhY3hrbHBqdGVxc2Jldm93cm10Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQzNDkxNzAsImV4cCI6MjA4OTkyNTE3MH0.AGcM2iG_xWgj5KgEYWYCaT-SeBBmA1wesuw9n7MwM5s';
+const SUPABASE_URL = import.meta.env.PUBLIC_SUPABASE_URL;
+const SUPABASE_KEY = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
+const FORMSPREE_ID = import.meta.env.PUBLIC_FORMSPREE_ID;
+const GA_ID = import.meta.env.PUBLIC_GA_MEASUREMENT_ID;
 ---
 <!doctype html>
 <html lang="pl">
@@ -1496,7 +1498,7 @@ setInterval(async()=>{
           <span>Wyślij wiadomość</span>
           <button class="footer-form-close" onclick="toggleContactForm()">✕</button>
         </div>
-        <form id="contactForm" action="https://formspree.io/f/xeepznno" method="POST" onsubmit="handleContact(event)">
+        <form id="contactForm" action={`https://formspree.io/f/${FORMSPREE_ID}`} method="POST" onsubmit="handleContact(event)">
           <div class="footer-field" id="contactNameWrap">
             <label>Imię</label>
             <input type="text" name="name" id="contactName" placeholder="Twoje imię" autocomplete="off">
@@ -1559,6 +1561,72 @@ async function handleContact(e) {
   }
 }
 </script>
+<div class="ga-banner" id="gaBanner" data-ga-id={GA_ID} style="display:none">
+  <p>Używamy Google Analytics do analizy ruchu na stronie. Nie zbieramy danych bez Twojej zgody.</p>
+  <div class="ga-actions">
+    <button id="gaReject" class="ga-btn ga-btn-ghost">Odrzuć</button>
+    <button id="gaAccept" class="ga-btn ga-btn-primary">Akceptuję</button>
+  </div>
+</div>
+
+<style is:inline>
+  .ga-banner { position: fixed; bottom: 0; left: 0; right: 0; z-index: 2000; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding: 16px 24px; background: rgba(10,14,20,0.97); backdrop-filter: blur(12px); border-top: 1px solid var(--border); }
+  .ga-banner p { margin: 0; font-size: 13px; color: var(--text2); max-width: 560px; font-family: 'Rajdhani', sans-serif; }
+  .ga-actions { display: flex; gap: 8px; flex-shrink: 0; }
+  .ga-btn { font-family: 'Rajdhani', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: 1px; padding: 8px 18px; border-radius: 8px; cursor: pointer; transition: all 0.2s; }
+  .ga-btn-ghost { background: transparent; border: 1px solid var(--border2); color: var(--text2); }
+  .ga-btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+  .ga-btn-primary { background: var(--accent); border: 1px solid var(--accent); color: #070b0f; }
+  .ga-btn-primary:hover { box-shadow: var(--glow); }
+  @media (max-width: 500px) {
+    .ga-banner { flex-direction: column; align-items: flex-start; }
+    .ga-actions { width: 100%; }
+    .ga-btn { flex: 1; text-align: center; }
+  }
+</style>
+
+<script is:inline>
+  (function () {
+    var CONSENT_KEY = 'cs2hub_ga_consent';
+    var banner = document.getElementById('gaBanner');
+    var GA_MEASUREMENT_ID = banner ? banner.getAttribute('data-ga-id') : '';
+    if (!GA_MEASUREMENT_ID) return;
+
+    function loadGoogleAnalytics() {
+      var script = document.createElement('script');
+      script.async = true;
+      script.src = 'https://www.googletagmanager.com/gtag/js?id=' + GA_MEASUREMENT_ID;
+      document.head.appendChild(script);
+
+      window.dataLayer = window.dataLayer || [];
+      function gtag() { window.dataLayer.push(arguments); }
+      window.gtag = gtag;
+      gtag('js', new Date());
+      gtag('config', GA_MEASUREMENT_ID);
+    }
+
+    var saved = null;
+    try { saved = localStorage.getItem(CONSENT_KEY); } catch (e) {}
+
+    if (saved === 'accepted') {
+      loadGoogleAnalytics();
+    } else if (saved !== 'rejected') {
+      if (banner) banner.style.display = 'flex';
+    }
+
+    document.getElementById('gaAccept').addEventListener('click', function () {
+      try { localStorage.setItem(CONSENT_KEY, 'accepted'); } catch (e) {}
+      if (banner) banner.style.display = 'none';
+      loadGoogleAnalytics();
+    });
+
+    document.getElementById('gaReject').addEventListener('click', function () {
+      try { localStorage.setItem(CONSENT_KEY, 'rejected'); } catch (e) {}
+      if (banner) banner.style.display = 'none';
+    });
+  })();
+</script>
+
 </body>
 </html>
 

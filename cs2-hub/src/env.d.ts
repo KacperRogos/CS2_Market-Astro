@@ -5,6 +5,8 @@ interface ImportMetaEnv {
   readonly SUPABASE_ANON_KEY: string;
   readonly PUBLIC_SUPABASE_URL: string;
   readonly PUBLIC_SUPABASE_ANON_KEY: string;
+  readonly PUBLIC_FORMSPREE_ID: string;
+  readonly PUBLIC_GA_MEASUREMENT_ID: string;
   readonly NETLIFY_BUILD_HOOK_URL: string;
 }
 

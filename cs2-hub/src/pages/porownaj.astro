@@ -3,7 +3,7 @@ import Layout from '../layouts/Layout.astro';
 import Icon from '../components/Icon.astro';
 import { RARITY_MAP, WEAPON_CATEGORIES, optimizedImage } from '../data/skins';
 
-const SUPABASE_URL = 'https://sacxklpjteqsbevowrmt.supabase.co';
+const SUPABASE_URL = import.meta.env.PUBLIC_SUPABASE_URL;
 const SUPABASE_ANON_KEY = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
 
 const rarityEntries = Object.entries(RARITY_MAP);

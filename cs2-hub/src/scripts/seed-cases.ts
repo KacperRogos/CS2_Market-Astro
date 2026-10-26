@@ -3,7 +3,7 @@
  * Umieszczony w cs2-hub/src/scripts/seed-cases.ts.
  *
  * Użycie (tak samo jak seed-skins.ts):
- *   $env:SUPABASE_URL="https://sacxklpjteqsbevowrmt.supabase.co"
+ *   $env:SUPABASE_URL="https://twoj-projekt.supabase.co"
  *   $env:SUPABASE_SERVICE_ROLE_KEY="wklej_tutaj"
  *   npm run seed:cases
  */

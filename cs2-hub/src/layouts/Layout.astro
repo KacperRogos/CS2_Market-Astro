@@ -142,7 +142,7 @@ const fullTitle = title.includes('CS2') ? title : `${title} | CS2 Trading Hub`;
             <span>Wyślij wiadomość</span>
             <button class="footer-form-close" id="footerContactClose">✕</button>
           </div>
-          <form id="footerContactForm" action="https://formspree.io/f/xeepznno" method="POST">
+          <form id="footerContactForm" action={`https://formspree.io/f/${import.meta.env.PUBLIC_FORMSPREE_ID}`} method="POST">
             <div class="footer-field" id="footerContactNameWrap">
               <label>Imię</label>
               <input type="text" name="name" id="footerContactName" placeholder="Twoje imię" autocomplete="off">
@@ -238,10 +238,11 @@ const fullTitle = title.includes('CS2') ? title : `${title} | CS2 Trading Hub`;
 </script>
 
 <script>
-  const GA_MEASUREMENT_ID = 'G-HZV1B490DH';
+  const GA_MEASUREMENT_ID = import.meta.env.PUBLIC_GA_MEASUREMENT_ID;
   const CONSENT_KEY = 'cs2hub_ga_consent';
 
   function loadGoogleAnalytics() {
+    if (!GA_MEASUREMENT_ID) return;
     const script = document.createElement('script');
     script.async = true;
     script.src = `https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`;
