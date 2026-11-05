@@ -10,6 +10,7 @@ interface GuideRow {
   category: string;
   read_time: string;
   published_at: string;
+  updated_at: string | null;
   tags: string[] | null;
   content: string;
   published: boolean;
@@ -25,6 +26,7 @@ function mapRow(row: GuideRow): Guide {
     category: row.category,
     readTime: row.read_time,
     date: row.published_at,
+    updatedAt: (row.updated_at ?? row.published_at).slice(0, 10),
     tags: row.tags ?? [],
     content: row.content,
     published: row.published,

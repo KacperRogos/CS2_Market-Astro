@@ -7,6 +7,7 @@ export interface Guide {
   category: string;
   readTime: string;
   date: string;
+  updatedAt: string;
   tags: string[];
   content: string;
   published: boolean;
@@ -52,4 +53,20 @@ export function estimateReadMinutes(html: string): number {
   const text = html.replace(/<[^>]*>/g, ' ');
   const words = text.split(/\s+/).filter(Boolean).length;
   return Math.max(1, Math.round(words / 200));
+}
+
+export function getRelatedGuides(current: Guide, all: Guide[], limit = 5): Guide[] {
+  const currentTags = new Set(current.tags.map(tag => tag.toLowerCase()));
+
+  return all
+    .filter(guide => guide.slug !== current.slug)
+    .map(guide => ({
+      guide,
+      score:
+        (guide.category === current.category ? 2 : 0) +
+        guide.tags.filter(tag => currentTags.has(tag.toLowerCase())).length,
+    }))
+    .sort((a, b) => b.score - a.score || b.guide.date.localeCompare(a.guide.date))
+    .slice(0, limit)
+    .map(item => item.guide);
 }

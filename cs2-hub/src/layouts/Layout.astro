@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css';
+import { absoluteUrl } from '../lib/site';
 
 interface Props {
   title: string;
@@ -13,9 +14,9 @@ interface Props {
 const {
   title,
   description,
-  canonical = Astro.url.pathname === '/'
-    ? Astro.url.href
-    : Astro.url.href.replace(/\/$/, ''),
+  canonical = absoluteUrl(
+    Astro.url.pathname.replace(/\.html$/, '').replace(/\/index$/, '').replace(/\/+$/, '') || '/'
+  ),
   ogImage = '/og-image.png',
   schema,
   noindex = false,
@@ -40,14 +41,14 @@ const fullTitle = title.includes('CS2') ? title : `${title} | CS2 Trading Hub`;
   <meta property="og:url" content={canonical} />
   <meta property="og:title" content={fullTitle} />
   <meta property="og:description" content={description} />
-  <meta property="og:image" content={`https://cs2-market.netlify.app${ogImage}`} />
+  <meta property="og:image" content={absoluteUrl(ogImage)} />
   <meta property="og:locale" content="pl_PL" />
   <meta property="og:site_name" content="CS2 Trading Hub" />
 
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content={fullTitle} />
   <meta name="twitter:description" content={description} />
-  <meta name="twitter:image" content={`https://cs2-market.netlify.app${ogImage}`} />
+  <meta name="twitter:image" content={absoluteUrl(ogImage)} />
 
   {schema && (
     <script type="application/ld+json" set:html={JSON.stringify(schema)} />

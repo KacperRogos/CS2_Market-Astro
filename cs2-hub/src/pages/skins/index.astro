@@ -1,5 +1,6 @@
 ---
 import Layout from '../../layouts/Layout.astro';
+import { absoluteUrl } from '../../lib/site';
 import { WEAPON_CATEGORIES, RARITY_MAP, optimizedImage, type WeaponCategory } from '../../data/skins';
 import { getSkinsPage, getSkinCounts } from '../../lib/skins';
 
@@ -17,7 +18,7 @@ const schema = {
   "@type": "CollectionPage",
   "name": "Baza skinów CS2",
   "description": "Opisy, statystyki i ceny wszystkich skinów CS2. Float range, rarity, historia wartości.",
-  "url": "https://cs2-market.netlify.app/skins",
+  "url": absoluteUrl('/skins'),
   "inLanguage": "pl",
 };
 ---

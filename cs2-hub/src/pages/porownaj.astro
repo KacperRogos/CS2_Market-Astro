@@ -1,5 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import { absoluteUrl } from '../lib/site';
 import Icon from '../components/Icon.astro';
 import { RARITY_MAP, WEAPON_CATEGORIES, optimizedImage } from '../data/skins';
 
@@ -13,7 +14,7 @@ const schema = {
   "@type": "WebPage",
   "name": "Porównywarka skinów CS2",
   "description": "Porównaj skiny CS2 obok siebie — float, rzadkość, kolekcja i aktualna cena ze Steam Market.",
-  "url": "https://cs2-market.netlify.app/porownaj",
+  "url": absoluteUrl('/porownaj'),
   "inLanguage": "pl",
 };
 ---

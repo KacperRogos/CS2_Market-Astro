@@ -1,27 +1,31 @@
 ---
 import Layout from '../../layouts/Layout.astro';
+import { absoluteUrl } from '../../lib/site';
 import Icon from '../../components/Icon.astro';
 import { getAllGuides } from '../../lib/guides';
-import { categoryClass } from '../../data/guides';
+import { categoryClass, getRelatedGuides } from '../../data/guides';
 
 export async function getStaticPaths() {
   const guides = await getAllGuides();
-  return guides.map(guide => ({ params: { slug: guide.slug }, props: { article: guide } }));
+  return guides.map(guide => ({
+    params: { slug: guide.slug },
+    props: { article: guide, related: getRelatedGuides(guide, guides) },
+  }));
 }
 
 const { slug } = Astro.params;
-const { article } = Astro.props;
+const { article, related } = Astro.props;
 
 const schema = {
   "@context": "https://schema.org",
   "@type": "BlogPosting",
   "headline": article.title,
   "description": article.description,
-  "url": `https://cs2-market.netlify.app/poradniki/${slug}`,
+  "url": absoluteUrl(`/poradniki/${slug}`),
   "datePublished": article.date,
   "inLanguage": "pl",
   "author": { "@type": "Organization", "name": "CS2 Trading Hub" },
-  "publisher": { "@type": "Organization", "name": "CS2 Trading Hub", "url": "https://cs2-market.netlify.app" },
+  "publisher": { "@type": "Organization", "name": "CS2 Trading Hub", "url": absoluteUrl('/') },
 };
 ---
 
@@ -94,16 +98,16 @@ const schema = {
         </a>
       </div>
 
-      <div class="sidebar-card">
-        <h3>Inne poradniki</h3>
-        <div class="sidebar-articles">
-          <a href="/poradniki/jak-handlowac-skinami-cs2" class="sidebar-article-link">Jak zacząć handlować skinami CS2</a>
-          <a href="/poradniki/float-value-przewodnik" class="sidebar-article-link">Float value – kompletny przewodnik</a>
-          <a href="/poradniki/czy-warto-otwierac-skrzynki" class="sidebar-article-link">Czy warto otwierać skrzynki?</a>
-          <a href="/poradniki/buff163-vs-steam-market" class="sidebar-article-link">Buff163 vs Steam Market</a>
-          <a href="/poradniki/bezpieczenstwo-handel-skinami" class="sidebar-article-link">Bezpieczeństwo przy handlu</a>
+      {related.length > 0 && (
+        <div class="sidebar-card">
+          <h3>Inne poradniki</h3>
+          <div class="sidebar-articles">
+            {related.map(guide => (
+              <a href={`/poradniki/${guide.slug}`} class="sidebar-article-link">{guide.title}</a>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
     </aside>
   </div>
 

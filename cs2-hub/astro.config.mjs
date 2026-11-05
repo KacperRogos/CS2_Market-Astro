@@ -5,6 +5,9 @@ import tailwindcss from '@tailwindcss/vite';
 export default defineConfig({
   adapter: netlify(),
   trailingSlash: 'never',
+  build: {
+    format: 'file',
+  },
   vite: {
     plugins: [tailwindcss()],
   },

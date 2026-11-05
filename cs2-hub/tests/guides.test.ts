@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
-import { categoryClass, estimateReadMinutes, guideSlugify } from '../src/data/guides';
+import { categoryClass, estimateReadMinutes, getRelatedGuides, guideSlugify, type Guide } from '../src/data/guides';
 
 const seed = JSON.parse(readFileSync(new URL('../src/scripts/_guides_data.json', import.meta.url), 'utf8'));
 
@@ -55,5 +55,50 @@ describe('guides seed data', () => {
       expect(g.published_at).toMatch(/^\d{4}-\d{2}-\d{2}$/);
       expect(Array.isArray(g.tags)).toBe(true);
     }
+  });
+});
+
+function makeGuide(slug: string, category: string, tags: string[], date: string): Guide {
+  return {
+    id: slug,
+    slug,
+    title: slug,
+    excerpt: '',
+    description: '',
+    category,
+    readTime: '5 min',
+    date,
+    updatedAt: date,
+    tags,
+    content: '',
+    published: true,
+  };
+}
+
+describe('getRelatedGuides', () => {
+  const current = makeGuide('a', 'Platformy', ['steam', 'prowizja'], '2026-01-01');
+  const sameCategory = makeGuide('b', 'Platformy', [], '2026-02-01');
+  const sameTags = makeGuide('c', 'Analiza', ['steam', 'prowizja'], '2026-03-01');
+  const unrelated = makeGuide('d', 'Prawo', [], '2026-04-01');
+
+  it('never returns the current guide', () => {
+    const result = getRelatedGuides(current, [current, sameCategory, sameTags, unrelated]);
+    expect(result.map(g => g.slug)).not.toContain('a');
+  });
+
+  it('ranks shared category and tags above unrelated guides', () => {
+    const result = getRelatedGuides(current, [unrelated, sameCategory, sameTags]);
+    expect(result.map(g => g.slug)).toEqual(['c', 'b', 'd']);
+  });
+
+  it('falls back to newest first when nothing is related', () => {
+    const older = makeGuide('e', 'Prawo', [], '2026-01-01');
+    const newer = makeGuide('f', 'Prawo', [], '2026-05-01');
+    expect(getRelatedGuides(current, [older, newer]).map(g => g.slug)).toEqual(['f', 'e']);
+  });
+
+  it('respects the limit and handles an empty list', () => {
+    expect(getRelatedGuides(current, [sameCategory, sameTags, unrelated], 2)).toHaveLength(2);
+    expect(getRelatedGuides(current, [])).toEqual([]);
   });
 });

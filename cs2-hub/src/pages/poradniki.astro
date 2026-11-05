@@ -1,5 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import { absoluteUrl } from '../lib/site';
 import { getAllGuides } from '../lib/guides';
 import { categoryClass } from '../data/guides';
 
@@ -12,13 +13,13 @@ const schema = {
   "@type": "Blog",
   "name": "Poradniki CS2 Trading Hub",
   "description": "Poradniki o handlu skinami CS2, inwestowaniu i rynku Steam.",
-  "url": "https://cs2-market.netlify.app/poradniki",
+  "url": absoluteUrl('/poradniki'),
   "inLanguage": "pl",
   "blogPost": articles.map(a => ({
     "@type": "BlogPosting",
     "headline": a.title,
     "description": a.excerpt,
-    "url": `https://cs2-market.netlify.app/poradniki/${a.slug}`,
+    "url": absoluteUrl(`/poradniki/${a.slug}`),
     "datePublished": a.date,
     "inLanguage": "pl",
   }))

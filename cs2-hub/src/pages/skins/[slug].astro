@@ -1,5 +1,6 @@
 ---
 import Layout from '../../layouts/Layout.astro';
+import { absoluteUrl } from '../../lib/site';
 import Icon from '../../components/Icon.astro';
 import { RARITY_MAP, WEAPON_CATEGORIES, optimizedImage } from '../../data/skins';
 import { getAllSkins, getSkinsByWeapon } from '../../lib/skins';
@@ -33,7 +34,7 @@ const schema = {
   "@type": "Product",
   "name": `${skin.weapon} | ${skin.name}`,
   "description": skin.description,
-  "url": `https://cs2-market.netlify.app/skins/${skin.slug}`,
+  "url": absoluteUrl(`/skins/${skin.slug}`),
   "inLanguage": "pl",
   "category": WEAPON_CATEGORIES[skin.category]
 };

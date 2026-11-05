@@ -1,5 +1,6 @@
 ---
 import Layout from '../../layouts/Layout.astro';
+import { absoluteUrl } from '../../lib/site';
 import Icon from '../../components/Icon.astro';
 import {
   DROP_RATES, RARITY_LABELS,
@@ -38,7 +39,7 @@ const schema = {
   "@type": "Article",
   "headline": `${caseData.name} – kalkulator szans i zawartość`,
   "description": caseData.description,
-  "url": `https://cs2-market.netlify.app/kalkulator/${caseData.slug}`,
+  "url": absoluteUrl(`/kalkulator/${caseData.slug}`),
   "inLanguage": "pl",
   "mainEntity": {
     "@type": "FAQPage",

@@ -1,5 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import { absoluteUrl } from '../lib/site';
 import Icon from '../components/Icon.astro';
 import { getAllCases } from '../lib/cases';
 
@@ -9,7 +10,7 @@ const schema = {
   "@context": "https://schema.org",
   "@type": "WebSite",
   "name": "CS2 Trading Hub",
-  "url": "https://cs2-market.netlify.app",
+  "url": absoluteUrl('/'),
   "description": "Rynek skinów CS2: kalkulator skrzynek, baza skinów, tracker portfela i narzędzia dla traderów.",
   "inLanguage": "pl",
 };
