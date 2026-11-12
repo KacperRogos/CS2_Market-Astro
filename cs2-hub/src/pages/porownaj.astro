@@ -2,14 +2,14 @@
 import Layout from '../layouts/Layout.astro';
 import { absoluteUrl } from '../lib/site';
 import Icon from '../components/Icon.astro';
-import { RARITY_MAP, WEAPON_CATEGORIES, optimizedImage } from '../data/skins';
+import { RARITY_MAP, WEAPON_CATEGORIES, optimizedImage, optimizedSrcset } from '../data/skins';
 
 const SUPABASE_URL = import.meta.env.PUBLIC_SUPABASE_URL;
 const SUPABASE_ANON_KEY = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
 
 const rarityEntries = Object.entries(RARITY_MAP);
 
-const schema = {
+const pageSchema = {
   "@context": "https://schema.org",
   "@type": "WebPage",
   "name": "Porównywarka skinów CS2",
@@ -17,13 +17,25 @@ const schema = {
   "url": absoluteUrl('/porownaj'),
   "inLanguage": "pl",
 };
+
+const breadcrumbSchema = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Strona główna", "item": absoluteUrl('/') },
+    { "@type": "ListItem", "position": 2, "name": "Porównywarka" }
+  ]
+};
+
+const schema = [pageSchema, breadcrumbSchema];
 ---
 
 <Layout
   title="Porównywarka skinów CS2 – float, cena, rzadkość obok siebie"
   description="Wybierz kilka skinów CS2 z bazy i porównaj je jednocześnie: float range, rzadkość, kolekcję i aktualną cenę ze Steam Market."
   schema={schema}
->
+>  <link slot="head" rel="preconnect" href={import.meta.env.PUBLIC_SUPABASE_URL} crossorigin />
+
 
 <div class="container">
   <nav class="breadcrumb" aria-label="Breadcrumb">
@@ -64,9 +76,9 @@ window.__WEAPON_CATEGORIES = WEAPON_CATEGORIES;
 </script>
 
 <script>
-  import { createClient } from '@supabase/supabase-js';
+  import { selectRows, ilikeAny } from '../lib/publicApi';
+  import { optimizedImage, optimizedSrcset } from '../data/skins';
 
-  const supabase = createClient(window.__SUPABASE_URL, window.__SUPABASE_ANON_KEY);
   const SUPABASE_FUNCTIONS_URL = `${window.__SUPABASE_URL}/functions/v1`;
   const RARITY_MAP = window.__RARITY_MAP;
   const WEAPON_CATEGORIES = window.__WEAPON_CATEGORIES;
@@ -95,11 +107,10 @@ window.__WEAPON_CATEGORIES = WEAPON_CATEGORIES;
   });
 
   async function runSearch(query) {
-    const { data, error } = await supabase
-      .from('skins')
-      .select('*')
-      .or(`name.ilike.%${query}%,weapon.ilike.%${query}%`)
-      .limit(8);
+    const orFilter = ilikeAny(['name', 'weapon'], query);
+    const { data, error } = orFilter
+      ? await selectRows('skins', { or: orFilter, limit: 8 })
+      : { data: null, error: null };
 
     if (error || !data || data.length === 0) {
       searchResults.innerHTML = '<div class="search-result-empty">Brak wyników.</div>';
@@ -109,7 +120,7 @@ window.__WEAPON_CATEGORIES = WEAPON_CATEGORIES;
 
     searchResults.innerHTML = data.map(s => `
       <button class="search-result-item" data-id="${s.id}">
-        ${s.image_url ? `<img src="${optimizedImage(s.image_url, 64)}" alt="" class="search-result-img" loading="lazy" />` : ''}
+        ${s.image_url ? `<img src="${optimizedImage(s.image_url, 64)}" srcset="${optimizedSrcset(s.image_url, [64, 128])}" sizes="36px" alt="" class="search-result-img" loading="lazy" width="36" height="27" />` : ''}
         <span class="search-result-text">
           <span class="search-result-name">${s.weapon} | ${s.name}</span>
           <span class="search-result-meta">${WEAPON_CATEGORIES[s.category] || s.category}</span>
@@ -161,7 +172,7 @@ window.__WEAPON_CATEGORIES = WEAPON_CATEGORIES;
     };
 
     const rows = [
-      { label: '', render: s => s.image_url ? `<img src="${optimizedImage(s.image_url, 200)}" alt="${s.weapon} | ${s.name}" class="compare-skin-img" loading="lazy" />` : '' },
+      { label: '', render: s => s.image_url ? `<img src="${optimizedImage(s.image_url, 160)}" srcset="${optimizedSrcset(s.image_url, [160, 320])}" sizes="160px" alt="${s.weapon} | ${s.name}" class="compare-skin-img" loading="lazy" width="160" height="90" />` : '' },
       { label: 'Skin', render: s => `<a href="/skins/${s.slug}" class="compare-skin-link">${s.weapon} | ${s.name}</a>` },
       { label: 'Kategoria', render: s => WEAPON_CATEGORIES[s.category] || s.category },
       { label: 'Rzadkość', render: s => rarityBadge(s) },

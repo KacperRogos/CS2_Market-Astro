@@ -24,21 +24,26 @@
     "fix:key-price": "tsx src/scripts/fix-key-price.ts",
     "test": "vitest run",
     "test:watch": "vitest",
-    "seo:check": "node scripts/seo-check.mjs"
+    "seo:check": "node scripts/seo-check.mjs",
+    "perf:check": "node scripts/perf-check.mjs"
   },
   "dependencies": {
     "@astrojs/netlify": "^8.0.0",
+    "@fontsource/orbitron": "^5.3.0",
+    "@fontsource/rajdhani": "^5.3.0",
+    "@fontsource/share-tech-mono": "^5.3.0",
     "@supabase/supabase-js": "^2.45.4",
     "@tailwindcss/postcss": "^4.3.1",
     "@tailwindcss/vite": "^4.3.1",
     "astro": "^7.0.2",
     "rxjs": "^7.8.2",
     "tailwindcss": "^4.3.1",
-    "typescript": "5.8"
+    "typescript": "5.8",
+    "web-vitals": "^6.2.3"
   },
   "devDependencies": {
-    "tsx": "^4.19.2",
     "@netlify/plugin-lighthouse": "^6.0.4",
+    "tsx": "^4.19.2",
     "vitest": "^3.2.4"
   }
 }

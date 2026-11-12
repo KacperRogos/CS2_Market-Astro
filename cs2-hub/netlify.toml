@@ -13,6 +13,28 @@
 
   [plugins.inputs]
     output_path = "reports/lighthouse.html"
+    fail_deploy_on_score_thresholds = "false"
+
+  [plugins.inputs.thresholds]
+    performance = 0.9
+    accessibility = 0.9
+    best-practices = 0.9
+    seo = 0.9
+
+  [[plugins.inputs.audits]]
+    path = "index.html"
+
+  [[plugins.inputs.audits]]
+    path = "kalkulator.html"
+
+  [[plugins.inputs.audits]]
+    path = "skins.html"
+
+  [[plugins.inputs.audits]]
+    path = "poradniki.html"
+
+  [[plugins.inputs.audits]]
+    path = "porownaj.html"
 
 [[headers]]
   for = "/*"
@@ -23,11 +45,11 @@
     Referrer-Policy = "strict-origin-when-cross-origin"
 
 [[headers]]
-  for = "/skins/*"
+  for = "/logo.webp"
   [headers.values]
-    Cache-Control = "public, max-age=3600, stale-while-revalidate=86400"
+    Cache-Control = "public, max-age=86400"
 
 [[headers]]
-  for = "/kalkulator/*"
+  for = "/favicon.*"
   [headers.values]
-    Cache-Control = "public, max-age=3600, stale-while-revalidate=86400"
+    Cache-Control = "public, max-age=86400"

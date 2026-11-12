@@ -2,7 +2,7 @@
 import Layout from '../../layouts/Layout.astro';
 import { absoluteUrl } from '../../lib/site';
 import Icon from '../../components/Icon.astro';
-import { RARITY_MAP, WEAPON_CATEGORIES, optimizedImage } from '../../data/skins';
+import { RARITY_MAP, WEAPON_CATEGORIES, optimizedImage, optimizedSrcset } from '../../data/skins';
 import { getAllSkins, getSkinsByWeapon } from '../../lib/skins';
 
 export async function getStaticPaths() {
@@ -29,7 +29,7 @@ const wearBoundaries = [
   { label: 'BS', max: 1.00, color: '#f44336' },
 ];
 
-const schema = {
+const productSchema = {
   "@context": "https://schema.org",
   "@type": "Product",
   "name": `${skin.weapon} | ${skin.name}`,
@@ -38,6 +38,18 @@ const schema = {
   "inLanguage": "pl",
   "category": WEAPON_CATEGORIES[skin.category]
 };
+
+const breadcrumbSchema = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Strona główna", "item": absoluteUrl('/') },
+    { "@type": "ListItem", "position": 2, "name": "Baza skinów", "item": absoluteUrl('/skins') },
+    { "@type": "ListItem", "position": 3, "name": `${skin.weapon} | ${skin.name}` }
+  ]
+};
+
+const schema = [productSchema, breadcrumbSchema];
 ---
 
 <Layout
@@ -58,7 +70,7 @@ const schema = {
     <div class="skin-hero-info">
       {skin.imageUrl && (
         <div class="skin-image-frame" style={`border-color: ${rarityInfo?.color}55`}>
-          <img src={optimizedImage(skin.imageUrl, 512)} alt={`${skin.weapon} | ${skin.name}`} loading="eager" width="512" height="384" />
+          <img src={optimizedImage(skin.imageUrl, 512)} srcset={optimizedSrcset(skin.imageUrl, [512, 1024])} sizes="(max-width: 640px) 100vw, 512px" alt={`${skin.weapon} | ${skin.name}`} loading="eager" fetchpriority="high" width="512" height="384" />
         </div>
       )}
       <div class="skin-meta-top">

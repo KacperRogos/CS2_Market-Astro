@@ -39,6 +39,10 @@ export function optimizedImage(url: string, width: number): string {
   return `/.netlify/images?url=${encodeURIComponent(url)}&w=${width}`;
 }
 
+export function optimizedSrcset(url: string, widths: number[]): string {
+  return widths.map(width => `${optimizedImage(url, width)} ${width}w`).join(', ');
+}
+
 /**
  * @deprecated Dane skinów żyją teraz w Supabase (tabela `skins`).
  * Ta tablica została użyta wyłącznie do jednorazowego seedu (seed-skins.ts)

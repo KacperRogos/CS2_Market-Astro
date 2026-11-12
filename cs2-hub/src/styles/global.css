@@ -1,7 +1,3 @@
-/* Fonty Google ładowane teraz przez <link> w Layout.astro (head), nie przez @import —
-   @import w CSS blokuje renderowanie, bo przeglądarka musi najpierw pobrać i sparsować
-   cały ten plik, zanim w ogóle zacznie pobierać fonty. Link w <head> ładuje się równolegle. */
-
 :root {
   --bg:       #0a0e14;
   --bg2:      #111720;
@@ -84,7 +80,9 @@ img { max-width: 100%; display: block; }
 .btn {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
+  min-height: 44px;
   padding: 10px 20px;
   border-radius: var(--radius);
   font-family: var(--font);

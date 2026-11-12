@@ -8,7 +8,7 @@ const articles = await getAllGuides();
 
 const categories = ['Wszystkie', ...new Set(articles.map(a => a.category))];
 
-const schema = {
+const blogSchema = {
   "@context": "https://schema.org",
   "@type": "Blog",
   "name": "Poradniki CS2 Trading Hub",
@@ -24,6 +24,17 @@ const schema = {
     "inLanguage": "pl",
   }))
 };
+
+const breadcrumbSchema = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Strona główna", "item": absoluteUrl('/') },
+    { "@type": "ListItem", "position": 2, "name": "Poradniki" }
+  ]
+};
+
+const schema = [blogSchema, breadcrumbSchema];
 ---
 
 <Layout
@@ -141,7 +152,7 @@ function filterCat(btn) {
 
 /* Category filter */
 .cat-filter { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:32px; }
-.cat-btn { background:var(--bg2); border:1px solid var(--border); border-radius:20px; padding:7px 18px; font-family:var(--font); font-size:13px; font-weight:600; color:var(--text2); cursor:pointer; transition:all 0.2s; letter-spacing:0.3px; }
+.cat-btn { background:var(--bg2); border:1px solid var(--border); border-radius:20px; padding:10px 18px; min-height:40px; font-family:var(--font); font-size:13px; font-weight:600; color:var(--text2); cursor:pointer; transition:all 0.2s; letter-spacing:0.3px; }
 .cat-btn:hover, .cat-btn.active { background:rgba(0,212,255,0.1); border-color:var(--border2); color:var(--accent); }
 
 /* Articles grid */

@@ -1,5 +1,9 @@
 ---
 import '../styles/global.css';
+import '../styles/fonts.css';
+import rajdhaniLatin400 from '@fontsource/rajdhani/files/rajdhani-latin-400-normal.woff2?url';
+import rajdhaniLatinExt400 from '@fontsource/rajdhani/files/rajdhani-latin-ext-400-normal.woff2?url';
+import orbitronLatin700 from '@fontsource/orbitron/files/orbitron-latin-700-normal.woff2?url';
 import { absoluteUrl } from '../lib/site';
 
 interface Props {
@@ -57,11 +61,10 @@ const fullTitle = title.includes('CS2') ? title : `${title} | CS2 Trading Hub`;
   <link rel="icon" type="image/png" href="/favicon.png" />
   <link rel="apple-touch-icon" href="/favicon.png" />
 
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="preconnect" href="https://community.cloudflare.steamstatic.com" />
 
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" />
+  <link rel="preload" as="font" type="font/woff2" href={rajdhaniLatin400} crossorigin />
+  <link rel="preload" as="font" type="font/woff2" href={rajdhaniLatinExt400} crossorigin />
+  <link rel="preload" as="font" type="font/woff2" href={orbitronLatin700} crossorigin />
 
   <slot name="head" />
 </head>
@@ -224,8 +227,8 @@ const fullTitle = title.includes('CS2') ? title : `${title} | CS2 Trading Hub`;
 <div class="cookie-banner" id="cookieBanner" style="display:none">
   <p>Używamy Google Analytics do analizy ruchu na stronie. Nie zbieramy danych bez Twojej zgody.</p>
   <div class="cookie-actions">
-    <button id="cookieReject" class="btn btn-ghost btn-small">Odrzuć</button>
-    <button id="cookieAccept" class="btn btn-primary btn-small">Akceptuję</button>
+    <button id="cookieReject" class="btn btn-ghost">Odrzuć</button>
+    <button id="cookieAccept" class="btn btn-primary">Akceptuję</button>
   </div>
 </div>
 
@@ -242,6 +245,22 @@ const fullTitle = title.includes('CS2') ? title : `${title} | CS2 Trading Hub`;
   const GA_MEASUREMENT_ID = import.meta.env.PUBLIC_GA_MEASUREMENT_ID;
   const CONSENT_KEY = 'cs2hub_ga_consent';
 
+  function reportWebVitals() {
+    import('web-vitals').then(({ onCLS, onINP, onLCP }) => {
+      const send = ({ name, delta, id, rating }) => {
+        window.gtag('event', name, {
+          value: Math.round(name === 'CLS' ? delta * 1000 : delta),
+          metric_id: id,
+          metric_rating: rating,
+          non_interaction: true,
+        });
+      };
+      onCLS(send);
+      onINP(send);
+      onLCP(send);
+    });
+  }
+
   function loadGoogleAnalytics() {
     if (!GA_MEASUREMENT_ID) return;
     const script = document.createElement('script');
@@ -254,6 +273,7 @@ const fullTitle = title.includes('CS2') ? title : `${title} | CS2 Trading Hub`;
     window.gtag = gtag;
     gtag('js', new Date());
     gtag('config', GA_MEASUREMENT_ID);
+    reportWebVitals();
   }
 
   const banner = document.getElementById('cookieBanner');
@@ -341,7 +361,11 @@ const fullTitle = title.includes('CS2') ? title : `${title} | CS2 Trading Hub`;
 .nav-toggle {
   display: none;
   flex-direction: column;
+  align-items: center;
+  justify-content: center;
   gap: 5px;
+  min-width: 44px;
+  min-height: 44px;
   background: none;
   border: none;
   cursor: pointer;

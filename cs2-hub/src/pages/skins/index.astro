@@ -1,7 +1,7 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import { absoluteUrl } from '../../lib/site';
-import { WEAPON_CATEGORIES, RARITY_MAP, optimizedImage, type WeaponCategory } from '../../data/skins';
+import { WEAPON_CATEGORIES, RARITY_MAP, optimizedImage, optimizedSrcset, type WeaponCategory } from '../../data/skins';
 import { getSkinsPage, getSkinCounts } from '../../lib/skins';
 
 const PAGE_SIZE = 30;
@@ -13,7 +13,7 @@ const [firstPage, counts] = await Promise.all([
 
 const categories = Object.keys(counts.byCategory) as WeaponCategory[];
 
-const schema = {
+const collectionSchema = {
   "@context": "https://schema.org",
   "@type": "CollectionPage",
   "name": "Baza skinów CS2",
@@ -21,13 +21,25 @@ const schema = {
   "url": absoluteUrl('/skins'),
   "inLanguage": "pl",
 };
+
+const breadcrumbSchema = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Strona główna", "item": absoluteUrl('/') },
+    { "@type": "ListItem", "position": 2, "name": "Baza skinów" }
+  ]
+};
+
+const schema = [collectionSchema, breadcrumbSchema];
 ---
 
 <Layout
   title="Baza skinów CS2 – opisy, ceny, float range"
   description="Kompletna baza skinów CS2. Opisy, float range, rarity i linki do Steam Market. AK-47, AWP, M4A4, M4A1-S, noże, rękawice i więcej."
   schema={schema}
->
+>  <link slot="head" rel="preconnect" href={import.meta.env.PUBLIC_SUPABASE_URL} crossorigin />
+
 <div class="container">
 
   <nav class="breadcrumb" aria-label="Breadcrumb">
@@ -68,7 +80,7 @@ const schema = {
         </div>
         {skin.imageUrl && (
           <div class="skin-card-image">
-            <img src={optimizedImage(skin.imageUrl, 256)} alt={`${skin.weapon} | ${skin.name}`} loading="lazy" width="256" height="192" />
+            <img src={optimizedImage(skin.imageUrl, 256)} srcset={optimizedSrcset(skin.imageUrl, [256, 512])} sizes="(max-width: 600px) 100vw, 280px" alt={`${skin.weapon} | ${skin.name}`} loading="lazy" width="256" height="192" />
           </div>
         )}
         <div class="skin-card-body">
@@ -119,8 +131,8 @@ const schema = {
 </Layout>
 
 <script>
-import { supabaseBrowser } from '../../lib/supabaseBrowser';
-import { RARITY_MAP, optimizedImage } from '../../data/skins';
+import { selectRows, ilikeAny } from '../../lib/publicApi';
+import { RARITY_MAP, optimizedImage, optimizedSrcset } from '../../data/skins';
 
 const PAGE_SIZE = 30; // musi być zgodne z PAGE_SIZE w frontmatterze (pierwsza strona renderowana server-side)
 
@@ -147,7 +159,7 @@ function renderCard(skin: any): string {
   const color = RARITY_MAP[skin.rarity]?.color || '#4b69ff';
   const label = RARITY_MAP[skin.rarity]?.label || skin.rarity;
   const img = skin.image_url
-    ? `<div class="skin-card-image"><img src="${optimizedImage(skin.image_url, 256)}" alt="${escapeHtml(skin.weapon)} | ${escapeHtml(skin.name)}" loading="lazy" width="256" height="192" /></div>`
+    ? `<div class="skin-card-image"><img src="${optimizedImage(skin.image_url, 256)}" srcset="${optimizedSrcset(skin.image_url, [256, 512])}" sizes="(max-width: 600px) 100vw, 280px" alt="${escapeHtml(skin.weapon)} | ${escapeHtml(skin.name)}" loading="lazy" width="256" height="192" /></div>`
     : '';
   const wears = (skin.wears || []).map((w: string) => `<span class="wear-dot" title="${escapeHtml(w)}"></span>`).join('');
   return `
@@ -178,17 +190,16 @@ async function loadMore() {
   loadingState.style.display = 'block';
   const myRequestId = requestId;
 
-  let query = supabaseBrowser
-    .from('skins')
-    .select('*')
-    .order('weapon', { ascending: true })
-    .order('name', { ascending: true })
-    .range(offset, offset + PAGE_SIZE - 1);
+  const filters: Record<string, string> = {};
+  if (activeCategory !== 'all') filters.category = `eq.${activeCategory}`;
 
-  if (activeCategory !== 'all') query = query.eq('category', activeCategory);
-  if (activeSearch) query = query.or(`weapon.ilike.%${activeSearch}%,name.ilike.%${activeSearch}%`);
-
-  const { data, error } = await query;
+  const { data, error } = await selectRows('skins', {
+    filters,
+    or: activeSearch ? ilikeAny(['weapon', 'name'], activeSearch) ?? undefined : undefined,
+    order: [['weapon', 'asc'], ['name', 'asc']],
+    limit: PAGE_SIZE,
+    offset,
+  });
 
   if (myRequestId !== requestId) return; // filtr/search zmienił się w międzyczasie — ignoruj
 
@@ -272,7 +283,8 @@ searchInput.addEventListener('input', () => {
   background:var(--bg2);
   border:1px solid var(--border);
   border-radius:20px;
-  padding:6px 16px;
+  padding:10px 18px;
+  min-height:40px;
   font-family:var(--font);
   font-size:13px;
   font-weight:600;
