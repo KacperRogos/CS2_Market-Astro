@@ -630,6 +630,16 @@ const CACHE_TTL = 5 * 60 * 1000;
 const FAILED_CACHE_TTL = 8 * 1000;
 const STEAM_USD_PLN = 3.6979;
 
+// Steam Community Market rate-limituje per IP (~20 req/min) a edge function dzieli jeden pool
+// między wszystkich userów — burst requestów odpala kaskadę retry'ów i to właśnie zabiera czas.
+const STEAM_MIN_GAP_MS = 1500;
+let steamLastDispatch = 0;
+async function steamRateGate() {
+  const wait = steamLastDispatch + STEAM_MIN_GAP_MS - Date.now();
+  if (wait > 0) await new Promise(r => setTimeout(r, wait));
+  steamLastDispatch = Date.now();
+}
+
 function showError(msg) {
   const el = document.getElementById('errorNotice');
   el.textContent = msg; el.classList.add('show');
@@ -641,6 +651,7 @@ function escapeHtml(str) {
 }
 
 async function steamFetch(steamUrl, appendServerKey = false) {
+  await steamRateGate();
   const resp = await fetch(`${SUPABASE_FUNCTIONS_URL}/steam-price`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` },
@@ -695,6 +706,7 @@ async function fetchPrice(marketHashName, knownIconUrl) {
 }
 
 async function fetchPriceWithRetry(marketHashName, attempt = 1) {
+  await steamRateGate();
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 10000);
   let resp;
@@ -707,7 +719,7 @@ async function fetchPriceWithRetry(marketHashName, attempt = 1) {
     });
   } catch (e) {
     clearTimeout(timeoutId);
-    if (attempt < 4) { await new Promise(r => setTimeout(r, 1500 * attempt)); return fetchPriceWithRetry(marketHashName, attempt + 1); }
+    if (attempt < 3) { await new Promise(r => setTimeout(r, 800 * attempt)); return fetchPriceWithRetry(marketHashName, attempt + 1); }
     return { success: false, error: e.name === 'AbortError' ? 'timeout' : e.message };
   }
   clearTimeout(timeoutId);
@@ -717,8 +729,8 @@ async function fetchPriceWithRetry(marketHashName, attempt = 1) {
   catch (e) { data = { success: false, error: 'invalid-json' }; }
 
   const shouldRetry = data && data.success === false;
-  if (shouldRetry && attempt < 6) {
-    await new Promise(r => setTimeout(r, 2000 * attempt + Math.random() * 600));
+  if (shouldRetry && attempt < 3) {
+    await new Promise(r => setTimeout(r, 600 * attempt + Math.random() * 300));
     return fetchPriceWithRetry(marketHashName, attempt + 1);
   }
   return data;
@@ -837,8 +849,7 @@ async function refreshAllItems() {
     if (refreshStopped || myGen !== refreshGeneration) break;
     const batch = items.slice(i, i + BATCH);
     batch.forEach(item => { item.loading = true; }); renderItems();
-    await Promise.all(batch.map(async (item, batchIdx) => {
-      if (batchIdx > 0) await new Promise(r => setTimeout(r, batchIdx * 250));
+    await Promise.all(batch.map(async (item) => {
       if (refreshStopped || myGen !== refreshGeneration) { item.loading = false; return; }
       const result = await fetchPrice(item.name, item.iconUrl);
       if (refreshStopped || myGen !== refreshGeneration) { item.loading = false; return; }
@@ -846,7 +857,6 @@ async function refreshAllItems() {
     }));
     if (refreshStopped || myGen !== refreshGeneration) break;
     saveItems(); renderItems();
-    if (i + BATCH < items.length && !refreshStopped) await new Promise(r => setTimeout(r, 700));
   }
   if (myGen !== refreshGeneration) return;
   if (btn) { btn.disabled = false; btn.classList.remove('spinning'); btn.innerHTML = refreshStopped ? `<span id="refreshAllIcon">⟳</span> Odśwież` : `<span id="refreshAllIcon">⟳</span> Odświeżono!`; if (!refreshStopped) setTimeout(() => { btn.innerHTML = `<span id="refreshAllIcon">⟳</span> Odśwież`; }, 2000); }
@@ -1383,7 +1393,6 @@ async function autoFetchAllPrices() {
       if(btn)btn.innerHTML=`<span style="display:inline-block;animation:spin 0.8s linear infinite">⟳</span> ${done}/${unpricedItems.length}`;
     }));
     saveItems(); renderItems();
-    if(i+BATCH<unpricedItems.length&&!refreshStopped) await new Promise(r=>setTimeout(r,900));
   }
   if(btn){btn.disabled=false;btn.classList.remove('spinning');btn.innerHTML='<span>⟳</span> Gotowe!';}
   if(stopBtn)stopBtn.style.display='none';
