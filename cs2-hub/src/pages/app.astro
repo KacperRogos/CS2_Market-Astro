@@ -785,9 +785,28 @@ function selectSuggestion(name) {
   document.getElementById('itemNameInput').value = name;
   document.getElementById('suggestions').style.display = 'none';
   document.getElementById('itemNameInput').focus();
+  confirmedNames.add(name);
 }
 
 document.addEventListener('click', e => { if (!e.target.closest('.input-group')) document.getElementById('suggestions').style.display = 'none'; });
+
+// Nazwy potwierdzone jako prawdziwy market_hash_name — pochodzą z podpowiedzi Steam,
+// nie trzeba ich weryfikować drugi raz przed dodaniem.
+const confirmedNames = new Set();
+
+async function resolveMarketName(name) {
+  try {
+    const url = `https://steamcommunity.com/market/search/render/?appid=730&norender=1&search_descriptions=0&query=${encodeURIComponent(name)}&start=0&count=10&currency=6`;
+    const data = await steamFetch(url);
+    const results = data?.results || [];
+    if (results.length === 0) return { ok: false, reason: 'not_found' };
+    const lower = name.toLowerCase();
+    const exact = results.find(r => (r.hash_name || r.name || '').toLowerCase() === lower);
+    if (exact) return { ok: true, name: exact.hash_name || exact.name, result: exact };
+    if (results.length === 1) return { ok: true, name: results[0].hash_name || results[0].name, result: results[0] };
+    return { ok: false, reason: 'ambiguous' };
+  } catch (e) { return { ok: false, reason: 'error' }; }
+}
 
 let addItemInProgress = false;
 async function addItem() {
@@ -796,15 +815,30 @@ async function addItem() {
   name = translateWearInInput(name);
   const qty = parseInt(document.getElementById('itemQtyInput').value) || 1;
   if (!name) { showError('Wpisz nazwę przedmiotu!'); addItemInProgress = false; return; }
-  const exists = items.find(i => i.name === name);
+  let exists = items.find(i => i.name === name);
   if (exists) { exists.qty += qty; saveItems(); renderItems(); addItemInProgress = false; return; }
-  const item = { id: Date.now(), name, qty, price: null, priceRaw: null, iconUrl: null, loading: true };
+
+  let resolvedIcon = suggestionIconCache.get(name) || null;
+  if (!confirmedNames.has(name)) {
+    const resolved = await resolveMarketName(name);
+    if (!resolved.ok) {
+      showError(resolved.reason === 'ambiguous'
+        ? `Kilka przedmiotów odpowiada nazwie "${name}" — wybierz konkretny z podpowiedzi pod polem.`
+        : `Nie znaleziono "${name}" na Steam Market. Działa tylko oficjalna angielska nazwa — wybierz ją z podpowiedzi pod polem.`);
+      addItemInProgress = false; return;
+    }
+    name = resolved.name;
+    resolvedIcon = resolvedIcon || resolved.result?.asset_description?.icon_url || null;
+    exists = items.find(i => i.name === name);
+    if (exists) { exists.qty += qty; saveItems(); renderItems(); addItemInProgress = false; return; }
+  }
+
+  const item = { id: Date.now(), name, qty, price: null, priceRaw: null, iconUrl: resolvedIcon, loading: true };
   items.push(item); saveItems(); renderItems();
   document.getElementById('itemNameInput').value = '';
   document.getElementById('itemQtyInput').value = '1';
-  const cachedIcon = suggestionIconCache.get(name);
-  if (cachedIcon) { item.iconUrl = cachedIcon; renderItems(); }
-  const result = await fetchPrice(name);
+  if (item.iconUrl) renderItems();
+  const result = await fetchPrice(name, item.iconUrl);
   item.loading = false;
   if (result) { if (result.price !== null) { item.price = result.price; item.priceRaw = result.raw; item.volume = result.volume; item.priceError = null; } else { item.priceError = result.errorCode || null; } if (result.iconUrl) item.iconUrl = result.iconUrl; }
   saveItems(); renderItems(); addItemInProgress = false;
