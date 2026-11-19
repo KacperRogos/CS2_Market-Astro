@@ -525,6 +525,7 @@ async function onLoginSuccess(user) {
     if (portfolio?.items && Array.isArray(portfolio.items) && portfolio.items.length > 0) {
       items = portfolio.items; localStorage.setItem('cs2_items', JSON.stringify(items));
     }
+    await loadYesterdayPrices();
   } catch(e) {}
   document.getElementById('authScreen').style.display = 'none';
   renderItems();
@@ -638,6 +639,34 @@ async function steamRateGate() {
   const wait = steamLastDispatch + STEAM_MIN_GAP_MS - Date.now();
   if (wait > 0) await new Promise(r => setTimeout(r, wait));
   steamLastDispatch = Date.now();
+}
+
+// Historia ceny per przedmiot — jeden wiersz w portfolio_item_snapshots na (user, przedmiot, dzień),
+// zamiast kruchego "snapshotPrice/snapshotDate" trzymanego w samym obiekcie przedmiotu.
+function dateStr(d) { return d.toISOString().slice(0, 10); }
+function todayStr() { return dateStr(new Date()); }
+function yesterdayStr() { return dateStr(new Date(Date.now() - 86400000)); }
+
+let yesterdayPriceMap = new Map();
+async function loadYesterdayPrices() {
+  if (!currentUser) return;
+  try {
+    const { data } = await _sb.from('portfolio_item_snapshots').select('item_name,price').eq('user_id', currentUser.id).eq('snapshot_date', yesterdayStr());
+    (data || []).forEach(r => yesterdayPriceMap.set(r.item_name, Number(r.price)));
+  } catch (e) { /* brak historii — po prostu nie pokażemy zmiany */ }
+}
+
+let snapshotSaveTimer = null;
+function scheduleTodaySnapshot() {
+  if (!currentUser) return;
+  clearTimeout(snapshotSaveTimer);
+  snapshotSaveTimer = setTimeout(recordTodaySnapshots, 2000);
+}
+async function recordTodaySnapshots() {
+  if (!currentUser) return;
+  const rows = items.filter(i => i.price !== null && i.price > 0).map(i => ({ user_id: currentUser.id, item_name: i.name, price: i.price, snapshot_date: todayStr() }));
+  if (rows.length === 0) return;
+  try { await _sb.from('portfolio_item_snapshots').upsert(rows, { onConflict: 'user_id,item_name,snapshot_date' }); } catch (e) { /* nie krytyczne — spróbujemy znów przy kolejnym odświeżeniu */ }
 }
 
 function showError(msg) {
@@ -841,23 +870,25 @@ async function addItem() {
   const result = await fetchPrice(name, item.iconUrl);
   item.loading = false;
   if (result) { if (result.price !== null) { item.price = result.price; item.priceRaw = result.raw; item.volume = result.volume; item.priceError = null; } else { item.priceError = result.errorCode || null; } if (result.iconUrl) item.iconUrl = result.iconUrl; }
-  saveItems(); renderItems(); addItemInProgress = false;
+  saveItems(); renderItems(); scheduleTodaySnapshot(); addItemInProgress = false;
 }
 
 function updateItemPrice(item, result) {
   if (!result || !result.price) { item.priceError = (result && result.errorCode) || item.priceError || null; return; }
   item.priceError = null;
-  const today = new Date().toDateString();
-  const yesterday = new Date(Date.now() - 86400000).toDateString();
-  if (!item.snapshotPrice || !item.snapshotDate) { item.snapshotPrice = result.price; item.snapshotDate = today; }
-  else if (item.snapshotDate !== today && item.snapshotDate !== yesterday) { item.snapshotPrice = item.price || result.price; item.snapshotDate = yesterday; }
   item.price = result.price; item.priceRaw = result.raw; item.lastUpdated = Date.now();
 }
 
 function increaseQty(id) { const item = items.find(i => i.id === id); if (!item) return; item.qty++; saveItems(); renderItems(); }
 function decreaseQty(id) { const item = items.find(i => i.id === id); if (!item) return; if (item.qty > 1) item.qty--; else items = items.filter(i => i.id !== id); saveItems(); renderItems(); }
 function setQty(id, val) { const item = items.find(i => i.id === id); if (!item) return; const p = parseInt(val, 10); if (isNaN(p) || p < 1) items = items.filter(i => i.id !== id); else item.qty = p; saveItems(); renderItems(); }
-function getPriceChange(item) { if (!item.snapshotPrice || !item.price) return null; const pct = ((item.price - item.snapshotPrice) / item.snapshotPrice) * 100; if (Math.abs(pct) < 0.01) return null; return pct; }
+function getPriceChange(item) {
+  const prev = yesterdayPriceMap.get(item.name);
+  if (!prev || !item.price) return null;
+  const pct = ((item.price - prev) / prev) * 100;
+  if (Math.abs(pct) < 0.01) return null;
+  return pct;
+}
 
 let refreshStopped = false;
 let refreshGeneration = 0;
@@ -896,7 +927,7 @@ async function refreshAllItems() {
   if (btn) { btn.disabled = false; btn.classList.remove('spinning'); btn.innerHTML = refreshStopped ? `<span id="refreshAllIcon">⟳</span> Odśwież` : `<span id="refreshAllIcon">⟳</span> Odświeżono!`; if (!refreshStopped) setTimeout(() => { btn.innerHTML = `<span id="refreshAllIcon">⟳</span> Odśwież`; }, 2000); }
   if (stopBtn) stopBtn.style.display = 'none';
   saveItems(); renderItems();
-  if (!refreshStopped) autoSnapshot();
+  if (!refreshStopped) { autoSnapshot(); scheduleTodaySnapshot(); }
 }
 
 async function refreshItem(id) {
@@ -905,7 +936,7 @@ async function refreshItem(id) {
   const result = await fetchPrice(item.name, item.iconUrl);
   item.loading = false; updateItemPrice(item, result);
   if (result) { if (result.volume) item.volume = result.volume; if (result.iconUrl) item.iconUrl = result.iconUrl; }
-  saveItems(); renderItems();
+  saveItems(); renderItems(); scheduleTodaySnapshot();
   setTimeout(() => { const card = document.getElementById('card-' + id); if (card) { const el = card.querySelector('.item-price-total'); if (el) { el.classList.remove('price-flash'); void el.offsetWidth; el.classList.add('price-flash'); } } }, 50);
 }
 
@@ -951,7 +982,7 @@ function buildCardHtml(item, idx) {
       <div class="item-price-single">${item.price !== null && item.price > 0 ? `${item.priceRaw || (item.price.toFixed(2).replace('.',',') + ' zł')} / szt.` : (item.priceError === 'rate_limited' ? '<span style="color:#ffb84d;font-size:12px">Steam ogranicza — spróbuj za chwilę</span>' : '<span style="color:#ff6b6b;font-size:12px">Nie znaleziono</span>')}</div>
       <div class="item-price-total">${item.price !== null && item.price > 0 ? (item.price * item.qty).toFixed(2).replace('.', ',') + ' zł' : ''}</div>
     </div>
-    ${pct !== null && item.snapshotPrice ? `<div class="price-history-row"><span class="price-history-label">Wczoraj:</span><span class="price-history-val">${item.snapshotPrice.toFixed(2).replace('.', ',')} zł</span></div>` : ''}
+    ${pct !== null ? `<div class="price-history-row"><span class="price-history-label">Wczoraj:</span><span class="price-history-val">${yesterdayPriceMap.get(item.name).toFixed(2).replace('.', ',')} zł</span></div>` : ''}
     <div class="item-actions">
       <button class="refresh-btn" onclick="refreshItem(${item.id})">⟳ Odśwież</button>
       <button class="btn btn-danger" onclick="removeItem(${item.id})">X</button>
@@ -994,10 +1025,10 @@ function updateStats() {
   const top = items.filter(i => i.price !== null && i.price > 0).sort((a, b) => b.price - a.price)[0];
   document.getElementById('statTop').textContent = top ? (top.name.split('|')[1]?.trim() || top.name.split(' ')[0]) : '—';
   const changeEl = document.getElementById('totalChangeDisplay');
-  const itemsWithSnapshot = items.filter(i => i.snapshotPrice && i.price && i.qty);
+  const itemsWithSnapshot = items.filter(i => yesterdayPriceMap.has(i.name) && i.price && i.qty);
   if (itemsWithSnapshot.length > 0) {
     const totalNow = itemsWithSnapshot.reduce((s, i) => s + i.price * i.qty, 0);
-    const totalYesterday = itemsWithSnapshot.reduce((s, i) => s + i.snapshotPrice * i.qty, 0);
+    const totalYesterday = itemsWithSnapshot.reduce((s, i) => s + yesterdayPriceMap.get(i.name) * i.qty, 0);
     const diff = totalNow - totalYesterday;
     const pct = totalYesterday > 0 ? (diff / totalYesterday) * 100 : 0;
     if (Math.abs(diff) >= 0.01) {
@@ -1310,7 +1341,7 @@ function buildMarketContext() {
   const portfolioStr = items.length===0 ? 'Portfel jest pusty.' : items.map(item => {
     const totalVal = ((item.price||0)*item.qty).toFixed(2); let changeStr='';
     const chg = getPriceChange(item);
-    if (chg!==null) changeStr = ` | zmiana vs wczoraj: ${chg>0?'+':''}${chg.toFixed(1)}% (wczoraj: ${item.snapshotPrice.toFixed(2)} zł)`;
+    if (chg!==null) changeStr = ` | zmiana vs wczoraj: ${chg>0?'+':''}${chg.toFixed(1)}% (wczoraj: ${yesterdayPriceMap.get(item.name).toFixed(2)} zł)`;
     return `- ${item.name}: ${item.priceRaw||(item.price?.toFixed(2)+' zł')||'brak ceny'} x${item.qty} = ${totalVal} zł${changeStr}`;
   }).join('\n');
   const trendStr = trendingCache.length>0 ? trendingCache.slice(0,15).map((r,i)=>`${i+1}. ${r.name} — ${r.priceRaw}`).join('\n') : 'Trending nie zostało załadowane.';
@@ -1430,6 +1461,7 @@ async function autoFetchAllPrices() {
   }
   if(btn){btn.disabled=false;btn.classList.remove('spinning');btn.innerHTML='<span>⟳</span> Gotowe!';}
   if(stopBtn)stopBtn.style.display='none';
+  scheduleTodaySnapshot();
 }
 
 function setImportStatus(type, msg) {
@@ -1533,8 +1565,8 @@ async function checkPublicPortfolio() {
 
 setInterval(async()=>{
   if(document.getElementById('stopRefreshBtn')?.style.display!=='none')return;
-  for(const item of items){if(!item.loading){const result=await fetchPrice(item.name, item.iconUrl);if(result){updateItemPrice(item,result);if(result.iconUrl)item.iconUrl=result.iconUrl;}await new Promise(r=>setTimeout(r,1000));}}
-  saveItems();renderItems();
+  for(const item of items){if(!item.loading){const result=await fetchPrice(item.name, item.iconUrl);if(result){updateItemPrice(item,result);if(result.iconUrl)item.iconUrl=result.iconUrl;}}}
+  saveItems();renderItems();scheduleTodaySnapshot();
 },5*60*1000);
 </script>
 
